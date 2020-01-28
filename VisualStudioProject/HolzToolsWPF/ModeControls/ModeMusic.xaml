@@ -1,0 +1,235 @@
+﻿<UserControl x:Class="HolzTools.ModeControls.ModeMusic"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HolzTools.ModeControls"
+             xmlns:uc="clr-namespace:HolzTools.UserControls"
+             xmlns:controls="clr-namespace:HolzTools.CustomControls"
+             xmlns:main="clr-namespace:HolzTools"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:ModeMusic, IsDesignTimeCreatable=True}"
+             d:DesignHeight="585" d:DesignWidth="740" >
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+    </UserControl.Resources>
+    <Grid>
+        <ScrollViewer Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                       Margin="0,20,0,0">
+                <WrapPanel.Resources>
+                    <Style TargetType="Border" x:Key="PanelCardStyle">
+                        <Setter Property="Margin" Value="10"/>
+                        <Setter Property="Width" Value="275"/>
+                        <Setter Property="CornerRadius" Value="4"/>
+                        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="VerticalAlignment" Value="Top"/>
+                    </Style>
+                </WrapPanel.Resources>
+                
+                <!-- Audio Properties -->
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Title -->
+                        <TextBlock Text="Audio Source:" Grid.Column="1" Grid.Row="3"
+                                   Foreground="White" FontSize="13" Margin="5"/>
+
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Input Audio Properties" 
+                                   Foreground="{DynamicResource AccentColor}"  
+                                   FontSize="16" FontWeight="SemiBold" 
+                                   Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Configure the audio the LEDs should react to.
+                                    Choose the output of an audio source with a sampling rate of 48000Hz to work correctly with the music mode.
+                                    Use the slider to select the frequency at which the LEDs should get brighter (On the left side are the lower frequencies like the bass and on the right side are higher frequencies).
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Device selector -->
+                        <ComboBox Background="Transparent" Grid.Column="1" 
+                                  Grid.Row="4" Width="200" Margin="5"
+                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
+                                  Foreground="White" x:Name="soundDevicesList"
+                                  SelectionChanged="SoundDevicesList_SelectionChanged"/>
+
+                        <!-- Frequency Slider -->
+                        <TextBlock Text="Reactive Frequency:" Grid.Column="1" 
+                                   Grid.Row="6" Foreground="White" FontSize="13"
+                                    Margin="5"/>
+                        <Grid Grid.Column="1" Grid.Row="7" Margin="5" Width="200">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Low" Grid.Column="0" FontSize="13" 
+                                       Foreground="White"/>
+                            <Slider x:Name="freqSlider" Grid.Column="1" Minimum="0" 
+                                    Maximum="15" 
+                                    Value="{Binding MusicFrequency}" 
+                                    IsSnapToTickEnabled="True"
+                                    Margin="10,0,10,0"/>
+                            <TextBlock Text="High" Grid.Column="2" FontSize="13"
+                                       Foreground="White"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Effect Properties -->
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Audio Effect" 
+                                       Foreground="{DynamicResource AccentColor}"
+                                       FontSize="16" FontWeight="SemiBold" 
+                                       Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Choose the mode which will react to the music.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Displayed Mode -->
+                        <ComboBox Background="Transparent" Grid.Column="1" 
+                                  Grid.Row="3" Width="200" Margin="5" 
+                                  Text="{Binding OverlappedMode, Mode=TwoWay}"
+                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
+                                  x:Name="overlappedMode">
+                            <ComboBoxItem Content="Static"/>
+                            <ComboBoxItem Content="Cycle"/>
+                            <ComboBoxItem Content="Rainbow"/>
+                            <ComboBoxItem Content="Color Overlay"/>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
+                <!-- Preview -->
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Title -->
+                        <TextBlock Text="Preview" 
+                                   Foreground="{DynamicResource AccentColor}" 
+                                   Grid.Column="1" Grid.Row="1" FontSize="16" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <!-- Fan -->
+                        <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
+                                          Margin="15,0,15,15"
+                                          Mode="{Binding OverlappedMode}" 
+                                          Background="{StaticResource CardBackground}"
+                                          DisplayedColor="Red" IsMusicMode="True"
+                                          Brightness="{Binding Intensity}"/>
+
+                        <!-- LED Stripes -->
+                        <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
+                                            VerticalAlignment="Center" 
+                                            Panel.ZIndex="100" Width="255"
+                                            Height="24" Speed="255"
+                                            DisplayedColor="Red"
+                                            Mode="{Binding OverlappedMode}"
+                                            Brightness="{Binding Intensity}"
+                                            IsMusicMode="True"/>
+                    </Grid>
+                </Border>
+            </WrapPanel>
+        </ScrollViewer>
+        
+        <!-- BASS.NET not active status -->
+        <Grid Background="#FF3C3C3C">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SoundAnalyzer.IsInitialized}"
+                                     Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="BASS.NET is not active" Grid.Column="1" Grid.Row="1"
+                       Foreground="White" FontSize="15"/>
+            <Button Content="Start BASS.NET" Grid.Column="1" Grid.Row="3" 
+                    Style="{StaticResource secondaryBtnStyle}" Background="Gray"
+                    Height="25" HorizontalAlignment="Center" Click="StartBassNetBtn_Click"/>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,124 @@
+﻿<UserControl x:Class="HolzTools.UserControls.ArduinoUploadWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HolzTools.UserControls"
+             xmlns:main="clr-namespace:HolzTools"
+             xmlns:controls="clr-namespace:HolzTools.CustomControls"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+    </UserControl.Resources>
+    <Border CornerRadius="4" Background="#FF464646">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="1" Grid.Row="1" CornerRadius="4" 
+                    Background="{DynamicResource CardBackground}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="25"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Text="Upload Settings" Margin="0,0,0,5"
+                               Foreground="{DynamicResource AccentColor}"  
+                               Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"
+                               FontSize="16" FontWeight="SemiBold"/>
+
+                    <!-- Arduino Model Selection -->
+                    <TextBlock Text="Arduino Model:" Foreground="White" 
+                               FontSize="14" Grid.Column="1" Grid.Row="3"
+                               Margin="5"/>
+
+                    <Grid Grid.Column="3" Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox x:Name="arduinoModelComboBox" Width="175" Margin="5"
+                                  Background="{DynamicResource CardBackground}" 
+                                  SelectionChanged="arduinoModelComboBox_SelectionChanged"
+                                  ItemContainerStyle="{StaticResource customComboBoxItemStyle}">
+                            <ComboBoxItem Content="Arduino Nano (R3)"/>
+                            <ComboBoxItem Content="Arduino Uno (R3)"/>
+                        </ComboBox>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Choose the Arduino Model you want the binary to be flashed on.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+
+                    <!-- COM-Port Selection-->
+                    <TextBlock Text="COM-Port:" Foreground="White" 
+                               FontSize="14" Grid.Column="1" Grid.Row="5"
+                               Margin="5"/>
+
+                    <Grid Grid.Column="3" Grid.Row="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox x:Name="comPortComboBox" Width="175" Margin="5"
+                                  Background="{DynamicResource CardBackground}" 
+                                  SelectionChanged="comPortComboBox_SelectionChanged"
+                                  ItemContainerStyle="{StaticResource customComboBoxItemStyle}"/>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Select the COM-Port where the Arduino on which you want to flash the binary is connected to.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+                    
+                </Grid>
+            </Border>
+
+            <!-- Buttons -->
+            <Grid Grid.Column="1" Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="25"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Row="3"
+                        Style="{StaticResource cancelBtnStyle}"
+                        Content="Cancel" Click="CancelBtn_Click"/>
+                <Button Grid.Column="2" Grid.Row="3"
+                        Style="{StaticResource applyBtnStyle}"
+                        Content="Upload to Arduino" Click="FlashBtn_Click"
+                        IsEnabled="{Binding InputValid}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

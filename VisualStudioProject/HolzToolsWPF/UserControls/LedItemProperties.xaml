@@ -1,0 +1,399 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HolzTools.UserControls"
+             xmlns:main="clr-namespace:HolzTools"
+             xmlns:controls="clr-namespace:HolzTools.CustomControls"
+             xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="HolzTools.UserControls.LedItemProperties"
+             mc:Ignorable="d" Width="292"
+             TextOptions.TextFormattingMode="Display">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+    </UserControl.Resources>
+    
+    <Border Grid.ColumnSpan="4" Grid.RowSpan="3" CornerRadius="4" 
+            Background="#FF464646">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!--General Properties Box-->
+            <Border Grid.Column="1" Grid.Row="1" CornerRadius="4" 
+                    Background="{DynamicResource CardBackground}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="General Properties" 
+                               Foreground="{DynamicResource AccentColor}" 
+                               Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
+                               FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                    <!--Name Property-->
+                    <TextBlock Text="Name:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="2" FontSize="14" Margin="5"/>
+                    <TextBox Grid.Column="2" Grid.Row="2" Text="{Binding SelectedItemName}" 
+                             TextAlignment="Center" FontSize="14" Height="23"
+                             VerticalAlignment="Bottom" Margin="20,0,35,0"
+                             Background="Transparent" Foreground="White" 
+                             BorderThickness="0,0,0,1" BorderBrush="White"/>
+
+                    <!--Type Property-->
+                    <TextBlock Text="Type:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="3" FontSize="14" Margin="5"/>
+
+                    <Grid Grid.Column="2" Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox BorderThickness="0"
+                              Margin="20,0,20,0" Height="20" Background="#232323"
+                              Foreground="White" Text="Select a Type" IsReadOnly="True"
+                              x:Name="typeComboBox" SelectedIndex="{Binding SelectedType}"
+                              SelectionChanged="TypeComboBox_SelectionChanged"
+                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                            <TextBlock Text="3-PIN A-RGB" Foreground="White"/>
+                            <TextBlock Text="4-PIN RGB" Foreground="White"/>
+                        </ComboBox>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Choose the type of your LEDs. 
+                                If you use LEDs that have 4 pins (red, green, blue, +12V) then choose 4-Pin RGB. 
+                                Else, when you are using WS2812B (other 5V A-RGB LEDs might also work, but are not tested) select 3-Pin A-RGB.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+
+                    <!--COM-Port Property-->
+                    <TextBlock Text="COM-Port:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="4" FontSize="14" Margin="5"/>
+
+                    <Grid Grid.Column="2" Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox BorderThickness="0"
+                              Margin="20,0,20,0" Height="20"
+                              Foreground="White" IsReadOnly="True"
+                              x:Name="comPortComboBox" Background="#232323"
+                              SelectedItem="{Binding SelectedComPort}"
+                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                        </ComboBox>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Select the COM-Port your device is connected to.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+
+                    <!--BAUD-Rate Property-->
+                    <TextBlock Text="Baud-Rate:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="5" FontSize="14" Margin="5"/>
+
+                    <Grid Grid.Column="2" Grid.Row="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+
+                        <TextBox Text="{Binding SelectedBaud}" 
+                                 TextAlignment="Center" FontSize="14" Height="23"
+                                 VerticalAlignment="Bottom" Margin="20,0,20,0"
+                                 Background="Transparent" Foreground="White" 
+                                 BorderThickness="0,0,0,1" BorderBrush="White"/>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Select the baud rate which is used on the 
+                                Arduino to communicate with your PC.
+                                The default is 4800 to ensure the best stability. 
+                                If you change the value in the program, 
+                                the code on the Arduino also has to be modified to 
+                                send the data with another baud rate. 
+                                Note that any changes you make 
+                                to the baud rate will be applied to all other LEDs that 
+                                are connected to the same Arduino.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--Type Properties Box-->
+            <Border Grid.Column="1" Grid.Row="3" CornerRadius="4" 
+                    Background="{DynamicResource CardBackground}">
+                <Grid>
+                    <Grid.Style>
+                        <Style TargetType="{x:Type Grid}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Visibility, 
+                                    ElementName=rgbPropertiesStackPanel}" 
+                                         Value="Visible">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation 
+                                                    Storyboard.TargetProperty="Height"
+                                                    From="114" To="143" Duration="0:0:0.1"
+                                                    FillBehavior="Stop"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation 
+                                                    Storyboard.TargetProperty="Height"
+                                                    From="143" To="114" Duration="0:0:0.1"
+                                                    FillBehavior="Stop"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Type-Specific Properties" 
+                               Foreground="{DynamicResource AccentColor}" 
+                               Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
+                               FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                    <!--3Pin Properties-->
+                    <StackPanel x:Name="argbPropertiesStackPanel" Grid.Row="2" 
+                                Grid.Column="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0"/>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="10"/>
+                            </Grid.RowDefinitions>
+
+                            <!--DPIN Property-->
+                            <TextBlock Text="D-Pin:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="2" FontSize="14" Margin="5"/>
+                            
+                            <Grid Grid.Column="2" Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBox  
+                                    Text="{Binding SelectedDPin}" 
+                                    TextAlignment="Center" FontSize="14" Height="23"
+                                    VerticalAlignment="Bottom" Margin="60,0,45,0"
+                                    Background="Transparent" Foreground="White" 
+                                    BorderThickness="0,0,0,1" BorderBrush="White"
+                                    PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Configure the data pin of your ARGB LEDs. 
+                                        Just put in the number of your digital pin on the Arduino. 
+                                        For example if you connected your data input to D3 then you must put in 3 into the field.
+                                        The data pin must be PWM compatible!
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+
+                            <!--LED Count Property-->
+                            <TextBlock Text="LED-Amount:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="3" FontSize="14" Margin="5"/>
+
+                            <Grid Grid.Column="2" Grid.Row="3" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Text="{Binding SelectedLedCount}"
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     VerticalAlignment="Bottom" Margin="60,0,45,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Put in the amount of LEDs that are on your connected ARGB-LED strip.
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+
+                    <!--4Pin Properties-->
+                    <StackPanel x:Name="rgbPropertiesStackPanel" Grid.Row="2" 
+                                Grid.Column="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0"/>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="10"/>
+                            </Grid.RowDefinitions>
+
+                            <!--RPIN Property-->
+                            <TextBlock Text="R-Pin:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="2" FontSize="14" Margin="5"/>
+
+                            <Grid Grid.Column="2" Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Text="{Binding SelectedRPin}"
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     VerticalAlignment="Bottom" Margin="60,0,60,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Configure the red pin of your RGB LED. 
+                                        Just put in the number of your digital pin on the Arduino. 
+                                        For example if you connected your red signal to D3 then you must put in 3 into the field.
+                                        The red pin must be PWM compatible!
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+
+                            <!--GPIN Property-->
+                            <TextBlock Text="G-Pin:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="3" FontSize="14" Margin="5"/>
+
+                            <Grid Grid.Column="2" Grid.Row="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Text="{Binding SelectedGPin}" 
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     VerticalAlignment="Bottom" Margin="60,0,60,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Configure the green pin of your RGB LED. 
+                                        Just put in the number of your digital pin on the Arduino. 
+                                        For example if you connected your green signal to D5 then you must put in 5 into the field.
+                                        The green pin must be PWM compatible!
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+
+                            <!--BPIN Property-->
+                            <TextBlock Text="B-Pin:" Foreground="White" Grid.Column="1" 
+                               Grid.Row="4" FontSize="14" Margin="5"/>
+
+                            <Grid Grid.Column="2" Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBox Text="{Binding SelectedBPin}"
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     VerticalAlignment="Bottom" Margin="60,0,60,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Configure the blue pin of your RGB LED. 
+                                        Just put in the number of your digital pin on the Arduino. 
+                                        For example if you connected your blue signal to D6 then you must put in 6 into the field.
+                                        The blue pin must be PWM compatible!
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Button x:Name="deleteItemBtn" Height="25" Content="Delete this LED"
+                    Style="{StaticResource cancelBtnStyle}"
+                    Grid.Column="1" Grid.Row="5" Click="DeleteItemBtn_Click"/>
+
+            <Button Content="Cancel" Grid.Column="1" Grid.Row="7" 
+                    Width="130" HorizontalAlignment="Left" Height="25"
+                    x:Name="cancelBtn" Click="CancelBtn_Click"
+                    Style="{StaticResource cancelBtnStyle}"/>
+            <Button Content="Apply" Grid.Column="1" Grid.Row="7" 
+                    Width="130" HorizontalAlignment="Right" Height="25"
+                    x:Name="applyBtn" Click="ApplyBtn_Click"
+                    Style="{StaticResource applyBtnStyle}"
+                    IsEnabled="{Binding MadeChanges}"/>
+        </Grid>
+    </Border>
+</UserControl>

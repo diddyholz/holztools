@@ -1,0 +1,38 @@
+﻿<Window x:Class="HolzTools.ArduinoBinaryDownloaderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HolzTools"
+        mc:Ignorable="d"
+        Title="UpdateWindow" Height="95" Width="400" WindowStyle="None"
+        ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+        TextOptions.TextFormattingMode="Display" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="#FFC80000"/>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.Opacity)"
+                                     From="0" To="1" Duration="0:0:0.05" 
+                                     FillBehavior="Stop"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Border CornerRadius="4"  Background="#FF464646" BorderThickness="1"
+            BorderBrush="{DynamicResource AccentColor}" x:Name="rootBorder">
+        <Grid>
+            <TextBlock Text="Updating Binary" Foreground="White" FontSize="15"
+                       Margin="10,10,0,0"/>
+            <ProgressBar x:Name="updateProgressBar" Height="15" BorderThickness="0"
+                     Foreground="{DynamicResource AccentColor}" Width="360"
+                     VerticalAlignment="Bottom" Margin="0,0,0,35"/>
+            <TextBlock x:Name="statusTextBlock" Text="Downloading" Foreground="White"
+                       VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                       Margin="0,0,0,12" FontSize="12"/>
+        </Grid>
+    </Border>
+</Window>

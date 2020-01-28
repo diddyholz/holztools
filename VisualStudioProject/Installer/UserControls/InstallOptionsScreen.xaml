@@ -1,0 +1,204 @@
+﻿<UserControl x:Class="Installer.UserControls.InstallOptionsScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Installer.UserControls"
+             mc:Ignorable="d"
+             Background="#FF464646"
+             d:DataContext="{d:DesignInstance local:InstallOptionsScreen, IsDesignTimeCreatable=True}"
+             d:DesignWidth="653.143" d:DesignHeight="372.215" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!-- Install Location Property -->
+            <Border Grid.Row="1" Width="500" CornerRadius="4" 
+                    Background="{StaticResource CardBackground}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Text="Install Location" Foreground="#C80000"  
+                               Grid.Column="1" Grid.Row="1" 
+                               FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                    <Grid Grid.Row="2" Grid.Column="1" Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="installDirectoryTextBox" Grid.Row="1" 
+                         Text="{Binding InstallationDirectory}" Foreground="#C8C8C8" 
+                                 FontSize="12">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Border x:Name="rootBorder"
+                                            BorderBrush="Gray" BorderThickness="1,1,0,1" 
+                                            CornerRadius="1,0,0,1" >
+                                                    <ScrollViewer 
+                                            x:Name="PART_ContentHost"
+                                            Padding="{TemplateBinding Padding}"
+                                            BorderThickness="0" IsTabStop="False" 
+                                            Margin="2" Background="{x:Null}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsFocused" Value="True">
+                                                        <Setter TargetName="rootBorder" 
+                                                    Property="BorderBrush" Value="#C80000"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Button Grid.Column="1" Width="40" 
+                                Click="OpenDirectoryDialog_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Border x:Name="rootBorder" BorderThickness="0"
+                                                CornerRadius="0,1,1,0" 
+                                                Background="#C80000" Padding="2">
+                                                    <TextBlock Background="Transparent"
+                                                         Text="..." Foreground="White"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Center"
+                                                           FontSize="15"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" 
+                                                                                    Storyboard.TargetName="rootBorder"
+                                                                                    From="#C80000" To="#960000" Duration="0:0:0.1" FillBehavior="Stop" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" 
+                                                                                    Storyboard.TargetName="rootBorder" From="#960000" To="#C80000" 
+                                                                                    Duration="0:0:0.1" FillBehavior="Stop" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                        <Setter Property="Background" TargetName="rootBorder" Value="#960000"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Shortcuts Property -->
+            <Border Grid.Row="3" Width="500" CornerRadius="4" 
+                    Background="{StaticResource CardBackground}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Text="Shortcuts" Foreground="#C80000"  
+                               Grid.Column="1" Grid.Row="1" 
+                               FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                    <CheckBox Grid.Row="2" Grid.Column="1" 
+                              IsChecked="{Binding CreateDesktopShortcut}" 
+                              Content="Create Desktop shortcut" Margin="5"
+                              Foreground="White" FontSize="12"/>
+
+                    <CheckBox Grid.Row="3" Grid.Column="1" 
+                              IsChecked="{Binding CreateStartMenuShortcut}" 
+                              Content="Create Startmenu shortcut" Margin="5"
+                              Foreground="White" FontSize="12"/>
+
+                    <CheckBox Grid.Row="4" Grid.Column="1" 
+                              IsChecked="{Binding AutoStart}" 
+                              Content="Automatically start with Windows (Recommended)"
+                              Margin="5"
+                              Foreground="White" FontSize="12"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Install Button -->
+        <Grid Background="#1e1e1e" Grid.ColumnSpan="3" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Content="Install" Style="{StaticResource applyBtnStyle}"
+                    Grid.Column="2" Margin="0,0,20,0" 
+                    IsEnabled="{Binding ElementName=agreeTermsConditions, Path=IsChecked}"
+                    Width="100" Click="InstallBtn_Click"/>
+
+            <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" 
+                      Foreground="White" x:Name="agreeTermsConditions">
+                <TextBlock>
+                    I agree to the
+                    <Hyperlink Click="Hyperlink_Click">terms and conditions</Hyperlink>
+                </TextBlock>
+            </CheckBox>
+        </Grid>
+    </Grid>
+</UserControl>

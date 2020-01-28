@@ -1,0 +1,71 @@
+﻿<Window x:Class="HolzTools.AlertWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HolzTools"
+        mc:Ignorable="d" WindowStyle="None" ResizeMode="NoResize"
+        Title="Alert" MaxWidth="300" AllowsTransparency="True"
+        SizeToContent="WidthAndHeight" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded"
+        Deactivated="Window_Deactivated">
+    <Window.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.Opacity)"
+                                     From="0" To="1" Duration="0:0:0.05" 
+                                     FillBehavior="Stop"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Border CornerRadius="4" Background="#FF2D2D2D" BorderThickness="1"
+            BorderBrush="{DynamicResource AccentColor}" x:Name="rootBorder">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!--Content-->
+            <TextBlock Text="{Binding Message, Mode=OneWay}" Foreground="White" TextWrapping="Wrap"
+                   Grid.Column="1" Grid.Row="1"/>
+
+            <!--Accept and cancel buttons-->
+            <Grid Grid.Row="3" Grid.Column="1" x:Name="YNBtnGrid" Visibility="Collapsed" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="No" Width="80" 
+                Height="25" x:Name="noBtn" Foreground="White" 
+                Style="{StaticResource cancelBtnStyle}" Click="YesNoBtn"
+                        IsCancel="True"/>
+                <Button Grid.Column="2" Content="Yes" Width="80"
+                Height="25" x:Name="yesBtn" Foreground="White"
+                Style="{StaticResource applyBtnStyle}" Click="YesNoBtn"
+                        IsDefault="True"/>
+            </Grid>
+
+            <Grid Grid.Row="3" Grid.Column="1" x:Name="OKBtnGrid">
+                <Button Grid.Column="2" Content="OK" Width="80"
+                Height="25" x:Name="okBtn" Foreground="White"
+                Style="{StaticResource applyBtnStyle}" Click="YesNoBtn"
+                        IsDefault="True"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

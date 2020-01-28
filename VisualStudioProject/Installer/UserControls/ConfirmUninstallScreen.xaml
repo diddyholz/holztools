@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="Installer.UserControls.ConfirmUninstallScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Installer.UserControls"
+             mc:Ignorable="d"
+             Background="#FF464646"
+             d:DataContext="{d:DesignInstance local:InstallOptionsScreen, IsDesignTimeCreatable=True}"
+             d:DesignWidth="653.143" d:DesignHeight="372.215" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Are you sure you want to permanently remove the program?"
+                   FontSize="20" Foreground="#EEEEEE" Grid.Column="1" Grid.Row="1"/>
+
+        <!-- Uninstall and Cancel Buttons -->
+        <Grid Background="#1e1e1e" Grid.ColumnSpan="3" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Cancel " Style="{StaticResource cancelBtnStyle}" 
+                    HorizontalAlignment="Right" Margin="0,0,20,0"
+                    Width="100" Click="CancelBtn_Click"
+                    Grid.Column="1"/>
+            <Button Content="Confirm " Style="{StaticResource applyBtnStyle}" 
+                    HorizontalAlignment="Right" Margin="0,0,20,0"
+                    Width="100" Click="UninstallBtn_Click"
+                    Grid.Column="2"/>
+        </Grid>
+    </Grid>
+</UserControl>

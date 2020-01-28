@@ -1,0 +1,175 @@
+﻿<Window x:Class="HolzTools.ChangeLogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HolzTools"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="ChangeLogWindow" MaxHeight="500" MaxWidth="400" 
+        Width="400" ResizeMode="NoResize" 
+        WindowStyle="None" WindowStartupLocation="CenterScreen" 
+        Background="Transparent" TextOptions.TextFormattingMode="Display"
+        AllowsTransparency="True" SizeToContent="Height">
+    <Window.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.Opacity)"
+                                     From="0" To="1" Duration="0:0:0.05" 
+                                     FillBehavior="Stop"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Border BorderBrush="Red" BorderThickness="1" Background="#FF2D2D2D" 
+            CornerRadius="4" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Text="Changelog for Version " Grid.Column="1" Grid.Row="1"
+                       FontSize="20" Foreground="White" x:Name="versionText"/>
+            <TextBlock Text="{Binding CurrentVersion}" Grid.Column="2" Grid.Row="1" FontSize="20" 
+                       Foreground="White"/>
+
+            <!-- Changelog -->
+            <ScrollViewer Grid.Column="1" Grid.Row="3" Margin="10,0,0,0"
+                          Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto"
+                          BorderThickness="0">
+                <StackPanel>
+                    <!-- Fix Grid -->
+                    <Grid x:Name="fixGrid" Visibility="Collapsed" 
+                          Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Fix" Foreground="#FFC80000" Grid.Row="0" 
+                               FontSize="15"/>
+
+                        <ItemsControl Background="Transparent" BorderThickness="0" Grid.Row="1"
+                                 ItemsSource="{Binding FixList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Column Width Border -->
+                                        <Border BorderThickness="0" Grid.Column="1" x:Name="wBorder"/>
+
+                                        <TextBlock Text="•" Grid.Column="0" Foreground="White" 
+                                       FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding}" Grid.Column="1" Foreground="White"
+                                       TextWrapping="WrapWithOverflow" 
+                                       MaxWidth="300"/>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+
+                    <!-- New Feature Grid -->
+                    <Grid x:Name="featureGrid" Visibility="Collapsed" 
+                          Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="New" Foreground="#FF64FF00" Grid.Row="0" 
+                               FontSize="15"/>
+
+                        <ItemsControl Background="Transparent" BorderThickness="0" Grid.Row="1"
+                             ItemsSource="{Binding FeatureList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Column Width Border -->
+                                        <Border BorderThickness="0" Grid.Column="1" x:Name="wBorder"/>
+
+                                        <TextBlock Text="•" Grid.Column="0" Foreground="White" 
+                                       FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding}" Grid.Column="1" Foreground="White"
+                                       TextWrapping="WrapWithOverflow" 
+                                       MaxWidth="335"/>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+
+                    <!-- Optimize Grid -->
+                    <Grid x:Name="optimizeGrid" Visibility="Collapsed"
+                          Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Optimize" Foreground="Orange" Grid.Row="0" 
+                               FontSize="15"/>
+
+                        <ItemsControl Background="Transparent" BorderThickness="0" Grid.Row="1"
+                             ItemsSource="{Binding OptimizeList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Column Width Border -->
+                                        <Border BorderThickness="0" Grid.Column="1" x:Name="wBorder"/>
+
+                                        <TextBlock Text="•" Grid.Column="0" Foreground="White" 
+                                       FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding}" Grid.Column="1" Foreground="White"
+                                       TextWrapping="WrapWithOverflow" 
+                                       MaxWidth="335"/>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </StackPanel>
+
+            </ScrollViewer>
+
+            <!-- OK Button -->
+            <Button x:Name="okBtn" Content="Got it!" Grid.Column="1" Grid.Row="5" 
+                    Grid.ColumnSpan="2" Width="100" Click="OkBtn_Click" 
+                    Style="{StaticResource applyBtnStyle}"/>
+        </Grid>
+    </Border>
+</Window>
