@@ -25,7 +25,7 @@
 * Click on apply and you are good to go!
 
 ## How to connect a 3-Pin addressable RGB LED-strip to an Arduino and make it work with HolzTools
-* [This](https://www.youtube.com/watch?v=9hJyyUTflXA) Video explains the wiring very good (Of course you don't need to the coding part from the video)
+* [This](https://www.youtube.com/watch?v=9hJyyUTflXA) Video explains the wiring very good (Of course you don't need to do the coding part from the video)
 * Make sure you use a powerful enough power supply because these LEDs are very power hungry (One WS2812B LED at full brightness with white color draws 60 mA)
 * In HolzTools you need to configure the following things for the LED 
     * LED type to 3-Pin
