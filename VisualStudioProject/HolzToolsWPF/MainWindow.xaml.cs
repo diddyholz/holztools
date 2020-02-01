@@ -1031,6 +1031,14 @@ namespace HolzTools
                 byte arg2 = 0;
                 byte arg3 = 0;
 
+                byte arg4 = 0;
+                byte arg5 = 0;
+                byte arg6 = 0;
+
+                byte arg7 = 0;
+                byte arg8 = 0;
+                byte arg9 = 0;
+
                 switch (mode)
                 {
                     case "Static":
@@ -1054,8 +1062,8 @@ namespace HolzTools
                         tmpMode = "CYCL";
 
                         //set the arguments for the usb message
-                        arg1 = modeCycle.Speed;
-                        arg2 = modeCycle.Brightness;
+                        arg7 = modeCycle.Speed;
+                        arg9 = modeCycle.Brightness;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1070,8 +1078,8 @@ namespace HolzTools
                         tmpMode = "RNBW";
 
                         //set the arguments for the usb message
-                        arg1 = modeRainbow.Speed;
-                        arg2 = modeRainbow.Brightness;
+                        arg7 = modeRainbow.Speed;
+                        arg9 = modeRainbow.Brightness;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1103,8 +1111,8 @@ namespace HolzTools
                         tmpMode = "OVRL";
 
                         //set the arguments for the usb message
-                        arg1 = modeOverlay.Speed;
-                        arg2 = modeOverlay.Direction;
+                        arg7 = modeOverlay.Speed;
+                        arg8 = modeOverlay.Direction;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1135,7 +1143,7 @@ namespace HolzTools
                 }
 
                 //generate the usb message:     #MODE(4)ISMUSIC(1)TYPE(1)PINS(6)COLOR/ARGS(3 x 3)ID(2)\\n
-                string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
+                string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{arg4.ToString("D3")}{arg5.ToString("D3")}{arg6.ToString("D3")}{arg7.ToString("D3")}{arg8.ToString("D3")}{arg9.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
 
                 ledItem.SerialWrite(message);
 

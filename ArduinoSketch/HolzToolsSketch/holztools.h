@@ -8,7 +8,6 @@
 #define MODE_RAINBOW 	 1
 #define MODE_CYCLE 		 2
 #define MODE_LIGHTNING	 3
-#define MODE_TEMPERATURE 4
 #define MODE_MUSIC		 5
 #define MODE_OVERLAY	 6
 #define MODE_OFF		 69
@@ -18,7 +17,15 @@
 #define TYPE_4RGB		 1
 
 //define arguments
-#define brightness 			direction
+#define ARG_PRED        arg1
+#define ARG_PGREEN      arg2
+#define ARG_PBLUE       arg3
+#define ARG_SRED        arg7
+#define ARG_SGREEN      arg8
+#define ARG_SBLUE       arg9
+#define ARG_SPEED       arg7
+#define ARG_DIRECTION   arg8
+#define ARG_BRIGHTNESS  arg9
 
 class LEDItem
 {
@@ -28,7 +35,7 @@ class LEDItem
 		LEDItem(byte _id);
 		int ID();
 		void DisplayMode();
-		void ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, int _music);
+		void ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6,  byte _arg7, byte _arg8, byte _arg9, int _music);
 		void SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte _gPin, byte _bPin);
 		void SetSoundIntensity(byte _intensity);
 	private:
@@ -58,22 +65,27 @@ class LEDItem
 
 		bool music = false;
 
-		byte arg1 = 0;
-		byte arg2 = 0;
-		byte arg3 = 0;
+    byte arg1 = 0;            //primary red
+    byte arg2 = 0;            //primary green
+    byte arg3 = 0;            //primary blue
+    
+    byte arg4 = 0;            //secondary red
+    byte arg5 = 0;            //secondary green
+    byte arg6 = 0;            //secondary blue
+    
+    byte arg7 = 0;            //speed
+    byte arg8 = 0;            //direction
+    byte arg9 = 0;            //brightness
 
 		byte modeCurLed = 0;
-
-		byte direction = 0;
-
-		byte speed = 0;
+    
 		byte passedMS = 0;				//the passed miliseconds after a mode was updated
 
 		byte lightningStep = 0;
 		
 		byte curColor = 0;
 
-		byte soundIntensity = 0;
+    byte soundIntensity = 0;
 
 		byte shownRed = 0;
 		byte shownGreen = 0;

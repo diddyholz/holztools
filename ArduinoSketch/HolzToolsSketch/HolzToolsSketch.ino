@@ -1,5 +1,7 @@
 #include "holztools.h"
 
+#define BAUDRATE 4800
+
 const String binaryVer = "1.00";
 const String arduinoModel = "NanoR3";
 
@@ -15,7 +17,7 @@ void decodeMessage(String message);
 
 void setup() 
 {
-  Serial.begin(4800);
+  Serial.begin(BAUDRATE);
 }
 
 void loop() 
@@ -56,6 +58,12 @@ void decodeMessage(String message)
   byte arg1 = 0;
   byte arg2 = 0;
   byte arg3 = 0;
+  byte arg4 = 0;
+  byte arg5 = 0;
+  byte arg6 = 0;
+  byte arg7 = 0;
+  byte arg8 = 0;
+  byte arg9 = 0;
   byte id = 0;
   byte overlapedMode = 0;
 
@@ -109,9 +117,21 @@ void decodeMessage(String message)
   arg2 = temp.toInt();
   temp = message.substring(19, 22);
   arg3 = temp.toInt();
+  temp = message.substring(22, 25);
+  arg4 = temp.toInt();
+  temp = message.substring(25, 28);
+  arg5 = temp.toInt();
+  temp = message.substring(28, 31);
+  arg6 = temp.toInt();
+  temp = message.substring(31, 34);
+  arg7 = temp.toInt();
+  temp = message.substring(34, 37);
+  arg8 = temp.toInt();
+  temp = message.substring(37, 40);
+  arg9 = temp.toInt();
 
   //get the id
-  temp = message.substring(22,24);
+  temp = message.substring(40,42);
   id = temp.toInt();
 
   bool idExists = false;
@@ -138,7 +158,7 @@ void decodeMessage(String message)
   }
   
   ledItem->SetupItem(type, ledCount, dPin, rPin, gPin, bPin);
-  ledItem->ChangeMode(mode, arg1, arg2, arg3, isMusic);
+  ledItem->ChangeMode(mode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, isMusic);
   
   Serial.print(F("Set item to mode: "));
   Serial.println(mode);

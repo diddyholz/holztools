@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <ArduinoTrace.h>
 #include "holztools.h"
 
 byte LEDItem::ItemCount = 0;
@@ -28,16 +27,23 @@ void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte
 	setupPins();
 }
 
-void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, int _music)
+void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6, byte _arg7, byte _arg8, byte _arg9, int _music)
 {
 	curMode = _mode;
-	
-	arg1 = _arg1;
-	speed = _arg1;
-	passedMS = 0;
-	arg2 = _arg2;
-	direction = _arg2;
-	arg3 = _arg3;
+  
+  ARG_PRED = _arg1;
+  ARG_PGREEN = _arg3;
+  ARG_PBLUE = _arg2;
+ 
+  ARG_SRED = _arg4;
+  ARG_SGREEN = _arg5;
+  ARG_SBLUE = _arg6;
+ 
+  ARG_SPEED = _arg7;
+  ARG_DIRECTION = _arg8;
+  ARG_BRIGHTNESS = _arg9;
+  
+  passedMS = 0;
 	
 	lightningStep = 0;
 
@@ -47,7 +53,7 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, int _mu
 		music = true;
 	
 	//set the current led in lightning mode for right direction
-	if(_arg2 == 0)
+	if(ARG_DIRECTION == 0)
 		modeCurLed = 0;   
 	else
 		modeCurLed = ledCount - 1;
@@ -55,18 +61,18 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, int _mu
 	//reset the colors for the cycle mode to succesfully cycle
 	if(_mode == MODE_CYCLE)
 	{
-		arg1 = 255;
-		arg2 = 0;
-		arg3 = 0;
+		ARG_PRED = 255;
+		ARG_PGREEN = 0;
+		ARG_PBLUE = 0;
 	}
 	//set the correct speed for lightning and static
 	else if (_mode == MODE_LIGHTNING)
 	{
-		speed = 25;
+		ARG_SPEED = 20;
 	}
 	else if (_mode == MODE_STATIC)
 	{
-		speed = 10;
+		ARG_SPEED = 10;
 	}
 }
 
@@ -77,7 +83,7 @@ void LEDItem::SetSoundIntensity(byte _intensity)
 
 void LEDItem::DisplayMode()
 {
-	if (passedMS == speed)
+	if (passedMS == ARG_SPEED)
 	{
 		switch (curMode)
 		{
@@ -92,9 +98,6 @@ void LEDItem::DisplayMode()
 				break;
 			case MODE_LIGHTNING:
 				modeLightning();
-				break;
-			case MODE_TEMPERATURE:
-				Serial.println(F("MissingMo"));
 				break;
 			case MODE_OVERLAY:
 				modeOverlay();
@@ -189,15 +192,15 @@ void LEDItem::modeOverlay()
 
 	if (music)
 	{
-		shownRed = arg1 * (float)((float)soundIntensity / 255.00);
-		shownGreen = arg2 * (float)((float)soundIntensity / 255.00);
-		shownBlue = arg3 * (float)((float)soundIntensity / 255.00);
+		shownRed = ARG_PRED * (float)((float)soundIntensity / 255.00);
+		shownGreen = ARG_PGREEN * (float)((float)soundIntensity / 255.00);
+		shownBlue = ARG_PBLUE * (float)((float)soundIntensity / 255.00);
 	}
 	else
 	{
-		shownRed = arg1;
-		shownGreen = arg2;
-		shownBlue = arg3;
+		shownRed = ARG_PRED;
+		shownGreen = ARG_PGREEN;
+		shownBlue = ARG_PBLUE;
 	}
 
 	if (type == TYPE_ARGB)
@@ -216,7 +219,7 @@ void LEDItem::modeOverlay()
 	}
 
 	//higher the next led
-	if (direction == 0)
+	if (ARG_DIRECTION == 0)
 	{
 		modeCurLed++;
 	}
@@ -236,7 +239,7 @@ void LEDItem::modeOverlay()
 			curColor = 0;
 		}
 
-		if (direction == 0)
+		if (ARG_DIRECTION == 0)
 		{
 			modeCurLed = 0;
 		}
@@ -264,7 +267,7 @@ void LEDItem::modeRainbow()
 			//higher the hue
 			for (int x = 0; x < ledCount; x++)
 			{
-				ledColors[x] = CHSV(hue[x]++, 255, arg2);
+				ledColors[x] = CHSV(hue[x]++, 255, ARG_BRIGHTNESS);
 			}
 		}
 
@@ -286,15 +289,23 @@ void LEDItem::modeLightning()
 {
 	if(type == TYPE_ARGB)
 	{
-		if(modeCurLed != ledCount)
+		if(modeCurLed - 2 != ledCount)
 		{
 			for(int x = 0; x <= ledCount; x++)
 			{
 				//check if the Led is the current displayed led
 				if(x == modeCurLed)
 				{
-					ledColors[x] = CRGB(arg1, arg2, arg3);
+					ledColors[x] = CRGB(ARG_PRED, ARG_PGREEN, ARG_PBLUE);
 				}
+        else if((x - 1 == modeCurLed) || (x + 1 == modeCurLed))
+        {
+          ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+        }
+        else if((x - 2 == modeCurLed) || (x + 2 == modeCurLed))
+        {
+          ledColors[x] = CRGB(ARG_PRED * 0.01, ARG_PGREEN * 0.01, ARG_PBLUE * 0.01);
+        }
 				else
 				{
 					ledColors[x] = CRGB(0, 0, 0);
@@ -316,7 +327,7 @@ void LEDItem::modeLightning()
 
 			if (lightningStep == 40)
 			{
-				modeCurLed = 0;
+				modeCurLed = 254;
 
 				lightningStep = 0;
 			}
@@ -326,9 +337,9 @@ void LEDItem::modeLightning()
 	{
 		if (lightningStep == 0)
 		{
-			analogWrite(rPin, arg1);
-			analogWrite(gPin, arg2);
-			analogWrite(bPin, arg3);
+			analogWrite(rPin, ARG_PRED);
+			analogWrite(gPin, ARG_PGREEN);
+			analogWrite(bPin, ARG_PBLUE);
 		}
 		else if (lightningStep == 40)
 		{
@@ -345,10 +356,10 @@ void LEDItem::modeCycle()
 {
 	if(redGoingDown)
 	{
-		if(arg1 != 0)
+		if(ARG_PRED != 0)
 		{
-			arg1--;
-			arg2++;
+			ARG_PRED--;
+			ARG_PGREEN++;
 		}
 		else 
 		{
@@ -358,10 +369,10 @@ void LEDItem::modeCycle()
 	} 
 	else if(greenGoingDown)
 	{
-		if(arg2 != 0)
+		if(ARG_PGREEN != 0)
 		{
-			arg2--;
-			arg3++;
+			ARG_PGREEN--;
+			ARG_PBLUE++;
 		}
 		else 
 		{
@@ -371,10 +382,10 @@ void LEDItem::modeCycle()
 	}
 	else if(blueGoingDown)
 	{
-		if(arg3 != 0)
+		if(ARG_PBLUE != 0)
 		{
-			arg3--;
-			arg1++;
+			ARG_PBLUE--;
+			ARG_PRED++;
 		}
 		else 
 		{
@@ -385,15 +396,15 @@ void LEDItem::modeCycle()
   
 	if(music)
 	{
-		shownRed = arg1 * (float)((float)soundIntensity / 255.00);
-		shownGreen = arg2 * (float)((float)soundIntensity / 255.00);
-		shownBlue = arg3 * (float)((float)soundIntensity / 255.00);
+		shownRed = ARG_PRED * (float)((float)soundIntensity / 255.00);
+		shownGreen = ARG_PGREEN * (float)((float)soundIntensity / 255.00);
+		shownBlue = ARG_PBLUE * (float)((float)soundIntensity / 255.00);
 	}
 	else
 	{
-		shownRed = arg1 * (float)((float)brightness / 255.00);
-		shownGreen = arg2 * (float)((float)brightness / 255.00);
-		shownBlue = arg3 * (float)((float)brightness / 255.00);
+		shownRed = ARG_PRED * (float)((float)ARG_BRIGHTNESS / 255.00);
+		shownGreen = ARG_PGREEN * (float)((float)ARG_BRIGHTNESS / 255.00);
+		shownBlue = ARG_PBLUE * (float)((float)ARG_BRIGHTNESS / 255.00);
 	}	
   
 	if(type == TYPE_ARGB)
@@ -417,15 +428,15 @@ void LEDItem::modeStatic()
 {	
 	if(music)
 	{
-		shownRed = arg1 * (float)((float)soundIntensity / 255.00);
-		shownGreen = arg2 * (float)((float)soundIntensity / 255.00);
-		shownBlue = arg3 * (float)((float)soundIntensity / 255.00);
+		shownRed = ARG_PRED * (float)((float)soundIntensity / 255.00);
+		shownGreen = ARG_PGREEN * (float)((float)soundIntensity / 255.00);
+		shownBlue = ARG_PBLUE * (float)((float)soundIntensity / 255.00);
 	}
 	else
 	{
-		shownRed = arg1;
-		shownGreen = arg2;
-		shownBlue = arg3;
+		shownRed = ARG_PRED;
+		shownGreen = ARG_PGREEN;
+		shownBlue = ARG_PBLUE;
 	}
 	
 	if(type == TYPE_ARGB)
@@ -470,75 +481,75 @@ void LEDItem::setOverlayColor()
 		switch(curColor)
 		{
 		  case 0:
-			arg1 = 255;
-			arg2 = 0;
-			arg3 = 0;
+			ARG_PRED = 255;
+			ARG_PGREEN = 0;
+			ARG_PBLUE = 0;
 			break;
 			
 		  case 1:
-			arg1 = 255;
-			arg2 = 127;
-			arg3 = 0;
+			ARG_PRED = 255;
+			ARG_PGREEN = 127;
+			ARG_PBLUE = 0;
 			break;
 			
 		  case 2:
-			arg1 = 255;
-			arg2 = 255;
-			arg3 = 0;
+			ARG_PRED = 255;
+			ARG_PGREEN = 255;
+			ARG_PBLUE = 0;
 			break;
 
 		  case 3:
-			arg1 = 127;
-			arg2 = 255;
-			arg3 = 0;
+			ARG_PRED = 127;
+			ARG_PGREEN = 255;
+			ARG_PBLUE = 0;
 			break;
 
 		  case 4:
-			arg1 = 0;
-			arg2 = 255;
-			arg3 = 0;
+			ARG_PRED = 0;
+			ARG_PGREEN = 255;
+			ARG_PBLUE = 0;
 			break;
 			
 		  case 5:
-			arg1 = 0;
-			arg2 = 255;
-			arg3 = 127;
+			ARG_PRED = 0;
+			ARG_PGREEN = 255;
+			ARG_PBLUE = 127;
 			break;
 
 		  case 6:
-			arg1 = 0;
-			arg2 = 255;
-			arg3 = 255;
+			ARG_PRED = 0;
+			ARG_PGREEN = 255;
+			ARG_PBLUE = 255;
 			break;
 			
 		  case 7:
-			arg1 = 0;
-			arg2 = 127;
-			arg3 = 255;
+			ARG_PRED = 0;
+			ARG_PGREEN = 127;
+			ARG_PBLUE = 255;
 			break;
 
 		  case 8:
-			arg1 = 0;
-			arg2 = 0;
-			arg3 = 255;
+			ARG_PRED = 0;
+			ARG_PGREEN = 0;
+			ARG_PBLUE = 255;
 			break;
 
 		  case 9:
-			arg1 = 127;
-			arg2 = 0;
-			arg3 = 255;
+			ARG_PRED = 127;
+			ARG_PGREEN = 0;
+			ARG_PBLUE = 255;
 			break;
 			
 		  case 10:
-			arg1 = 255;
-			arg2 = 0;
-			arg3 = 255;
+			ARG_PRED = 255;
+			ARG_PGREEN = 0;
+			ARG_PBLUE = 255;
 			break;
 			
 		  case 11:
-			arg1 = 255;
-			arg2 = 0;
-			arg3 = 127;
+			ARG_PRED = 255;
+			ARG_PGREEN = 0;
+			ARG_PBLUE = 127;
 			break;
 		}
 	}
@@ -553,7 +564,7 @@ void LEDItem::setOverlayColor()
 			curColor = 0;
 		}
 
-		if(direction == 0)
+		if(ARG_DIRECTION == 0)
 		{
 			modeCurLed = 0;
 		}
