@@ -27,7 +27,7 @@ void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte
 	setupPins();
 }
 
-void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6, byte _arg7, byte _arg8, byte _arg9, int _music)
+void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6, byte _arg7, byte _arg8, byte _arg9, byte _music)
 {
 	curMode = _mode;
   
@@ -52,24 +52,24 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _a
 	else
 		music = true;
 	
-	//set the current led in lightning mode for right direction
+	//set the current led 
 	if(ARG_DIRECTION == 0)
 		modeCurLed = 0;   
 	else
 		modeCurLed = ledCount - 1;
 	
-	//reset the colors for the cycle mode to succesfully cycle
 	if(_mode == MODE_CYCLE)
 	{
+    //reset the colors for the cycle mode to succesfully cycle
 		ARG_PRED = 255;
 		ARG_PGREEN = 0;
 		ARG_PBLUE = 0;
 	}
-	//set the correct speed for lightning and static
-	else if (_mode == MODE_LIGHTNING)
-	{
-		ARG_SPEED = 20;
-	}
+  else if (_mode == MODE_LIGHTNING)
+  {
+    //set the correct speed for lightning and static
+    ARG_SPEED = 20;
+  }
 	else if (_mode == MODE_STATIC)
 	{
 		ARG_SPEED = 10;
@@ -99,9 +99,12 @@ void LEDItem::DisplayMode()
 			case MODE_LIGHTNING:
 				modeLightning();
 				break;
-			case MODE_OVERLAY:
-				modeOverlay();
-				break;
+      case MODE_OVERLAY:
+        modeOverlay();
+        break;
+      case MODE_SPINNER:
+        modeSpinner();
+        break;
 			case MODE_OFF:
 				modeOff();
 				break;
@@ -118,13 +121,7 @@ void LEDItem::DisplayMode()
 void LEDItem::setupPins()
 {
 	if(type == TYPE_ARGB)
-	{
-		for(int x = 0; x < alreadySetupPinsCount; x++)
-		{
-			if(alreadySetupPins[x] == dPin)
-				return;
-		}
-		
+	{		
 		pinMode(dPin, OUTPUT);
 		Serial.print(F("Setup DPin "));
 		Serial.println(dPin);
@@ -157,9 +154,6 @@ void LEDItem::setupPins()
 				break;
 		}
 		
-		alreadySetupPins[alreadySetupPinsCount] = dPin;
-		alreadySetupPinsCount++;
-		
 		Serial.println(F("Created FastLED"));
 		Serial.flush();
 	}
@@ -180,7 +174,6 @@ void LEDItem::setupPins()
 		Serial.println(bPin);
 		Serial.flush();
 		
-		skipB:
 		return;
 	}
 }
@@ -257,7 +250,7 @@ void LEDItem::modeRainbow()
 		if(music)
 		{
 			//higher the hue
-			for (int x = 0; x < ledCount; x++)
+			for (byte x = 0; x < ledCount; x++)
 			{
 				ledColors[x] = CHSV(hue[x]++, 255, soundIntensity);
 			}
@@ -265,7 +258,7 @@ void LEDItem::modeRainbow()
 		else
 		{
 			//higher the hue
-			for (int x = 0; x < ledCount; x++)
+			for (byte x = 0; x < ledCount; x++)
 			{
 				ledColors[x] = CHSV(hue[x]++, 255, ARG_BRIGHTNESS);
 			}
@@ -276,7 +269,7 @@ void LEDItem::modeRainbow()
 	else
 	{
 		//set the hue for each led
-		for (int x = 0; x < ledCount; x++)
+		for (byte x = 0; x < ledCount; x++)
 		{
 			hue[x] = 255 / ledCount * x;
 		}
@@ -291,7 +284,7 @@ void LEDItem::modeLightning()
 	{
 		if(modeCurLed - 2 != ledCount)
 		{
-			for(int x = 0; x <= ledCount; x++)
+			for(byte x = 0; x <= ledCount; x++)
 			{
 				//check if the Led is the current displayed led
 				if(x == modeCurLed)
@@ -352,6 +345,68 @@ void LEDItem::modeLightning()
 	}
 }
 
+void LEDItem::modeSpinner()
+{
+ if(type == TYPE_ARGB)
+  {
+    if(modeCurLed == ledCount)
+      modeCurLed = 0;
+    
+    for(byte x = 0; x < ledCount + ARG_LENGTH; x++)
+    {
+      //check if the Led is the current displayed led
+      if(x == modeCurLed)
+      {
+        ledColors[x] = CRGB(ARG_PRED, ARG_PGREEN, ARG_PBLUE);
+      }
+      else if(((x > modeCurLed) && (x <= modeCurLed + ARG_LENGTH)) || ((x < modeCurLed) && (x >= modeCurLed - ARG_LENGTH)))
+      {
+        //light up all leds around the main led
+        ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+
+        if(x + 1 > ledCount)
+        {
+          for(byte c = 0; c < (x + 1) - ledCount; c++)
+          {
+            ledColors[c] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+          }
+        }
+      }
+      else if(ledCount + (modeCurLed - ARG_LENGTH) <= x)
+      {
+        //light up the LED's on the end of the LED-strip
+        ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+      }
+      else
+      {
+        ledColors[x] = CRGB(ARG_SRED, ARG_SGREEN, ARG_SBLUE);
+      }
+    }
+
+    FastLED.show();
+
+    //higher the next led
+    modeCurLed++;
+  }
+  else if(type == TYPE_4RGB)
+  {
+    if (lightningStep == 0)
+    {
+      analogWrite(rPin, ARG_PRED);
+      analogWrite(gPin, ARG_PGREEN);
+      analogWrite(bPin, ARG_PBLUE);
+    }
+    else if (lightningStep == 40)
+    {
+      analogWrite(rPin, 0);
+      analogWrite(gPin, 0);
+      analogWrite(bPin, 0);
+    }
+
+    lightningStep++;
+  }
+}
+
 void LEDItem::modeCycle()
 {
 	if(redGoingDown)
@@ -409,7 +464,7 @@ void LEDItem::modeCycle()
   
 	if(type == TYPE_ARGB)
 	{
-		for(int x = 0; x < ledCount; x++)
+		for(byte x = 0; x < ledCount; x++)
 		{
 			ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
 		}
@@ -441,7 +496,7 @@ void LEDItem::modeStatic()
 	
 	if(type == TYPE_ARGB)
 	{
-		for(int x = 0; x < ledCount; x++)
+		for(byte x = 0; x < ledCount; x++)
 		{
 			ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
 		}
@@ -460,7 +515,7 @@ void LEDItem::modeOff()
 {
 	if(type == TYPE_ARGB)
 	{
-		for(int x = 0; x < ledCount; x++)
+		for(byte x = 0; x < ledCount; x++)
 		{
 			ledColors[x] = CRGB(0, 0, 0);
 			FastLED.show();			
@@ -575,7 +630,7 @@ void LEDItem::setOverlayColor()
 	}
 }
 
-int LEDItem::ID()
+byte LEDItem::ID()
 {
 	return id;
 }

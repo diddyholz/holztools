@@ -1,3 +1,5 @@
+#include <MemoryFree.h>
+
 #include "holztools.h"
 
 #define BAUDRATE 4800
@@ -36,7 +38,7 @@ void loop()
   }
 
   //display the active mode on each leditem
-  for(int x = 0; x < LEDItem::ItemCount; x++)
+  for(byte x = 0; x < LEDItem::ItemCount; x++)
   {
     LEDItem::ItemList[x]->DisplayMode();
   }
@@ -45,8 +47,8 @@ void loop()
 }
 
 void decodeMessage(String message)
-{
-  String temp = "";
+{ 
+  String temp = ""; 
   
   byte mode = 0;
   byte type = 0;
@@ -67,7 +69,7 @@ void decodeMessage(String message)
   byte id = 0;
   byte overlapedMode = 0;
 
-  int isMusic = false;
+  byte isMusic = false;
   
   //get the mode
   temp = message.substring(1,5);
@@ -82,6 +84,8 @@ void decodeMessage(String message)
     mode = MODE_LIGHTNING;
   else if (temp == "OVRL")
     mode = MODE_OVERLAY;
+  else if (temp == "SPIN")
+    mode = MODE_SPINNER;
   else if (temp == "TOFF")
     mode = MODE_OFF;
 
@@ -167,6 +171,8 @@ void decodeMessage(String message)
   {
     Serial.println(F("Music Mode is turned on"));
   }
+
+  Serial.println(freeMemory());
 }
 
 //fetch data from usb
@@ -217,6 +223,7 @@ void serialEvent()
       }
       else if(isSysInfoRequest)
       {
+        delay(100);
         Serial.print("_" + binaryVer + "_" + arduinoModel);
         
         stringComplete = false;
