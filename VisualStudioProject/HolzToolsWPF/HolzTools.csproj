@@ -131,6 +131,9 @@
       <DependentUpon>ChangeLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arduino.cs" />
+    <Compile Include="ModeControls\ModeSpinner.xaml.cs">
+      <DependentUpon>ModeSpinner.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModeControls\ModeMusic.xaml.cs">
       <DependentUpon>ModeMusic.xaml</DependentUpon>
     </Compile>
@@ -192,6 +195,10 @@
     <Page Include="ModeControls\ModeCycle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModeControls\ModeSpinner.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ModeControls\ModeLightning.xaml">
       <SubType>Designer</SubType>

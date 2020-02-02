@@ -167,7 +167,7 @@
                 </Border>
 
                 <!-- Preview -->
-                <Border BorderThickness="0" CornerRadius="4" Background="{DynamicResource CardBackground}"
+                <!--<Border BorderThickness="0" CornerRadius="4" Background="{DynamicResource CardBackground}"
                         Height="auto" Margin="10" Width="275">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -185,17 +185,17 @@
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
+                        --><!-- Title --><!--
                         <TextBlock Text="Preview" Foreground="{DynamicResource AccentColor}" 
                                    Grid.Column="1" Grid.Row="1" 
                                    Grid.ColumnSpan="3" FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <!-- Fan -->
+                        --><!-- Fan --><!--
                         <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
                                           Margin="15,0,15,15" Mode="Color Overlay"
                                           Speed="{Binding Speed}"/>
 
-                        <!-- LED Stripes -->
+                        --><!-- LED Stripes --><!--
                         <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
                                             VerticalAlignment="Center" 
                                             Panel.ZIndex="100" Width="255"
@@ -203,7 +203,7 @@
                                             Direction="{Binding Direction}"
                                             Mode="Color Overlay" Brightness="255"/>
                     </Grid>
-                </Border>
+                </Border>-->
             </WrapPanel>
         </ScrollViewer>
         <!--<TextBlock Grid.Column="2" Grid.Row="4" Text="Brightness:" VerticalAlignment="Top" 

@@ -1,0 +1,418 @@
+﻿<UserControl x:Class="HolzTools.ModeControls.ModeSpinner"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HolzTools.ModeControls"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:controls="clr-namespace:HolzTools.CustomControls"
+             xmlns:uc="clr-namespace:HolzTools.UserControls"
+             xmlns:main="clr-namespace:HolzTools"
+             mc:Ignorable="d" 
+             d:DesignHeight="580" d:DesignWidth="740" 
+             TextOptions.TextFormattingMode="Display" Loaded="UserControl_Loaded"
+             d:DataContext="{d:DesignInstance local:ModeLightning, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Scroll viewer -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled" Padding="30,0,30,0">
+            <WrapPanel Margin="0,20,0,0" Orientation="Horizontal" 
+                       HorizontalAlignment="Center">
+
+                <!-- Spinner Color Selection -->
+                <Border BorderThickness="0" CornerRadius="4"
+                        Background="{DynamicResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Spinner Color" 
+                                   Foreground="{DynamicResource AccentColor}" FontSize="16" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Customize the spinning color.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Colors -->
+                        <Grid Grid.Row="3" Grid.Column="1" x:Name="spinnerColorBtnGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                            </Grid.RowDefinitions>
+
+                            <Button Background="Red" Grid.Column="0" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Orange" Grid.Column="1" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Yellow" Grid.Column="2" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFAAFF40" Grid.Column="3" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Lime" Grid.Column="4" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FF00FFB1" Grid.Column="5" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Cyan" Grid.Column="0" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FF00B1FF" Grid.Column="1" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Blue" Grid.Column="2" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFB100FF" Grid.Column="3" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Magenta" Grid.Column="4" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFFF00B1" Grid.Column="5" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultSpinnerColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button x:Name="customSpinnerColorBtn" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="6"
+                                    Content="Custom Color" BorderThickness="0" Foreground="White" 
+                                    Margin="5" Click="CustomSpinnerColorBtn_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="rootBorder" Background="#FF3C3C3C" CornerRadius="3">
+                                                        <Grid>
+                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Trigger.EnterActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF3C3C3C"
+                                                                    To="#282828" FillBehavior="Stop"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    Storyboard.TargetName="rootBorder"/>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.EnterActions>
+                                                            <Trigger.ExitActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#282828"
+                                                                    To="#FF3C3C3C" FillBehavior="Stop"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    Storyboard.TargetName="rootBorder"/>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.ExitActions>
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#282828"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#232323"/>
+                                                        </Trigger>
+                                                        <Trigger Property="Tag" Value="Selected">
+                                                            <Setter Property="BorderBrush" Value="Black" TargetName="rootBorder"/>
+                                                            <Setter Property="BorderThickness" Value="3" TargetName="rootBorder"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Background Color Selection -->
+                <Border BorderThickness="0" CornerRadius="4"
+                        Background="{DynamicResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Background Color" 
+                                   Foreground="{DynamicResource AccentColor}" FontSize="16" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Customize the background color.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Colors -->
+                        <Grid Grid.Row="3" Grid.Column="1" x:Name="backgroundColorBtnGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="42"/>
+                            </Grid.RowDefinitions>
+
+                            <Button Background="Red" Grid.Column="0" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Orange" Grid.Column="1" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Yellow" Grid.Column="2" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFAAFF40" Grid.Column="3" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Lime" Grid.Column="4" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FF00FFB1" Grid.Column="5" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Cyan" Grid.Column="0" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FF00B1FF" Grid.Column="1" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Blue" Grid.Column="2" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFB100FF" Grid.Column="3" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="Magenta" Grid.Column="4" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button Background="#FFFF00B1" Grid.Column="5" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultBackgroundColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                            <Button x:Name="customBackgroundColorBtn" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="6"
+                                    Content="Custom Color" BorderThickness="0" Foreground="White" 
+                                    Margin="5" Click="CustomBackgroundColorBtn_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="rootBorder" Background="#FF3C3C3C" CornerRadius="3">
+                                                        <Grid>
+                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Trigger.EnterActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF3C3C3C"
+                                                                    To="#282828" FillBehavior="Stop"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    Storyboard.TargetName="rootBorder"/>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.EnterActions>
+                                                            <Trigger.ExitActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#282828"
+                                                                    To="#FF3C3C3C" FillBehavior="Stop"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    Storyboard.TargetName="rootBorder"/>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.ExitActions>
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#282828"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#232323"/>
+                                                        </Trigger>
+                                                        <Trigger Property="Tag" Value="Selected">
+                                                            <Setter Property="BorderBrush" Value="Black" TargetName="rootBorder"/>
+                                                            <Setter Property="BorderThickness" Value="3" TargetName="rootBorder"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Speed Option -->
+                <Border BorderThickness="0" CornerRadius="4"
+                        Background="{DynamicResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Spinner Speed" FontWeight="SemiBold" 
+                                       Foreground="{DynamicResource AccentColor}" 
+                                       FontSize="16" Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Customize the speed of the spinning color.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Slider -->
+                        <TextBlock Text="50" Grid.Column="1" Grid.Row="3" 
+                                   FontSize="13" Foreground="White"
+                                   TextAlignment="Center"/>
+                        <Slider Grid.Column="2" Grid.Row="3" Minimum="0" 
+                                Maximum="50" Margin="10,0,10,0" 
+                                IsDirectionReversed="True"
+                                Value="{Binding Speed, Mode=TwoWay}" />
+                        <TextBlock Text="0" Grid.Column="3" Grid.Row="3"
+                                   FontSize="13" TextAlignment="Center"
+                                   Foreground="White"/>
+                    </Grid>
+                </Border>
+
+                <!-- Length Option -->
+                <Border BorderThickness="0" CornerRadius="4"
+                        Background="{DynamicResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Spinner Length" FontWeight="SemiBold" 
+                                       Foreground="{DynamicResource AccentColor}" 
+                                       FontSize="16" Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Customize the size of the spinner.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- Slider -->
+                        <TextBlock Text="0" Grid.Column="1" Grid.Row="3" 
+                                   FontSize="13" Foreground="White"
+                                   TextAlignment="Center"/>
+                        <Slider Grid.Column="2" Grid.Row="3" Minimum="0" 
+                                Maximum="40" Margin="10,0,10,0" 
+                                Value="{Binding Length, Mode=TwoWay}" />
+                        <TextBlock Text="40" Grid.Column="3" Grid.Row="3"
+                                   FontSize="13" TextAlignment="Center"
+                                   Foreground="White"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Preview -->
+                <!--<Border BorderThickness="0" CornerRadius="4"
+                        Background="{DynamicResource CardBackground}"
+                        Height="auto" Margin="10" Width="275">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+
+                        --><!--Title--><!-- 
+                        <TextBlock Text="Preview" Foreground="{DynamicResource AccentColor}" 
+                                   Grid.Column="1" Grid.Row="1" 
+                                   Grid.ColumnSpan="3" FontSize="16" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                         --><!--Fan--><!-- 
+                        <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
+                                          Margin="15,0,15,15"
+                                          Speed="{Binding Speed}"/>
+
+                         --><!--LED Stripes--><!-- 
+                        <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
+                                            VerticalAlignment="Center" 
+                                            Panel.ZIndex="100" Width="255"
+                                            Height="24" Speed="{Binding Speed}" 
+                                            Direction="1" Brightness="255"/>
+                    </Grid>
+                </Border>-->
+            </WrapPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -33,6 +33,8 @@ namespace HolzTools.UserControls
         private byte rainbowSpeed = 0;
         private byte overlaySpeed = 0;
         private byte overlayDirection = 0;
+        private byte spinnerSpeed = 0;
+        private byte spinnerLength = 0;
 
         private bool isOn = true;
 
@@ -43,6 +45,8 @@ namespace HolzTools.UserControls
 
         private Color staticModeColor = Color.FromRgb(255, 0, 0);
         private Color lightningModeColor = Color.FromRgb(255, 0, 0);
+        private Color spinnerModeSpinnerColor = Color.FromRgb(255, 0, 0);
+        private Color spinnerModeBackgroundColor = Color.FromRgb(255, 255, 255);
 
         private Arduino arduino;
 
@@ -174,6 +178,26 @@ namespace HolzTools.UserControls
             }
         }
 
+        public Color SpinnerModeSpinnerColor
+        {
+            get { return spinnerModeSpinnerColor; }
+            set
+            {
+                spinnerModeSpinnerColor = value;
+                OnPropertyChanged("SpinnerModeSpinnerColor");
+            }
+        }
+
+        public Color SpinnerModeBackgroundColor
+        {
+            get { return spinnerModeBackgroundColor; }
+            set
+            {
+                spinnerModeBackgroundColor = value;
+                OnPropertyChanged("SpinnerModeBackgroundColor");
+            }
+        }
+
         public byte StaticBrightness
         {
             get { return staticBrightness; }
@@ -251,6 +275,26 @@ namespace HolzTools.UserControls
             {
                 overlayDirection = value;
                 OnPropertyChanged("OverlayDirection");
+            }
+        }
+
+        public byte SpinnerSpeed
+        {
+            get { return spinnerSpeed; }
+            set
+            {
+                spinnerSpeed = value;
+                OnPropertyChanged("SpinnerSpeed");
+            }
+        }
+
+        public byte SpinnerLength
+        {
+            get { return spinnerLength; }
+            set
+            {
+                spinnerLength = value;
+                OnPropertyChanged("SpinnerLength");
             }
         }
 

@@ -207,7 +207,7 @@
                 </Border>
                 
                 <!-- Preview -->
-                <Border BorderThickness="0" CornerRadius="4" Background="#FF232323"
+                <!--<Border BorderThickness="0" CornerRadius="4" Background="#FF232323"
                         Margin="10" VerticalAlignment="Top" Width="275">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -225,25 +225,25 @@
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
+                        --><!-- Title --><!--
                         <TextBlock Text="Preview" 
                                    Foreground="{DynamicResource AccentColor}" 
                                    Grid.Column="1" Grid.Row="1" FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
                         
-                        <!-- Fan -->
+                        --><!-- Fan --><!--
                         <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
                                           Margin="15,0,15,15"
                                           DisplayedColor="{Binding PreviewColor}"/>
 
-                        <!-- LED Stripes -->
+                        --><!-- LED Stripes --><!--
                         <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
                                             VerticalAlignment="Center" 
                                             Panel.ZIndex="100" Width="255"
                                             Height="24" Speed="255"
                                             DisplayedColor="{Binding PreviewColor}"/>
                     </Grid>
-                </Border>
+                </Border>-->
             </WrapPanel>
         </ScrollViewer>
     </Grid>

@@ -155,7 +155,7 @@
                 </Border>
 
                 <!-- Preview -->
-                <Border Style="{StaticResource PanelCardStyle}">
+                <!--<Border Style="{StaticResource PanelCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
@@ -172,12 +172,12 @@
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
+                        --><!-- Title --><!--
                         <TextBlock Text="Preview" 
                                    Foreground="{DynamicResource AccentColor}" 
                                    Grid.Column="1" Grid.Row="1" FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <!-- Fan -->
+                        --><!-- Fan --><!--
                         <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
                                           Margin="15,0,15,15"
                                           Mode="{Binding OverlappedMode}" 
@@ -185,7 +185,7 @@
                                           DisplayedColor="Red" IsMusicMode="True"
                                           Brightness="{Binding Intensity}"/>
 
-                        <!-- LED Stripes -->
+                        --><!-- LED Stripes --><!--
                         <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
                                             VerticalAlignment="Center" 
                                             Panel.ZIndex="100" Width="255"
@@ -195,7 +195,7 @@
                                             Brightness="{Binding Intensity}"
                                             IsMusicMode="True"/>
                     </Grid>
-                </Border>
+                </Border>-->
             </WrapPanel>
         </ScrollViewer>
         

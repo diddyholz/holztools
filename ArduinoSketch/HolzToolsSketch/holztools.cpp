@@ -32,8 +32,8 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _a
 	curMode = _mode;
   
   ARG_PRED = _arg1;
-  ARG_PGREEN = _arg3;
-  ARG_PBLUE = _arg2;
+  ARG_PGREEN = _arg2;
+  ARG_PBLUE = _arg3;
  
   ARG_SRED = _arg4;
   ARG_SGREEN = _arg5;

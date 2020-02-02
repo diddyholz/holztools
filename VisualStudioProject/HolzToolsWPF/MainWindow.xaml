@@ -281,6 +281,9 @@
                         <TabItem Header="Color Overlay" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeOverlay x:Name="modeOverlay" Background="#373737"/>
                         </TabItem>
+                        <TabItem Header="Color Spinner" Style="{StaticResource modeTabItemStyle}">
+                            <muc:ModeSpinner x:Name="modeSpinner" Background="#373737"/>
+                        </TabItem>
                         <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeMusic x:Name="modeMusic" Background="#373737"/>
                         </TabItem>
