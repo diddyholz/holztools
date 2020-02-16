@@ -35,6 +35,8 @@ namespace HolzTools.UserControls
         private byte overlayDirection = 0;
         private byte spinnerSpeed = 0;
         private byte spinnerLength = 0;
+        private byte spinnerColorBrightness = 255;
+        private byte backgroundColorBrightness = 255;
 
         private bool isOn = true;
 
@@ -295,6 +297,26 @@ namespace HolzTools.UserControls
             {
                 spinnerLength = value;
                 OnPropertyChanged("SpinnerLength");
+            }
+        }
+
+        public byte SpinnerModeSpinnerColorBrightness
+        {
+            get { return spinnerColorBrightness; }
+            set
+            {
+                spinnerColorBrightness = value;
+                OnPropertyChanged("SpinnerModeSpinnerColorBrightness");
+            }
+        }
+
+        public byte SpinnerModeBackgroundColorBrightness
+        {
+            get { return backgroundColorBrightness; }
+            set
+            {
+                backgroundColorBrightness = value;
+                OnPropertyChanged("SpinnerModeBackgroundColorBrightness");
             }
         }
 

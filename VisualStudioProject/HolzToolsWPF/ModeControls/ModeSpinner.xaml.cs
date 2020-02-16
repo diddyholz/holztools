@@ -16,9 +16,11 @@ namespace HolzTools.ModeControls
 
         private byte speed;
         private byte length;
+        private byte spinnerColorBrightness;
+        private byte backgroundColorBrightness;
 
-        private Color spinnerColor = Color.FromArgb(255, 255, 0, 0);
-        private Color backgroundColor = Color.FromArgb(255, 255, 255, 255);
+        private Color spinnerColor;
+        private Color backgroundColor;
 
         public ModeSpinner()
         {
@@ -100,6 +102,30 @@ namespace HolzTools.ModeControls
             {
                 length = value;
                 OnPropertyChanged("Length");
+
+                MainWindow.ActiveWindow.MadeChanges = true;
+            }
+        }
+
+        public byte SpinnerColorBrightness
+        {
+            get { return spinnerColorBrightness; }
+            set
+            {
+                spinnerColorBrightness = value;
+                OnPropertyChanged("SpinnerColorBrightness");
+
+                MainWindow.ActiveWindow.MadeChanges = true;
+            }
+        }
+
+        public byte BackgroundColorBrightness
+        {
+            get { return backgroundColorBrightness; }
+            set
+            {
+                backgroundColorBrightness = value;
+                OnPropertyChanged("BackgroundColorBrightness");
 
                 MainWindow.ActiveWindow.MadeChanges = true;
             }
