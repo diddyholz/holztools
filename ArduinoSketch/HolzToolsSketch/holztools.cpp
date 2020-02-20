@@ -283,7 +283,7 @@ void LEDItem::modeLightning()
 	if(type == TYPE_ARGB)
 	{
 		if(modeCurLed - 2 != ledCount)
-		{
+		{ 
 			for(byte x = 0; x <= ledCount; x++)
 			{
 				//check if the Led is the current displayed led
@@ -362,20 +362,33 @@ void LEDItem::modeSpinner()
       else if(((x > modeCurLed) && (x <= modeCurLed + ARG_LENGTH)) || ((x < modeCurLed) && (x >= modeCurLed - ARG_LENGTH)))
       {
         //light up all leds around the main led
-        ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+        ledColors[x] = CRGB(ARG_PRED, ARG_PGREEN, ARG_PBLUE);
 
         if(x + 1 > ledCount)
         {
+          //light up the leds at the beginning of the strip when the current led is at the end
           for(byte c = 0; c < (x + 1) - ledCount; c++)
           {
-            ledColors[c] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+            ledColors[c] = CRGB(ARG_PRED, ARG_PGREEN, ARG_PBLUE);
+
+            //dim the last led
+            if(c + 1 == (x + 1) - ledCount)
+              ledColors[c] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
           }
         }
+
+        //dim the last led
+        if((x == modeCurLed + ARG_LENGTH) || x == modeCurLed - ARG_LENGTH)
+          ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
       }
       else if(ledCount + (modeCurLed - ARG_LENGTH) <= x)
       {
         //light up the LED's on the end of the LED-strip
-        ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
+        ledColors[x] = CRGB(ARG_PRED, ARG_PGREEN, ARG_PBLUE);
+
+        //dim the last led
+        if(x == ledCount + (modeCurLed - ARG_LENGTH))
+          ledColors[x] = CRGB(ARG_PRED * 0.30, ARG_PGREEN * 0.30, ARG_PBLUE * 0.30);
       }
       else
       {

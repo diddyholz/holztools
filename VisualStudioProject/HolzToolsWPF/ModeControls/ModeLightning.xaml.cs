@@ -62,7 +62,7 @@ namespace HolzTools.ModeControls
 
         private void CustomColorBtn_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SelectedColor);
+            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SelectedColor, CustomColorPicker.ColorToBeChanged.LightningSelectedColor);
             MainWindow.ActiveWindow.ShowColorPicker = true;
         }
 

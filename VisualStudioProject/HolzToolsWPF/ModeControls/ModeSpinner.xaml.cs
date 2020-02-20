@@ -16,8 +16,8 @@ namespace HolzTools.ModeControls
 
         private byte speed;
         private byte length;
-        private byte spinnerColorBrightness;
-        private byte backgroundColorBrightness;
+        private byte spinnerColorBrightness = 255;
+        private byte backgroundColorBrightness = 255;
 
         private Color spinnerColor;
         private Color backgroundColor;
@@ -72,13 +72,13 @@ namespace HolzTools.ModeControls
 
         private void CustomSpinnerColorBtn_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SpinnerColor);
+            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SpinnerColor, CustomColorPicker.ColorToBeChanged.SpinnerSpinnerColor);
             MainWindow.ActiveWindow.ShowColorPicker = true;
         }
 
         private void CustomBackgroundColorBtn_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SpinnerColor);
+            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(BackgroundColor, CustomColorPicker.ColorToBeChanged.SpinnerBackgroundColor);
             MainWindow.ActiveWindow.ShowColorPicker = true;
         }
 

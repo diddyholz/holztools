@@ -137,7 +137,7 @@ namespace HolzTools.UserControls
 
         private void CustomColorBtn_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SelectedAccentColor);
+            MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SelectedAccentColor, CustomColorPicker.ColorToBeChanged.SettingsAccentColor);
             MainWindow.ActiveWindow.ShowColorPicker = true;
         }
 
