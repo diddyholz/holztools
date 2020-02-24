@@ -6,13 +6,15 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HolzTools.UserControls
 {
     public partial class LedItem : INotifyPropertyChanged
     {
-        //public list of all items
-        public static ObservableCollection<UserControls.LedItem> AllItems = new ObservableCollection<LedItem>();
+        //list of all items
+        private static ObservableCollection<UserControls.LedItem> allItems = new ObservableCollection<LedItem>();
 
         private int type = 0;   //0 for ARGB, 1 for 4Pin RGB
         private int ledCount = 10;
@@ -55,6 +57,9 @@ namespace HolzTools.UserControls
         public LedItem()
         {
             AllItems.Add(this);
+            MainWindow.ActiveWindow.modeSync.AllItemNames = AllItems.Select(item => item.ItemName).ToList();
+            OnPropertyChanged("AllItemNames");
+
             MainWindow.ActiveWindow.itemStackPanel.Children.Add(this);
 
             Name = $"Item{LedItem.AllItems.Count}";
@@ -76,6 +81,7 @@ namespace HolzTools.UserControls
             MainWindow.ActiveWindow.itemStackPanel.Children.Remove(this);
 
             AllItems.Remove(this);
+            MainWindow.ActiveWindow.modeSync.AllItemNames = AllItems.Select(item => item.ItemName).ToList();
 
             //display no led message if this was the last led
             if (LedItem.AllItems.Count != 0)
@@ -147,6 +153,12 @@ namespace HolzTools.UserControls
         }
 
         //getters and setters
+        public static ObservableCollection<UserControls.LedItem> AllItems
+        {
+            get { return allItems; }
+            set { allItems = value; }
+        }
+
         public string ItemName
         {
             get { return itemName; }
@@ -156,6 +168,8 @@ namespace HolzTools.UserControls
                 {
                     itemName = value;
                     OnPropertyChanged("ItemName");
+
+                    MainWindow.ActiveWindow.modeSync.AllItemNames = AllItems.Select(item => item.ItemName).ToList();
                 }
             }
         }

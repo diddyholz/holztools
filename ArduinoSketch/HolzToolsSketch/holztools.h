@@ -37,12 +37,19 @@ class LEDItem
 	public:
 		static LEDItem* ItemList[3];
 		static byte ItemCount;
+    
 		LEDItem(byte _id);
-		byte ID();
+
+    void SetSyncParent(byte parent);
+    byte GetSyncParent();
+    byte GetID();
+    
 		void DisplayMode();
+    void Refresh();
 		void ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6,  byte _arg7, byte _arg8, byte _arg9, byte _music);
 		void SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte _gPin, byte _bPin);
 		void SetSoundIntensity(byte _intensity);
+    
 	private:
 		byte type = 0;
 		byte ledCount = 10;
@@ -51,6 +58,7 @@ class LEDItem
 		byte gPin = 0;
 		byte bPin = 0;
 		byte id = 0;
+    byte syncParent = 255;
 		
 		byte curMode = 0;
 

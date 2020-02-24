@@ -77,7 +77,6 @@
                         <!-- Device selector -->
                         <ComboBox Background="Transparent" Grid.Column="1" 
                                   Grid.Row="4" Width="200" Margin="5"
-                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
                                   Foreground="White" x:Name="soundDevicesList"
                                   SelectionChanged="SoundDevicesList_SelectionChanged"/>
 
@@ -144,7 +143,6 @@
                         <ComboBox Background="Transparent" Grid.Column="1" 
                                   Grid.Row="3" Width="200" Margin="5" 
                                   Text="{Binding OverlappedMode, Mode=TwoWay}"
-                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
                                   x:Name="overlappedMode">
                             <ComboBoxItem Content="Static"/>
                             <ComboBoxItem Content="Cycle"/>

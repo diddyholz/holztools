@@ -80,8 +80,7 @@
                               Margin="20,0,20,0" Height="20" Background="#232323"
                               Foreground="White" Text="Select a Type" IsReadOnly="True"
                               x:Name="typeComboBox" SelectedIndex="{Binding SelectedType}"
-                              SelectionChanged="TypeComboBox_SelectionChanged"
-                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                              SelectionChanged="TypeComboBox_SelectionChanged">
                             <TextBlock Text="3-PIN A-RGB" Foreground="White"/>
                             <TextBlock Text="4-PIN RGB" Foreground="White"/>
                         </ComboBox>
@@ -109,8 +108,7 @@
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
                               x:Name="comPortComboBox" Background="#232323"
-                              SelectedItem="{Binding SelectedComPort}"
-                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                              SelectedItem="{Binding SelectedComPort}">
                         </ComboBox>
 
                         <controls:HelpToolTip Grid.Column="1">

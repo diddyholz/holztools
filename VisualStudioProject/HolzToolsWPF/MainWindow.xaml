@@ -287,6 +287,9 @@
                         <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeMusic x:Name="modeMusic" Background="#373737"/>
                         </TabItem>
+                        <TabItem Header="Sync" Style="{StaticResource modeTabItemStyle}">
+                            <muc:ModeSync x:Name="modeSync" Background="#373737"/>
+                        </TabItem>
                     </mah:MetroAnimatedSingleRowTabControl>
 
                     <Rectangle Fill="#373737" Grid.Row="1" Grid.RowSpan="3" 

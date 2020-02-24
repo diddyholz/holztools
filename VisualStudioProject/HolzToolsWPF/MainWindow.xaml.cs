@@ -188,24 +188,6 @@ namespace HolzTools
             //get and set the installLocation of the program
             InstallLocation = Assembly.GetEntryAssembly().Location;
 
-            try
-            {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + guid, true))
-                {
-                    key.SetValue("DisplayName", ApplicationName, RegistryValueKind.String);
-                    key.SetValue("InstallLocation", InstallLocation, RegistryValueKind.String);
-                    key.SetValue("DisplayIcon", Path.Combine(InstallLocation, "icon.ico"));
-                }
-            }
-            catch(Exception ex)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    logBoxText.Text += $"Could not open UninstallRegistryKey({ex.GetType().Name})";
-                    logBoxText.Text += Environment.NewLine;
-                }));
-            }
-
             activeWindow = this;
 
             InitializeComponent();

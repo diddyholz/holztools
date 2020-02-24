@@ -140,6 +140,9 @@
     <Compile Include="ArduinoBinaryDownloaderWindow.xaml.cs">
       <DependentUpon>ArduinoBinaryDownloaderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ModeControls\ModeSync.xaml.cs">
+      <DependentUpon>ModeSync.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -215,6 +218,10 @@
     <Page Include="ModeControls\ModeRainbow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModeControls\ModeSync.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ModeControls\ModeStatic.xaml">
       <SubType>Designer</SubType>

@@ -22,7 +22,7 @@ void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte
 	rPin = _rPin;
 	gPin = _gPin;
 	bPin = _bPin;
-	
+
 	//setup the pins
 	setupPins();
 }
@@ -46,6 +46,8 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _a
   passedMS = 0;
 	
 	lightningStep = 0;
+
+  rnbwIsSetup = false;
 
 	if(_music == 0)
 		music = false;
@@ -74,6 +76,16 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _a
 	{
 		ARG_SPEED = 10;
 	}
+
+  //check if this ledItem is the syncParent of any other led
+  for(byte x = 0; x < LEDItem::ItemCount; x++)
+  {
+    if(LEDItem::ItemList[x]->GetSyncParent() == id)
+    {
+       LEDItem::ItemList[x]->ChangeMode(curMode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, music);
+       Serial.println(F("Found synced ledItem")); 
+    }
+  }
 }
 
 void LEDItem::SetSoundIntensity(byte _intensity)
@@ -643,7 +655,32 @@ void LEDItem::setOverlayColor()
 	}
 }
 
-byte LEDItem::ID()
+void LEDItem::Refresh()
 {
-	return id;
+  ChangeMode(curMode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, music);
+}
+
+void LEDItem::SetSyncParent(byte parent)
+{
+  syncParent = parent;
+
+  //refresh the syncParent
+  for(byte x = 0; x < LEDItem::ItemCount; x++)
+  {
+    if(LEDItem::ItemList[x]->GetID() == syncParent)
+    {
+      LEDItem::ItemList[x]->Refresh(); 
+      Serial.println(F("Found and refreshed SyncParent"));
+    }
+  }
+}
+
+byte LEDItem::GetID()
+{
+  return id;
+}
+
+byte LEDItem::GetSyncParent()
+{
+  return syncParent;
 }
