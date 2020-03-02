@@ -69,9 +69,10 @@
                         </Grid>
 
                         <!-- LED Selection -->
-                        <ComboBox Grid.Column="1" Grid.Row="3" Background="Transparent"
-                                  ItemsSource="{Binding AllItemNames}"
-                                  SelectionChanged="itemCB_SelectionChanged"/>
+                        <ComboBox x:Name="syncableItemsCB"
+                                  Grid.Column="1" Grid.Row="3" Background="Transparent"
+                                  ItemsSource="{Binding SelectedItemSyncableItems}"
+                                  SelectedItem="{Binding SyncedLedItem}"/>
                     </Grid>
                 </Border>
             </WrapPanel>

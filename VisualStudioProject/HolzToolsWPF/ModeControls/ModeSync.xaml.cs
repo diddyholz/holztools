@@ -1,15 +1,16 @@
 ﻿using HolzTools.UserControls;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace HolzTools.ModeControls
 {
     public partial class ModeSync : INotifyPropertyChanged
     {
-        private List<string> allItemNames = new List<string>();
+        private string syncedLedItem;
 
-        private LedItem syncedLedItem;
+        private List<string> selectedItemSyncableItems = new List<string>();
 
         public ModeSync()
         {
@@ -18,18 +19,28 @@ namespace HolzTools.ModeControls
         }
 
         //events
-        private void itemCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-        }
 
         //getters and setters
-        public List<string> AllItemNames
+        public List<string> SelectedItemSyncableItems
         {
-            get { return allItemNames; }
+            get { return selectedItemSyncableItems; }
             set
             {
-                allItemNames = value;
-                OnPropertyChanged("AllItemNames");
+                selectedItemSyncableItems = value;
+                OnPropertyChanged("SelectedItemSyncableItems");
+
+                if (selectedItemSyncableItems.Count != 0)
+                    this.Dispatcher.Invoke(() => { syncableItemsCB.SelectedIndex = 0; });
+            }
+        }
+
+        public string SyncedLedItem
+        {
+            get { return syncedLedItem; }
+            set
+            {
+                syncedLedItem = value;
+                OnPropertyChanged("SyncedLeditem");
             }
         }
 

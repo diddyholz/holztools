@@ -49,6 +49,7 @@ namespace HolzTools
         private bool startBassNet = true;
         private bool isMinimized = false;
         private bool enableFanAnim = false;
+        private bool syncAvailable = true;
 
         private double lastTop = 0.00;
 
@@ -517,21 +518,23 @@ namespace HolzTools
                 this.Dispatcher.Invoke(() =>
                 {
                     modeStatic.Brightness = item.StaticBrightness;
+                    modeStatic.SelectedColor = item.StaticModeColor;
                     modeCycle.Brightness = item.CycleBrightness;
-                    modeRainbow.Brightness = item.RainbowBrightness;
-                    modeLightning.Brightness = item.LightningBrightness;
                     modeCycle.Speed = item.CycleSpeed;
                     modeRainbow.Speed = item.RainbowSpeed;
-                    modeOverlay.Speed = item.OverlaySpeed;
-                    modeSpinner.Speed = item.SpinnerSpeed;
-                    modeOverlay.Direction = item.OverlayDirection;
-                    modeStatic.SelectedColor = item.StaticModeColor;
+                    modeRainbow.Brightness = item.RainbowBrightness;
+                    modeLightning.Brightness = item.LightningBrightness;
                     modeLightning.SelectedColor = item.LightningModeColor;
+                    modeOverlay.Speed = item.OverlaySpeed;
+                    modeOverlay.Direction = item.OverlayDirection;
+                    modeSpinner.Speed = item.SpinnerSpeed;
                     modeSpinner.SpinnerColor = item.SpinnerModeSpinnerColor;
                     modeSpinner.BackgroundColor = item.SpinnerModeBackgroundColor;
                     modeSpinner.Length = item.SpinnerLength;
                     modeSpinner.SpinnerColorBrightness = item.SpinnerModeSpinnerColorBrightness;
                     modeSpinner.BackgroundColorBrightness = item.SpinnerModeBackgroundColorBrightness;
+                    modeSync.SelectedItemSyncableItems = item.SyncableItems;
+                    modeSync.SyncedLedItem = item.SyncedLedItem;
                 });
 
                 sendDataToArduino(item, item.CurrentMode, false);
@@ -700,6 +703,10 @@ namespace HolzTools
                 xml.WriteString(item.SpinnerModeSpinnerColorBrightness.ToString());
                 xml.WriteEndElement();
 
+                xml.WriteStartElement("SyncModeSyncedLedItem");
+                xml.WriteString(item.SyncedLedItem);
+                xml.WriteEndElement();
+
                 //on status
                 xml.WriteStartElement("On");
                 xml.WriteString(item.IsOn.ToString());
@@ -784,8 +791,9 @@ namespace HolzTools
                     {
                         string name = null;
                         string mode = null;
-                        string comPort = "COM 0";
+                        string comPort = "COM0";
                         string overlappedMusicMode = null;
+                        string syncedLedItem = "DONTSYNC";
 
                         int baudRate = 4800;
 
@@ -955,6 +963,10 @@ namespace HolzTools
                             {
                                 spinnerModeBackgroundColorBrightness = Convert.ToByte(valueNode.InnerText);
                             }
+                            else if (valueNode.Name == "SyncModeSyncedLedItem")
+                            {
+                                syncedLedItem = valueNode.InnerText;
+                            }
                             else if (valueNode.Name == "On")
                             {
                                 on = Convert.ToBoolean(valueNode.InnerText);
@@ -1000,7 +1012,8 @@ namespace HolzTools
                             SpinnerModeSpinnerColor = spinnerModeSpinnerColor,
                             SpinnerModeBackgroundColor = spinnerModeBackgroundColor,
                             SpinnerModeSpinnerColorBrightness = spinnerModeSpinnerColorBrightness,
-                            SpinnerModeBackgroundColorBrightness = spinnerModeBackgroundColorBrightness
+                            SpinnerModeBackgroundColorBrightness = spinnerModeBackgroundColorBrightness,
+                            SyncedLedItem = syncedLedItem
                         };
                     }
                 }
@@ -1092,6 +1105,9 @@ namespace HolzTools
             try
             {
                 ledItem.InitSerial();
+
+                //reset the syncedLed if it isnt using syncmode
+                ledItem.SyncedLedItem = "DONTSYNC";
 
                 //sets the overlap mode if mode is music
                 if (ledItem.CurrentMode == "Music")
@@ -1229,6 +1245,24 @@ namespace HolzTools
 
                             ledItem.SpinnerSpeed = modeSpinner.Speed;
                             ledItem.SpinnerLength = modeSpinner.Length;
+                        }
+
+                        break;
+
+                    case "Sync":
+                        tmpMode = "SYNC";
+
+                        //set the arguments for the usb message
+                        foreach(LedItem item in LedItem.AllItems)
+                        {
+                            if (item.ItemName == modeSync.SyncedLedItem)
+                                arg1 = (byte)item.ID;
+                        }
+
+                        //set the arguments in the leditem class
+                        if(setLedItemClassArgs)
+                        {
+                            ledItem.SyncedLedItem = modeSync.SyncedLedItem;
                         }
 
                         break;
@@ -1727,6 +1761,16 @@ namespace HolzTools
             }
         }
 
+        public bool SyncAvailable
+        {
+            get { return syncAvailable; }
+            set
+            {
+                syncAvailable = value;
+                OnPropertyChanged("SyncAvailable");
+            }
+        }
+
         public string SelectedMode
         {
             get { return selectedMode; }
@@ -1871,6 +1915,16 @@ namespace HolzTools
                     modeSpinner.SpinnerColorBrightness = SelectedLedItem.SpinnerModeSpinnerColorBrightness;
                     modeSpinner.Speed = SelectedLedItem.SpinnerSpeed;
                     modeSpinner.Length = SelectedLedItem.SpinnerLength;
+                    modeSync.SelectedItemSyncableItems = SelectedLedItem.SyncableItems;
+
+                    if(SelectedLedItem.SyncedLedItem != "DONTSYNC")
+                        modeSync.SyncedLedItem = SelectedLedItem.SyncedLedItem;
+
+                    //make sync mode unavailable if syncableitems is empty
+                    if (SelectedLedItem.SyncableItems.Count == 0)
+                        SyncAvailable = false;
+                    else
+                        SyncAvailable = true;
                 }
             }
         }

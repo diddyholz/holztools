@@ -287,8 +287,21 @@
                         <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeMusic x:Name="modeMusic" Background="#373737"/>
                         </TabItem>
-                        <TabItem Header="Sync" Style="{StaticResource modeTabItemStyle}">
+                        <TabItem Header="Sync" >
                             <muc:ModeSync x:Name="modeSync" Background="#373737"/>
+                            <TabItem.Style>
+                                <Style TargetType="TabItem" 
+                                       BasedOn="{StaticResource modeTabItemStyle}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SyncAvailable}"
+                                                     Value="False">
+                                            <Setter Property="Visibility" 
+                                                    Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TabItem.Style>
                         </TabItem>
                     </mah:MetroAnimatedSingleRowTabControl>
 

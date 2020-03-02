@@ -23,6 +23,7 @@ namespace HolzTools.UserControls
         private int selectedBPin = 0;
 
         private bool madeChanges = false;
+        private bool nameExists = false;
 
         private static readonly Regex _regex = new Regex("[^0-9]+"); 
 
@@ -175,6 +176,14 @@ namespace HolzTools.UserControls
 
                 selectedItemName = value;
                 OnPropertyChanged("SelectedItemName");
+
+                NameExists = false;
+
+                foreach (LedItem item in LedItem.AllItems)
+                {
+                    if (item.ItemName == SelectedItemName && item.ID != ledItem.ID)
+                        NameExists = true;
+                }
             }
         }
 
@@ -272,10 +281,20 @@ namespace HolzTools.UserControls
         public bool MadeChanges
         {
             get { return madeChanges; }
-            set 
-            { 
+            set
+            {
                 madeChanges = value;
                 OnPropertyChanged("MadeChanges");
+            }
+        }
+
+        public bool NameExists
+        {
+            get { return nameExists; }
+            set
+            {
+                nameExists = value;
+                OnPropertyChanged("NameExists");
             }
         }
 

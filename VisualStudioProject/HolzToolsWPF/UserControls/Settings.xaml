@@ -162,7 +162,7 @@
                         <!-- Fanblade Anim Property -->
                         <CheckBox Grid.Row="4" Grid.Column="1" Foreground="White"
                               Grid.ColumnSpan="2" Content="Enable spinning Fan Blades"
-                              FontSize="14" Margin="5"
+                              FontSize="14" Margin="5" Visibility="Collapsed"
                               IsChecked="{Binding SelectedEnableFanAnim}"/>
 
                         <!-- auto start application property -->
