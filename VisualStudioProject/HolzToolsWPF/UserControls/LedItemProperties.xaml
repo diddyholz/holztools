@@ -26,7 +26,9 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="10"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="5"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="auto"/>
@@ -80,8 +82,7 @@
                               Margin="20,0,20,0" Height="20" Background="#232323"
                               Foreground="White" Text="Select a Type" IsReadOnly="True"
                               x:Name="typeComboBox" SelectedIndex="{Binding SelectedType}"
-                              SelectionChanged="TypeComboBox_SelectionChanged"
-                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                              SelectionChanged="TypeComboBox_SelectionChanged">
                             <TextBlock Text="3-PIN A-RGB" Foreground="White"/>
                             <TextBlock Text="4-PIN RGB" Foreground="White"/>
                         </ComboBox>
@@ -109,8 +110,7 @@
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
                               x:Name="comPortComboBox" Background="#232323"
-                              SelectedItem="{Binding SelectedComPort}"
-                              ItemContainerStyle="{DynamicResource customComboBoxItemStyle}">
+                              SelectedItem="{Binding SelectedComPort}">
                         </ComboBox>
 
                         <controls:HelpToolTip Grid.Column="1">
@@ -135,7 +135,8 @@
                                  TextAlignment="Center" FontSize="14" Height="23"
                                  VerticalAlignment="Bottom" Margin="20,0,20,0"
                                  Background="Transparent" Foreground="White" 
-                                 BorderThickness="0,0,0,1" BorderBrush="White"/>
+                                 BorderThickness="0,0,0,1" BorderBrush="White"
+                                 PreviewTextInput="TextBox_PreviewTextInput"/>
 
                         <controls:HelpToolTip Grid.Column="1">
                             <controls:HelpToolTip.ToolTipText>
@@ -381,19 +382,47 @@
                 </Grid>
             </Border>
 
+            <TextBlock Text="This name already exists!" HorizontalAlignment="Center"
+                       Grid.Row="5" Grid.Column="1" Foreground="#FFFF7A00" 
+                       FontWeight="Light">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding NameExists}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
             <Button x:Name="deleteItemBtn" Height="25" Content="Delete this LED"
                     Style="{StaticResource cancelBtnStyle}"
-                    Grid.Column="1" Grid.Row="5" Click="DeleteItemBtn_Click"/>
+                    Grid.Column="1" Grid.Row="7" Click="DeleteItemBtn_Click"/>
 
-            <Button Content="Cancel" Grid.Column="1" Grid.Row="7" 
+            <Button Content="Cancel" Grid.Column="1" Grid.Row="9" 
                     Width="130" HorizontalAlignment="Left" Height="25"
                     x:Name="cancelBtn" Click="CancelBtn_Click"
                     Style="{StaticResource cancelBtnStyle}"/>
-            <Button Content="Apply" Grid.Column="1" Grid.Row="7" 
+            <Button Content="Apply" Grid.Column="1" Grid.Row="9" 
                     Width="130" HorizontalAlignment="Right" Height="25"
-                    x:Name="applyBtn" Click="ApplyBtn_Click"
-                    Style="{StaticResource applyBtnStyle}"
-                    IsEnabled="{Binding MadeChanges}"/>
+                    x:Name="applyBtn" Click="ApplyBtn_Click">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource applyBtnStyle}">
+                        <Setter Property="IsEnabled" Value="False"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding MadeChanges}" Value="True"/>
+                                    <Condition Binding="{Binding NameExists}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="IsEnabled" Value="True"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
         </Grid>
     </Border>
 </UserControl>

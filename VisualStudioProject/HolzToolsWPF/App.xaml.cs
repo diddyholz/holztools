@@ -16,12 +16,16 @@ namespace HolzTools
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            //kill the existing window
-            foreach(Process p in Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName))
+            //try to kill the existing window
+            try
             {
-                if(p.Id != Process.GetCurrentProcess().Id)
-                    p.Kill();
+                foreach (Process p in Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName))
+                {
+                    if (p.Id != Process.GetCurrentProcess().Id)
+                        p.Kill();
+                }
             }
+            catch { }
 
             if (e.Args.Length > 0)
             {

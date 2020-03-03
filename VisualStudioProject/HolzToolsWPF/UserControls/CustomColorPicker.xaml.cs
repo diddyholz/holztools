@@ -19,9 +19,19 @@ namespace HolzTools.UserControls
 {
     public partial class CustomColorPicker : INotifyPropertyChanged
     {
-        bool madeChanges = false;
+        private bool madeChanges = false;
+        private ColorToBeChanged colorToBeChanged;
 
-        public CustomColorPicker(Color selectedColor)
+        public enum ColorToBeChanged
+        {
+            SettingsAccentColor = 0,
+            StaticSelectedColor,
+            LightningSelectedColor,
+            SpinnerSpinnerColor,
+            SpinnerBackgroundColor
+        }
+
+        public CustomColorPicker(Color selectedColor, ColorToBeChanged colorToBeChanged)
         {
             InitializeComponent();
             DataContext = this;
@@ -30,6 +40,8 @@ namespace HolzTools.UserControls
             MadeChanges = false;
 
             MainWindow.ActiveWindow.colorPickerBackgroundGrid.MouseUp += CancelBtn_Click;
+
+            this.colorToBeChanged = colorToBeChanged;
         }
 
         //events
@@ -54,21 +66,23 @@ namespace HolzTools.UserControls
 
         private void ApplyBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (MainWindow.ActiveWindow.ShowSettings)
+            switch(colorToBeChanged)
             {
-                MainWindow.ActiveWindow.SettingsWindow.SelectedAccentColor = (Color)colorCanvas.SelectedColor;
-            }
-            else
-            {
-                switch (MainWindow.ActiveWindow.SelectedMode)
-                {
-                    case "Static":
-                        MainWindow.ActiveWindow.modeStatic.SelectedColor = (Color)colorCanvas.SelectedColor;
-                        break;
-                    case "Lightning":
-                        MainWindow.ActiveWindow.modeLightning.SelectedColor = (Color)colorCanvas.SelectedColor;
-                        break;
-                }
+                case ColorToBeChanged.SettingsAccentColor:
+                    MainWindow.ActiveWindow.SettingsWindow.SelectedAccentColor = (Color)colorCanvas.SelectedColor;
+                    break;
+                case ColorToBeChanged.StaticSelectedColor:
+                    MainWindow.ActiveWindow.modeStatic.SelectedColor = (Color)colorCanvas.SelectedColor;
+                    break;
+                case ColorToBeChanged.LightningSelectedColor:
+                    MainWindow.ActiveWindow.modeLightning.SelectedColor = (Color)colorCanvas.SelectedColor;
+                    break;
+                case ColorToBeChanged.SpinnerSpinnerColor:
+                    MainWindow.ActiveWindow.modeSpinner.SpinnerColor = (Color)colorCanvas.SelectedColor;
+                    break;
+                case ColorToBeChanged.SpinnerBackgroundColor:
+                    MainWindow.ActiveWindow.modeSpinner.BackgroundColor = (Color)colorCanvas.SelectedColor;
+                    break;
             }
 
             MainWindow.ActiveWindow.ShowColorPicker = false;

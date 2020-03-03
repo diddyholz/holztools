@@ -1112,7 +1112,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    <Style TargetType="ComboBoxItem" x:Key="customComboBoxItemStyle">
+    <Style TargetType="ComboBoxItem" >
         <Setter Property="Background" Value="#232323"/>
         <Setter Property="Foreground" Value="#FFF"/>
         <Setter Property="BorderBrush" Value="#232323"/>

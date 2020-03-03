@@ -1,4 +1,7 @@
+//#include <MemoryFree.h>
 #include "holztools.h"
+
+#define BAUDRATE 4800
 
 const String binaryVer = "1.00";
 const String arduinoModel = "NanoR3";
@@ -15,7 +18,7 @@ void decodeMessage(String message);
 
 void setup() 
 {
-  Serial.begin(4800);
+  Serial.begin(BAUDRATE);
 }
 
 void loop() 
@@ -34,7 +37,7 @@ void loop()
   }
 
   //display the active mode on each leditem
-  for(int x = 0; x < LEDItem::ItemCount; x++)
+  for(byte x = 0; x < LEDItem::ItemCount; x++)
   {
     LEDItem::ItemList[x]->DisplayMode();
   }
@@ -43,8 +46,8 @@ void loop()
 }
 
 void decodeMessage(String message)
-{
-  String temp = "";
+{ 
+  String temp = ""; 
   
   byte mode = 0;
   byte type = 0;
@@ -56,10 +59,15 @@ void decodeMessage(String message)
   byte arg1 = 0;
   byte arg2 = 0;
   byte arg3 = 0;
-  byte id = 0;
+  byte arg4 = 0;
+  byte arg5 = 0;
+  byte arg6 = 0;
+  byte arg7 = 0;
+  byte arg8 = 0;
+  byte arg9 = 0;
   byte overlapedMode = 0;
-
-  int isMusic = false;
+  byte id = 0;
+  byte isMusic = false;
   
   //get the mode
   temp = message.substring(1,5);
@@ -74,6 +82,8 @@ void decodeMessage(String message)
     mode = MODE_LIGHTNING;
   else if (temp == "OVRL")
     mode = MODE_OVERLAY;
+  else if (temp == "SPIN")
+    mode = MODE_SPINNER;
   else if (temp == "TOFF")
     mode = MODE_OFF;
 
@@ -109,11 +119,21 @@ void decodeMessage(String message)
   arg2 = temp.toInt();
   temp = message.substring(19, 22);
   arg3 = temp.toInt();
-
-  //get the id
-  temp = message.substring(22,24);
+  temp = message.substring(22, 25);
+  arg4 = temp.toInt();
+  temp = message.substring(25, 28);
+  arg5 = temp.toInt();
+  temp = message.substring(28, 31);
+  arg6 = temp.toInt();
+  temp = message.substring(31, 34);
+  arg7 = temp.toInt();
+  temp = message.substring(34, 37);
+  arg8 = temp.toInt();
+  temp = message.substring(37, 40);
+  arg9 = temp.toInt();
+  temp = message.substring(40,42);
   id = temp.toInt();
-
+ 
   bool idExists = false;
 
   LEDItem* ledItem;
@@ -121,7 +141,7 @@ void decodeMessage(String message)
   //check if item with id exists
   for(byte x = 0; x < LEDItem::ItemCount; x++)
   {
-    if(LEDItem::ItemList[x]->ID() == id)
+    if(LEDItem::ItemList[x]->GetID() == id)
     {
       idExists = true;
       ledItem = LEDItem::ItemList[x];
@@ -136,17 +156,33 @@ void decodeMessage(String message)
     Serial.print(F("Creating new Item with ID: "));
     Serial.println(id);
   }
-  
+    
   ledItem->SetupItem(type, ledCount, dPin, rPin, gPin, bPin);
-  ledItem->ChangeMode(mode, arg1, arg2, arg3, isMusic);
-  
-  Serial.print(F("Set item to mode: "));
-  Serial.println(mode);
 
-  if(isMusic == 1)
+  //set the syncParent if LED should be synced
+  if(message.substring(1,5) == "SYNC")
   {
-    Serial.println(F("Music Mode is turned on"));
+    Serial.print(F("Set SyncParent to: "));
+    Serial.println(arg1);
+    
+    ledItem->SetSyncParent(arg1);
   }
+  else
+  {
+    //reset syncparent
+    ledItem->SetSyncParent(255);
+    
+    ledItem->ChangeMode(mode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, isMusic);
+    
+    Serial.print(F("Set item to mode: "));
+    Serial.println(mode);
+  
+    if(isMusic == 1)
+    {
+      Serial.println(F("Music Mode is turned on"));
+    }
+  }
+  
 }
 
 //fetch data from usb
@@ -162,23 +198,19 @@ void serialEvent()
     {
       usbMessage = "#";
     }
-
-    if(c == '\\')
+    else if(c == '\\')
     {
       backslash = true;
     }
-
-    if(c == '+')
+    else if(c == '+')
     {
       isMusicData = true;
     }
-
-    if(c == '_')
+    else if(c == '_')
     {
       isSysInfoRequest = true;
     }
-    
-    if(backslash && (c == 'n'))
+    else if(backslash && (c == 'n'))
     {
       backslash = false;
 
@@ -197,6 +229,7 @@ void serialEvent()
       }
       else if(isSysInfoRequest)
       {
+        delay(100);
         Serial.print("_" + binaryVer + "_" + arduinoModel);
         
         stringComplete = false;

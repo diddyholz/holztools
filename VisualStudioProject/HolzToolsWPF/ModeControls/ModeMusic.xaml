@@ -77,7 +77,6 @@
                         <!-- Device selector -->
                         <ComboBox Background="Transparent" Grid.Column="1" 
                                   Grid.Row="4" Width="200" Margin="5"
-                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
                                   Foreground="White" x:Name="soundDevicesList"
                                   SelectionChanged="SoundDevicesList_SelectionChanged"/>
 
@@ -144,7 +143,6 @@
                         <ComboBox Background="Transparent" Grid.Column="1" 
                                   Grid.Row="3" Width="200" Margin="5" 
                                   Text="{Binding OverlappedMode, Mode=TwoWay}"
-                                  ItemContainerStyle="{DynamicResource customComboBoxItemStyle}"
                                   x:Name="overlappedMode">
                             <ComboBoxItem Content="Static"/>
                             <ComboBoxItem Content="Cycle"/>
@@ -155,7 +153,7 @@
                 </Border>
 
                 <!-- Preview -->
-                <Border Style="{StaticResource PanelCardStyle}">
+                <!--<Border Style="{StaticResource PanelCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
@@ -172,12 +170,12 @@
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
+                        --><!-- Title --><!--
                         <TextBlock Text="Preview" 
                                    Foreground="{DynamicResource AccentColor}" 
                                    Grid.Column="1" Grid.Row="1" FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <!-- Fan -->
+                        --><!-- Fan --><!--
                         <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
                                           Margin="15,0,15,15"
                                           Mode="{Binding OverlappedMode}" 
@@ -185,7 +183,7 @@
                                           DisplayedColor="Red" IsMusicMode="True"
                                           Brightness="{Binding Intensity}"/>
 
-                        <!-- LED Stripes -->
+                        --><!-- LED Stripes --><!--
                         <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
                                             VerticalAlignment="Center" 
                                             Panel.ZIndex="100" Width="255"
@@ -195,15 +193,15 @@
                                             Brightness="{Binding Intensity}"
                                             IsMusicMode="True"/>
                     </Grid>
-                </Border>
+                </Border>-->
             </WrapPanel>
         </ScrollViewer>
         
         <!-- BASS.NET not active status -->
-        <Grid Background="#FF3C3C3C">
+        <Grid Background="#373737">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Visibility" Value="Visible"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SoundAnalyzer.IsInitialized}"
                                      Value="True">

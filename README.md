@@ -11,6 +11,7 @@
 * Automatic updates of the software on your Arduino
 * Connect up to 3 different LED-strips on one Arduino
 * Control every LED independent of your other LEDs 
+* Up to 85 LEDs on one WS2812B strip are supported (This can be set higher by you)
 
 ## How to add your first LED 
 * [Download HolzTools](https://github.com/diddyholz/HolzTools/releases)
@@ -43,6 +44,12 @@
     * Configure on which pin the red, green and blue connectors are connected to
 
 ![configure 4-Pin sample](images/config4Pin.png?raw=true "How to configure 4-Pin RGB")
+
+## How to higher the ARGB LED amount cap of 85
+Due to the low memory of an Arduino the amount of LEDs you can control on one WS2812B strip has to be capped at 85 to ensure stability when using 3 strips simultaneously. If you are planning to not use 3 strips simultaneously on one Arduino, you can set a higher LED limit.
+* Open holztools.h in your Arduino IDE
+* Search for `#define MAX_LEDS 85`
+* Change the 85 to your desired amount (Do not set a too high value because then you will run into memory issues)
 
 ## Requirements
 * I test everything on Windows 10 but Windows 7 and 8/8.1 should work too (not guaranteed)

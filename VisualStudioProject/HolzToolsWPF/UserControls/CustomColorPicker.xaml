@@ -389,9 +389,9 @@
                         Foreground="White" x:Name="cancelBtn" Click="CancelBtn_Click"
                         Style="{StaticResource cancelBtnStyle}"/>
                     <Button Content="Apply" Grid.Column="1" Grid.Row="4" 
-                        Width="100" HorizontalAlignment="Right" Height="25"
-                        Foreground="White" x:Name="applyBtn" Click="ApplyBtn_Click"
-                        Style="{StaticResource applyBtnStyle}"
+                            Width="100" HorizontalAlignment="Right" Height="25"
+                            x:Name="applyBtn" Click="ApplyBtn_Click"
+                            Style="{StaticResource applyBtnStyle}"
                             IsEnabled="{Binding MadeChanges}"/>
                 </Grid>
             </Border>

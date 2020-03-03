@@ -105,7 +105,7 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="rootBorder" Background="#FF232323" CornerRadius="3">
+                                                    <Border x:Name="rootBorder" Background="#FF3C3C3C" CornerRadius="3">
                                                         <Grid>
                                                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
@@ -116,8 +116,8 @@
                                                             <Trigger.EnterActions>
                                                                 <BeginStoryboard>
                                                                     <Storyboard>
-                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF232323"
-                                                                                        To="#FF141414" FillBehavior="Stop"
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF3C3C3C"
+                                                                                        To="#282828" FillBehavior="Stop"
                                                                                         Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                                                         Storyboard.TargetName="rootBorder"/>
                                                                     </Storyboard>
@@ -126,17 +126,17 @@
                                                             <Trigger.ExitActions>
                                                                 <BeginStoryboard>
                                                                     <Storyboard>
-                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF141414"
-                                                                                        To="#FF232323" FillBehavior="Stop"
+                                                                        <ColorAnimation Duration="0:0:0.1" From="#282828"
+                                                                                        To="#FF3C3C3C" FillBehavior="Stop"
                                                                                         Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                                                         Storyboard.TargetName="rootBorder"/>
                                                                     </Storyboard>
                                                                 </BeginStoryboard>
                                                             </Trigger.ExitActions>
-                                                            <Setter Property="Background" TargetName="rootBorder" Value="#FF141414"/>
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#282828"/>
                                                         </Trigger>
                                                         <Trigger Property="IsPressed" Value="True">
-                                                            <Setter Property="Background" TargetName="rootBorder" Value="#FF0F0F0F"/>
+                                                            <Setter Property="Background" TargetName="rootBorder" Value="#232323"/>
                                                         </Trigger>
                                                         <Trigger Property="Tag" Value="Selected">
                                                             <Setter Property="BorderBrush" Value="Black" TargetName="rootBorder"/>
@@ -207,7 +207,7 @@
                 </Border>
                 
                 <!-- Preview -->
-                <Border BorderThickness="0" CornerRadius="4" Background="#FF232323"
+                <!--<Border BorderThickness="0" CornerRadius="4" Background="#FF232323"
                         Margin="10" VerticalAlignment="Top" Width="275">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -225,25 +225,25 @@
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
+                        --><!-- Title --><!--
                         <TextBlock Text="Preview" 
                                    Foreground="{DynamicResource AccentColor}" 
                                    Grid.Column="1" Grid.Row="1" FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
                         
-                        <!-- Fan -->
+                        --><!-- Fan --><!--
                         <uc:LedFanControl Grid.Column="1" Grid.Row="3" 
                                           Margin="15,0,15,15"
                                           DisplayedColor="{Binding PreviewColor}"/>
 
-                        <!-- LED Stripes -->
+                        --><!-- LED Stripes --><!--
                         <uc:LedStripControl Grid.Column="1" Grid.Row="5" 
                                             VerticalAlignment="Center" 
                                             Panel.ZIndex="100" Width="255"
                                             Height="24" Speed="255"
                                             DisplayedColor="{Binding PreviewColor}"/>
                     </Grid>
-                </Border>
+                </Border>-->
             </WrapPanel>
         </ScrollViewer>
     </Grid>

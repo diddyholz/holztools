@@ -27,7 +27,7 @@ namespace HolzTools
 
         public static string InstallLocation = "";
 
-        private const string currentVersion = "1.00";
+        private const string currentVersion = "1.05";
         private const string updatePasteBin = "https://pastebin.com/raw/t2r0pWMr";
         private const string changelogPasteBin = "https://pastebin.com/raw/mQK7VVGZ";
         private const string arduinoBinaryPasteBin = "https://pastebin.com/raw/eAYERLEs";
@@ -49,6 +49,7 @@ namespace HolzTools
         private bool startBassNet = true;
         private bool isMinimized = false;
         private bool enableFanAnim = false;
+        private bool syncAvailable = true;
 
         private double lastTop = 0.00;
 
@@ -187,24 +188,6 @@ namespace HolzTools
         {
             //get and set the installLocation of the program
             InstallLocation = Assembly.GetEntryAssembly().Location;
-
-            try
-            {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + guid, true))
-                {
-                    key.SetValue("DisplayName", ApplicationName, RegistryValueKind.String);
-                    key.SetValue("InstallLocation", InstallLocation, RegistryValueKind.String);
-                    key.SetValue("DisplayIcon", Path.Combine(InstallLocation, "icon.ico"));
-                }
-            }
-            catch(Exception ex)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    logBoxText.Text += $"Could not open UninstallRegistryKey({ex.GetType().Name})";
-                    logBoxText.Text += Environment.NewLine;
-                }));
-            }
 
             activeWindow = this;
 
@@ -535,15 +518,23 @@ namespace HolzTools
                 this.Dispatcher.Invoke(() =>
                 {
                     modeStatic.Brightness = item.StaticBrightness;
+                    modeStatic.SelectedColor = item.StaticModeColor;
                     modeCycle.Brightness = item.CycleBrightness;
-                    modeRainbow.Brightness = item.RainbowBrightness;
-                    modeLightning.Brightness = item.LightningBrightness;
                     modeCycle.Speed = item.CycleSpeed;
                     modeRainbow.Speed = item.RainbowSpeed;
+                    modeRainbow.Brightness = item.RainbowBrightness;
+                    modeLightning.Brightness = item.LightningBrightness;
+                    modeLightning.SelectedColor = item.LightningModeColor;
                     modeOverlay.Speed = item.OverlaySpeed;
                     modeOverlay.Direction = item.OverlayDirection;
-                    modeStatic.SelectedColor = item.StaticModeColor;
-                    modeLightning.SelectedColor = item.LightningModeColor;
+                    modeSpinner.Speed = item.SpinnerSpeed;
+                    modeSpinner.SpinnerColor = item.SpinnerModeSpinnerColor;
+                    modeSpinner.BackgroundColor = item.SpinnerModeBackgroundColor;
+                    modeSpinner.Length = item.SpinnerLength;
+                    modeSpinner.SpinnerColorBrightness = item.SpinnerModeSpinnerColorBrightness;
+                    modeSpinner.BackgroundColorBrightness = item.SpinnerModeBackgroundColorBrightness;
+                    modeSync.SelectedItemSyncableItems = item.SyncableItems;
+                    modeSync.SyncedLedItem = item.SyncedLedItem;
                 });
 
                 sendDataToArduino(item, item.CurrentMode, false);
@@ -644,6 +635,14 @@ namespace HolzTools
                 xml.WriteString(item.OverlaySpeed.ToString());
                 xml.WriteEndElement();
 
+                xml.WriteStartElement("SpinnerSpeed");
+                xml.WriteString(item.SpinnerSpeed.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerLength");
+                xml.WriteString(item.SpinnerLength.ToString());
+                xml.WriteEndElement();
+
                 xml.WriteStartElement("OverlayDirection");
                 xml.WriteString(item.OverlayDirection.ToString());
                 xml.WriteEndElement();
@@ -670,6 +669,42 @@ namespace HolzTools
 
                 xml.WriteStartElement("LightningModeColorBlue");
                 xml.WriteString(item.LightningModeColor.B.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeSpinnerColorRed");
+                xml.WriteString(item.SpinnerModeSpinnerColor.R.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeSpinnerColorGreen");
+                xml.WriteString(item.SpinnerModeSpinnerColor.G.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeSpinnerColorBlue");
+                xml.WriteString(item.SpinnerModeSpinnerColor.B.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeBackgroundColorRed");
+                xml.WriteString(item.SpinnerModeBackgroundColor.R.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeBackgroundColorGreen");
+                xml.WriteString(item.SpinnerModeBackgroundColor.G.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeBackgroundColorBlue");
+                xml.WriteString(item.SpinnerModeBackgroundColor.B.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeBackgroundColorBrightness");
+                xml.WriteString(item.SpinnerModeBackgroundColorBrightness.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SpinnerModeSpinnerColorBrightness");
+                xml.WriteString(item.SpinnerModeSpinnerColorBrightness.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("SyncModeSyncedLedItem");
+                xml.WriteString(item.SyncedLedItem);
                 xml.WriteEndElement();
 
                 //on status
@@ -756,8 +791,9 @@ namespace HolzTools
                     {
                         string name = null;
                         string mode = null;
-                        string comPort = "COM 0";
+                        string comPort = "COM0";
                         string overlappedMusicMode = null;
+                        string syncedLedItem = "DONTSYNC";
 
                         int baudRate = 4800;
 
@@ -775,12 +811,18 @@ namespace HolzTools
                         byte cycleSpeed = 0;
                         byte rainbowSpeed = 0;
                         byte overlaySpeed = 0;
+                        byte spinnerSpeed = 0;
                         byte overlayDirection = 0;
+                        byte spinnerLength = 0;
+                        byte spinnerModeSpinnerColorBrightness = 0;
+                        byte spinnerModeBackgroundColorBrightness = 0;
 
                         bool on = true;
 
                         Color staticModeColor = Color.FromRgb(255, 0, 0);
                         Color lightningModeColor = Color.FromRgb(255, 0, 0);
+                        Color spinnerModeSpinnerColor = Color.FromRgb(255, 0, 0);
+                        Color spinnerModeBackgroundColor = Color.FromRgb(255, 255, 255);
 
                         //get the item properties
                         foreach (XmlNode valueNode in itemNode)
@@ -853,9 +895,17 @@ namespace HolzTools
                             {
                                 overlaySpeed = Convert.ToByte(valueNode.InnerText);
                             }
+                            else if (valueNode.Name == "SpinnerSpeed")
+                            {
+                                spinnerSpeed = Convert.ToByte(valueNode.InnerText);
+                            }
                             else if (valueNode.Name == "OverlayDirection")
                             {
                                 overlayDirection = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerLength")
+                            {
+                                spinnerLength = Convert.ToByte(valueNode.InnerText);
                             }
                             else if (valueNode.Name == "StaticModeColorRed")
                             {
@@ -880,6 +930,42 @@ namespace HolzTools
                             else if (valueNode.Name == "LightningModeColorBlue")
                             {
                                 lightningModeColor.B = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeSpinnerColorRed")
+                            {
+                                spinnerModeSpinnerColor.R = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeSpinnerColorGreen")
+                            {
+                                spinnerModeSpinnerColor.G = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeSpinnerColorBlue")
+                            {
+                                spinnerModeSpinnerColor.B = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeBackgroundColorRed")
+                            {
+                                spinnerModeBackgroundColor.R = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeBackgroundColorGreen")
+                            {
+                                spinnerModeBackgroundColor.G = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeBackgroundColorBlue")
+                            {
+                                spinnerModeBackgroundColor.B = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeSpinnerColorBrightness")
+                            {
+                                spinnerModeSpinnerColorBrightness = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SpinnerModeBackgroundColorBrightness")
+                            {
+                                spinnerModeBackgroundColorBrightness = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "SyncModeSyncedLedItem")
+                            {
+                                syncedLedItem = valueNode.InnerText;
                             }
                             else if (valueNode.Name == "On")
                             {
@@ -918,9 +1004,16 @@ namespace HolzTools
                             CycleSpeed = cycleSpeed,
                             RainbowSpeed = rainbowSpeed,
                             OverlaySpeed = overlaySpeed,
+                            SpinnerSpeed = spinnerSpeed,
                             OverlayDirection = overlayDirection,
+                            SpinnerLength = spinnerLength,
                             StaticModeColor = staticModeColor,
-                            LightningModeColor = lightningModeColor
+                            LightningModeColor = lightningModeColor,
+                            SpinnerModeSpinnerColor = spinnerModeSpinnerColor,
+                            SpinnerModeBackgroundColor = spinnerModeBackgroundColor,
+                            SpinnerModeSpinnerColorBrightness = spinnerModeSpinnerColorBrightness,
+                            SpinnerModeBackgroundColorBrightness = spinnerModeBackgroundColorBrightness,
+                            SyncedLedItem = syncedLedItem
                         };
                     }
                 }
@@ -1013,6 +1106,10 @@ namespace HolzTools
             {
                 ledItem.InitSerial();
 
+                //reset the syncedLed if it isnt using syncmode
+                if(mode != "Sync")
+                    ledItem.SyncedLedItem = "DONTSYNC";
+
                 //sets the overlap mode if mode is music
                 if (ledItem.CurrentMode == "Music")
                 {
@@ -1030,6 +1127,14 @@ namespace HolzTools
                 byte arg1 = 0;
                 byte arg2 = 0;
                 byte arg3 = 0;
+
+                byte arg4 = 0;
+                byte arg5 = 0;
+                byte arg6 = 0;
+
+                byte arg7 = 0;
+                byte arg8 = 0;
+                byte arg9 = 0;
 
                 switch (mode)
                 {
@@ -1054,8 +1159,8 @@ namespace HolzTools
                         tmpMode = "CYCL";
 
                         //set the arguments for the usb message
-                        arg1 = modeCycle.Speed;
-                        arg2 = modeCycle.Brightness;
+                        arg7 = modeCycle.Speed;
+                        arg9 = modeCycle.Brightness;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1070,8 +1175,8 @@ namespace HolzTools
                         tmpMode = "RNBW";
 
                         //set the arguments for the usb message
-                        arg1 = modeRainbow.Speed;
-                        arg2 = modeRainbow.Brightness;
+                        arg7 = modeRainbow.Speed;
+                        arg9 = modeRainbow.Brightness;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1103,14 +1208,62 @@ namespace HolzTools
                         tmpMode = "OVRL";
 
                         //set the arguments for the usb message
-                        arg1 = modeOverlay.Speed;
-                        arg2 = modeOverlay.Direction;
+                        arg7 = modeOverlay.Speed;
+                        arg8 = modeOverlay.Direction;
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
                         {
                             ledItem.OverlaySpeed = modeOverlay.Speed;
                             ledItem.OverlayDirection = modeOverlay.Direction;
+                        }
+
+                        break;
+
+                    case "Color Spinner":
+                        tmpMode = "SPIN";
+
+                        //set the arguments for the usb message
+                        arg1 = (byte)((float)modeSpinner.SpinnerColor.R * (float)((float)modeSpinner.SpinnerColorBrightness / 255.00));
+                        arg2 = (byte)((float)modeSpinner.SpinnerColor.G * (float)((float)modeSpinner.SpinnerColorBrightness / 255.00));
+                        arg3 = (byte)((float)modeSpinner.SpinnerColor.B * (float)((float)modeSpinner.SpinnerColorBrightness / 255.00));
+
+                        arg4 = (byte)((float)modeSpinner.BackgroundColor.R * (float)((float)modeSpinner.BackgroundColorBrightness / 255.00));
+                        arg5 = (byte)((float)modeSpinner.BackgroundColor.G * (float)((float)modeSpinner.BackgroundColorBrightness / 255.00));
+                        arg6 = (byte)((float)modeSpinner.BackgroundColor.B * (float)((float)modeSpinner.BackgroundColorBrightness / 255.00));
+
+                        arg7 = modeSpinner.Speed;
+                        arg9 = modeSpinner.Length;
+
+                        //set the arguments in the leditem class
+                        if (setLedItemClassArgs)
+                        {
+                            ledItem.SpinnerModeSpinnerColor = modeSpinner.SpinnerColor;
+                            ledItem.SpinnerModeBackgroundColor = modeSpinner.BackgroundColor;
+
+                            ledItem.SpinnerModeSpinnerColorBrightness = modeSpinner.SpinnerColorBrightness;
+                            ledItem.SpinnerModeBackgroundColorBrightness = modeSpinner.BackgroundColorBrightness;
+
+                            ledItem.SpinnerSpeed = modeSpinner.Speed;
+                            ledItem.SpinnerLength = modeSpinner.Length;
+                        }
+
+                        break;
+
+                    case "Sync":
+                        tmpMode = "SYNC";
+
+                        //set the arguments for the usb message
+                        foreach(LedItem item in LedItem.AllItems)
+                        {
+                            if (item.ItemName == modeSync.SyncedLedItem)
+                                arg1 = (byte)item.ID;
+                        }
+
+                        //set the arguments in the leditem class
+                        if(setLedItemClassArgs)
+                        {
+                            ledItem.SyncedLedItem = modeSync.SyncedLedItem;
                         }
 
                         break;
@@ -1135,7 +1288,7 @@ namespace HolzTools
                 }
 
                 //generate the usb message:     #MODE(4)ISMUSIC(1)TYPE(1)PINS(6)COLOR/ARGS(3 x 3)ID(2)\\n
-                string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
+                string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{arg4.ToString("D3")}{arg5.ToString("D3")}{arg6.ToString("D3")}{arg7.ToString("D3")}{arg8.ToString("D3")}{arg9.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
 
                 ledItem.SerialWrite(message);
 
@@ -1224,8 +1377,6 @@ namespace HolzTools
                 }
             }
 
-            saveProgram();
-
             new Thread(new ThreadStart(() =>
             {
                 if (modeMusic.SoundAnalyzer != null)
@@ -1233,6 +1384,8 @@ namespace HolzTools
 
                 //send the data to the arduino
                 sendDataToArduino(SelectedLedItem, SelectedMode, true);
+
+                this.Dispatcher.Invoke(saveProgram);
 
                 if (modeMusic.SoundAnalyzer != null)
                 {
@@ -1609,6 +1762,16 @@ namespace HolzTools
             }
         }
 
+        public bool SyncAvailable
+        {
+            get { return syncAvailable; }
+            set
+            {
+                syncAvailable = value;
+                OnPropertyChanged("SyncAvailable");
+            }
+        }
+
         public string SelectedMode
         {
             get { return selectedMode; }
@@ -1738,15 +1901,31 @@ namespace HolzTools
 
                     //set every mode argument for the selected leditem
                     modeStatic.Brightness = SelectedLedItem.StaticBrightness;
+                    modeStatic.SelectedColor = SelectedLedItem.StaticModeColor;
+                    modeCycle.Speed = SelectedLedItem.CycleSpeed;
                     modeCycle.Brightness = SelectedLedItem.CycleBrightness;
                     modeRainbow.Brightness = SelectedLedItem.RainbowBrightness;
-                    modeLightning.Brightness = SelectedLedItem.LightningBrightness;
-                    modeCycle.Speed = SelectedLedItem.CycleSpeed;
                     modeRainbow.Speed = SelectedLedItem.RainbowSpeed;
                     modeOverlay.Speed = SelectedLedItem.OverlaySpeed;
                     modeOverlay.Direction = SelectedLedItem.OverlayDirection;
-                    modeStatic.SelectedColor = SelectedLedItem.StaticModeColor;
                     modeLightning.SelectedColor = SelectedLedItem.LightningModeColor;
+                    modeLightning.Brightness = SelectedLedItem.LightningBrightness;
+                    modeSpinner.SpinnerColor = SelectedLedItem.SpinnerModeSpinnerColor;
+                    modeSpinner.BackgroundColor = SelectedLedItem.SpinnerModeBackgroundColor;
+                    modeSpinner.BackgroundColorBrightness = SelectedLedItem.SpinnerModeBackgroundColorBrightness;
+                    modeSpinner.SpinnerColorBrightness = SelectedLedItem.SpinnerModeSpinnerColorBrightness;
+                    modeSpinner.Speed = SelectedLedItem.SpinnerSpeed;
+                    modeSpinner.Length = SelectedLedItem.SpinnerLength;
+                    modeSync.SelectedItemSyncableItems = SelectedLedItem.SyncableItems;
+
+                    if(SelectedLedItem.SyncedLedItem != "DONTSYNC")
+                        modeSync.SyncedLedItem = SelectedLedItem.SyncedLedItem;
+
+                    //make sync mode unavailable if syncableitems is empty
+                    if (SelectedLedItem.SyncableItems.Count == 0)
+                        SyncAvailable = false;
+                    else
+                        SyncAvailable = true;
                 }
             }
         }

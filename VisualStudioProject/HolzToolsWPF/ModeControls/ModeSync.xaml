@@ -1,0 +1,81 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+             xmlns:local="clr-namespace:HolzTools.ModeControls"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:uc="clr-namespace:HolzTools.UserControls"
+             xmlns:main="clr-namespace:HolzTools"
+             xmlns:controls="clr-namespace:HolzTools.CustomControls"
+             xmlns:Themes="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=Xceed.Wpf.Toolkit"
+             x:Class="HolzTools.ModeControls.ModeSync"
+             mc:Ignorable="d" 
+             d:DesignHeight="675.302" d:DesignWidth="732.048" 
+             d:DataContext="{d:DesignInstance local:ModeSync, IsDesignTimeCreatable=True}"
+             TextOptions.TextFormattingMode="Display">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Scrollviewer -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="30,0,30,0"
+                      HorizontalScrollBarVisibility="Disabled">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                        Margin="0,20,0,0">
+                <!-- Sync Option -->
+                <Border BorderThickness="0" CornerRadius="4" 
+                        Background="{DynamicResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Sync with" 
+                                       Foreground="{DynamicResource AccentColor}"
+                                       FontSize="16" FontWeight="SemiBold" 
+                                       Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Choose with which LED-strip the selected strip 
+                                    should be synced with.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- LED Selection -->
+                        <ComboBox x:Name="syncableItemsCB"
+                                  Grid.Column="1" Grid.Row="3" Background="Transparent"
+                                  ItemsSource="{Binding SelectedItemSyncableItems}"
+                                  SelectedItem="{Binding SyncedLedItem}"/>
+                    </Grid>
+                </Border>
+            </WrapPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

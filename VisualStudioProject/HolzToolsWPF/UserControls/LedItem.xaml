@@ -9,7 +9,8 @@
              TextOptions.TextFormattingMode="Display" 
              MouseLeftButtonUp="UserControl_MouseLeftButtonUp">
     <Grid>
-        <TextBlock Text="{Binding ItemName, Mode=OneWay}" Foreground="White" TextAlignment="Center" 
+        <TextBlock Text="{Binding ItemName, Mode=OneWay}" Foreground="White" 
+                   TextAlignment="Center" 
                    VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold"/>
         <Button Foreground="White" BorderThickness="0" x:Name="itemPropertyBtn"
                 VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Right" 

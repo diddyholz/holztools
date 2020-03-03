@@ -65,8 +65,7 @@
 
                         <ComboBox x:Name="arduinoModelComboBox" Width="175" Margin="5"
                                   Background="{DynamicResource CardBackground}" 
-                                  SelectionChanged="arduinoModelComboBox_SelectionChanged"
-                                  ItemContainerStyle="{StaticResource customComboBoxItemStyle}">
+                                  SelectionChanged="arduinoModelComboBox_SelectionChanged">
                             <ComboBoxItem Content="Arduino Nano (R3)"/>
                             <ComboBoxItem Content="Arduino Uno (R3)"/>
                         </ComboBox>
@@ -91,8 +90,7 @@
 
                         <ComboBox x:Name="comPortComboBox" Width="175" Margin="5"
                                   Background="{DynamicResource CardBackground}" 
-                                  SelectionChanged="comPortComboBox_SelectionChanged"
-                                  ItemContainerStyle="{StaticResource customComboBoxItemStyle}"/>
+                                  SelectionChanged="comPortComboBox_SelectionChanged"/>
 
                         <controls:HelpToolTip Grid.Column="1">
                             <controls:HelpToolTip.ToolTipText>

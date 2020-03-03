@@ -281,8 +281,27 @@
                         <TabItem Header="Color Overlay" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeOverlay x:Name="modeOverlay" Background="#373737"/>
                         </TabItem>
+                        <TabItem Header="Color Spinner" Style="{StaticResource modeTabItemStyle}">
+                            <muc:ModeSpinner x:Name="modeSpinner" Background="#373737"/>
+                        </TabItem>
                         <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
                             <muc:ModeMusic x:Name="modeMusic" Background="#373737"/>
+                        </TabItem>
+                        <TabItem Header="Sync" >
+                            <muc:ModeSync x:Name="modeSync" Background="#373737"/>
+                            <TabItem.Style>
+                                <Style TargetType="TabItem" 
+                                       BasedOn="{StaticResource modeTabItemStyle}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SyncAvailable}"
+                                                     Value="False">
+                                            <Setter Property="Visibility" 
+                                                    Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TabItem.Style>
                         </TabItem>
                     </mah:MetroAnimatedSingleRowTabControl>
 
@@ -622,8 +641,8 @@
                 <!-- Log Box -->
                 <ScrollViewer Grid.ColumnSpan="20" Grid.Row="10" Visibility="Collapsed" 
                           x:Name="logBox" Height="150" VerticalAlignment="Bottom">
-                    <TextBlock x:Name="logBoxText" Background="White" Foreground="Black" 
-                       TextWrapping="Wrap" Padding="3,2,0,0"/>
+                    <TextBox x:Name="logBoxText" Background="White" Foreground="Black" 
+                             TextWrapping="Wrap" Padding="3,2,0,0" IsReadOnly="True"/>
                 </ScrollViewer>
             </Grid>
         </Border>

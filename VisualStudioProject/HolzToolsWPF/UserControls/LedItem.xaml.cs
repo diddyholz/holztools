@@ -6,13 +6,15 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HolzTools.UserControls
 {
     public partial class LedItem : INotifyPropertyChanged
     {
-        //public list of all items
-        public static ObservableCollection<UserControls.LedItem> AllItems = new ObservableCollection<LedItem>();
+        //list of all items
+        private static ObservableCollection<UserControls.LedItem> allItems = new ObservableCollection<LedItem>();
 
         private int type = 0;   //0 for ARGB, 1 for 4Pin RGB
         private int ledCount = 10;
@@ -33,6 +35,10 @@ namespace HolzTools.UserControls
         private byte rainbowSpeed = 0;
         private byte overlaySpeed = 0;
         private byte overlayDirection = 0;
+        private byte spinnerSpeed = 0;
+        private byte spinnerLength = 0;
+        private byte spinnerColorBrightness = 255;
+        private byte backgroundColorBrightness = 255;
 
         private bool isOn = true;
 
@@ -40,19 +46,34 @@ namespace HolzTools.UserControls
         private string mode = "Static";
         private string overlappedMusicMode = "Static";
         private string comPort = "COM0";
+        private string syncedLedItem = "";
 
         private Color staticModeColor = Color.FromRgb(255, 0, 0);
         private Color lightningModeColor = Color.FromRgb(255, 0, 0);
+        private Color spinnerModeSpinnerColor = Color.FromRgb(255, 0, 0);
+        private Color spinnerModeBackgroundColor = Color.FromRgb(255, 255, 255);
 
         private Arduino arduino;
+
+        private List<string> syncableItems = new List<string>();
 
         public LedItem()
         {
             AllItems.Add(this);
+
             MainWindow.ActiveWindow.itemStackPanel.Children.Add(this);
 
             Name = $"Item{LedItem.AllItems.Count}";
+
+            foreach(LedItem item in LedItem.AllItems)
+            {
+                if (item.ItemName == "LED")
+                    ItemName = $"LED{LedItem.AllItems.Count}";
+            }
+
             ID = MainWindow.IDCounter;
+
+            LedItem.RefreshSyncableItems();
 
             //make item selected if its the first
             if (LedItem.AllItems.Count == 1)
@@ -65,11 +86,33 @@ namespace HolzTools.UserControls
             InitializeComponent();
         }
 
+        public static void RefreshSyncableItems()
+        {
+            foreach(LedItem item in LedItem.AllItems)
+            {
+                List<string> tempSyncableItemList = new List<string>();
+
+                foreach (LedItem syncItem in LedItem.AllItems)
+                {
+                    //check if the syncitem can be added as a syncable item to the leditem
+                    if ((item.ID != syncItem.ID) && (item.CorrespondingArduino == syncItem.CorrespondingArduino) && (syncItem.SyncedLedItem != item.ItemName))
+                        tempSyncableItemList.Add(syncItem.ItemName);
+                }
+
+                item.SyncableItems = tempSyncableItemList;
+            }
+
+            if(MainWindow.ActiveWindow.SelectedLedItem != null)
+                MainWindow.ActiveWindow.modeSync.SelectedItemSyncableItems = MainWindow.ActiveWindow.SelectedLedItem.SyncableItems;
+        }
+
         public void Delete()
         {
             MainWindow.ActiveWindow.itemStackPanel.Children.Remove(this);
 
             AllItems.Remove(this);
+
+            LedItem.RefreshSyncableItems();
 
             //display no led message if this was the last led
             if (LedItem.AllItems.Count != 0)
@@ -102,6 +145,19 @@ namespace HolzTools.UserControls
             else
             {
                 MainWindow.ActiveWindow.SelectedLedItem = null;
+            }
+
+            //If this led was the syncparent of any other led, remove that sync
+            foreach(LedItem item in LedItem.AllItems)
+            {
+                if(item.SyncedLedItem == this.ItemName)
+                {
+                    item.SyncedLedItem = "DONTSYNC";
+                    item.CurrentMode = "Static";
+
+                    if (item == MainWindow.ActiveWindow.SelectedLedItem)
+                        MainWindow.ActiveWindow.SelectedMode = "Static";
+                }
             }
         }
 
@@ -141,6 +197,22 @@ namespace HolzTools.UserControls
         }
 
         //getters and setters
+        public static ObservableCollection<UserControls.LedItem> AllItems
+        {
+            get { return allItems; }
+            set { allItems = value; }
+        }
+
+        public List<string> SyncableItems
+        {
+            get { return syncableItems; }
+            set
+            {
+                syncableItems = value;
+                OnPropertyChanged("SyncableItems");
+            }
+        }
+
         public string ItemName
         {
             get { return itemName; }
@@ -150,6 +222,8 @@ namespace HolzTools.UserControls
                 {
                     itemName = value;
                     OnPropertyChanged("ItemName");
+
+                    LedItem.RefreshSyncableItems();
                 }
             }
         }
@@ -171,6 +245,26 @@ namespace HolzTools.UserControls
             {
                 lightningModeColor = value;
                 OnPropertyChanged("LightningModeColor");
+            }
+        }
+
+        public Color SpinnerModeSpinnerColor
+        {
+            get { return spinnerModeSpinnerColor; }
+            set
+            {
+                spinnerModeSpinnerColor = value;
+                OnPropertyChanged("SpinnerModeSpinnerColor");
+            }
+        }
+
+        public Color SpinnerModeBackgroundColor
+        {
+            get { return spinnerModeBackgroundColor; }
+            set
+            {
+                spinnerModeBackgroundColor = value;
+                OnPropertyChanged("SpinnerModeBackgroundColor");
             }
         }
 
@@ -254,6 +348,46 @@ namespace HolzTools.UserControls
             }
         }
 
+        public byte SpinnerSpeed
+        {
+            get { return spinnerSpeed; }
+            set
+            {
+                spinnerSpeed = value;
+                OnPropertyChanged("SpinnerSpeed");
+            }
+        }
+
+        public byte SpinnerLength
+        {
+            get { return spinnerLength; }
+            set
+            {
+                spinnerLength = value;
+                OnPropertyChanged("SpinnerLength");
+            }
+        }
+
+        public byte SpinnerModeSpinnerColorBrightness
+        {
+            get { return spinnerColorBrightness; }
+            set
+            {
+                spinnerColorBrightness = value;
+                OnPropertyChanged("SpinnerModeSpinnerColorBrightness");
+            }
+        }
+
+        public byte SpinnerModeBackgroundColorBrightness
+        {
+            get { return backgroundColorBrightness; }
+            set
+            {
+                backgroundColorBrightness = value;
+                OnPropertyChanged("SpinnerModeBackgroundColorBrightness");
+            }
+        }
+
         public int DPIN
         {
             get { return dPin; }
@@ -330,6 +464,8 @@ namespace HolzTools.UserControls
                     InitSerial();
                 }
                 catch { }
+
+                LedItem.RefreshSyncableItems();
             }
         }
 
@@ -390,16 +526,6 @@ namespace HolzTools.UserControls
             }
         }
 
-        public string CurrentMode
-        {
-            get { return mode; }
-            set
-            {
-                mode = value;
-                OnPropertyChanged("CurrentMode");
-            }
-        }
-
         public bool IsOn
         {
             get { return isOn; }
@@ -427,6 +553,28 @@ namespace HolzTools.UserControls
             {
                 overlappedMusicMode = value;
                 OnPropertyChanged("OverlappedMusicMode");
+            }
+        }
+
+        public string CurrentMode
+        {
+            get { return mode; }
+            set
+            {
+                mode = value;
+                OnPropertyChanged("CurrentMode");
+            }
+        }
+
+        public string SyncedLedItem
+        {
+            get { return syncedLedItem; }
+            set
+            {
+                syncedLedItem = value;
+                OnPropertyChanged("SyncedLedItem");
+
+                LedItem.RefreshSyncableItems();
             }
         }
 
