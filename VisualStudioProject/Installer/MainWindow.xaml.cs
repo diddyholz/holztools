@@ -196,13 +196,13 @@ namespace Installer
                 }
 
                 //copy the file
-                using (var bw = new BinaryWriter(System.IO.File.Open(InstallationDirectory + fileName, FileMode.OpenOrCreate)))
+                using (var bw = new BinaryWriter(System.IO.File.Open(Path.Combine(InstallationDirectory, fileName), FileMode.OpenOrCreate)))
                 {
                     bw.Write(bytes);
                 }
 
                 if (fileName.Contains(".exe"))
-                    ApplicationFullName = InstallationDirectory + fileName;
+                    ApplicationFullName = Path.Combine(InstallationDirectory, fileName);
 
                 copiedFiles++;
                 progressControl.Progress = (byte)((float)((float)((float)copiedFiles / (float)fileAmount) * 100) * 0.8);
