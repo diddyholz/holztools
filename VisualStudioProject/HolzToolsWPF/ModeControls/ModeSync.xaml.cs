@@ -29,7 +29,7 @@ namespace HolzTools.ModeControls
                 selectedItemSyncableItems = value;
                 OnPropertyChanged("SelectedItemSyncableItems");
 
-                if (selectedItemSyncableItems.Count != 0)
+                if (selectedItemSyncableItems.Count != 0 && MainWindow.ActiveWindow.SelectedLedItem.SyncedLedItem == "DONTSYNC")
                     this.Dispatcher.Invoke(() => { syncableItemsCB.SelectedIndex = 0; });
             }
         }

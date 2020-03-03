@@ -27,7 +27,7 @@ namespace HolzTools
 
         public static string InstallLocation = "";
 
-        private const string currentVersion = "1.00";
+        private const string currentVersion = "1.05";
         private const string updatePasteBin = "https://pastebin.com/raw/t2r0pWMr";
         private const string changelogPasteBin = "https://pastebin.com/raw/mQK7VVGZ";
         private const string arduinoBinaryPasteBin = "https://pastebin.com/raw/eAYERLEs";
@@ -1107,7 +1107,8 @@ namespace HolzTools
                 ledItem.InitSerial();
 
                 //reset the syncedLed if it isnt using syncmode
-                ledItem.SyncedLedItem = "DONTSYNC";
+                if(mode != "Sync")
+                    ledItem.SyncedLedItem = "DONTSYNC";
 
                 //sets the overlap mode if mode is music
                 if (ledItem.CurrentMode == "Music")

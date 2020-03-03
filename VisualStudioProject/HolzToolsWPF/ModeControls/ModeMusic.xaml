@@ -198,10 +198,10 @@
         </ScrollViewer>
         
         <!-- BASS.NET not active status -->
-        <Grid Background="#FF3C3C3C">
+        <Grid Background="#373737">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Visibility" Value="Visible"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SoundAnalyzer.IsInitialized}"
                                      Value="True">

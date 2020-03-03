@@ -146,6 +146,19 @@ namespace HolzTools.UserControls
             {
                 MainWindow.ActiveWindow.SelectedLedItem = null;
             }
+
+            //If this led was the syncparent of any other led, remove that sync
+            foreach(LedItem item in LedItem.AllItems)
+            {
+                if(item.SyncedLedItem == this.ItemName)
+                {
+                    item.SyncedLedItem = "DONTSYNC";
+                    item.CurrentMode = "Static";
+
+                    if (item == MainWindow.ActiveWindow.SelectedLedItem)
+                        MainWindow.ActiveWindow.SelectedMode = "Static";
+                }
+            }
         }
 
         public void InitSerial()
