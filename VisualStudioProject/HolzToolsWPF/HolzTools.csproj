@@ -65,7 +65,7 @@
     <Reference Include="ArduinoUploader, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ArduinoUploader.3.2.0\lib\net452\ArduinoUploader.dll</HintPath>
     </Reference>
-    <Reference Include="AutoUpdate, Version=1.0.7330.31087, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="AutoUpdate, Version=1.0.7330.32999, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Update\Update\bin\Release\AutoUpdate.dll</HintPath>
     </Reference>

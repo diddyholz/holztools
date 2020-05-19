@@ -189,6 +189,17 @@ namespace HolzTools
             //get and set the installLocation of the program
             InstallLocation = Assembly.GetEntryAssembly().Location;
 
+            bool startup = false;
+
+            if (App.Args != null)
+            {
+                foreach (string s in App.Args)
+                {
+                    if (s == "-startup")
+                        startup = true;
+                }
+            }
+
             activeWindow = this;
 
             InitializeComponent();
@@ -201,7 +212,7 @@ namespace HolzTools
                 HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(WindowProc));
             };
 
-            Thread applicationStartThread = new Thread(() => applicationStart(App.Args));
+            Thread applicationStartThread = new Thread(() => applicationStart(startup));
             applicationStartThread.IsBackground = true;
             applicationStartThread.SetApartmentState(ApartmentState.STA);
             applicationStartThread.Start();
@@ -407,17 +418,12 @@ namespace HolzTools
             }
         }
 
-        private void applicationStart(string[] args)
+        private void applicationStart(bool startup)
         {
-            bool startup = false;
-
-            if (args != null)
+            if (startup)
             {
-                foreach (string s in args)
-                {
-                    if (s == "-startup")
-                        startup = true;
-                }
+                this.Dispatcher.Invoke(new Action(() => this.Hide()));
+                isMinimized = true;
             }
 
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -481,12 +487,6 @@ namespace HolzTools
                 ShowMainGrid = true;
                 MadeChanges = false;
             }));
-
-            if (startup)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() => this.Hide()));
-                isMinimized = true;
-            }
         }
 
         private void setEveryLedMode(bool getInformation)

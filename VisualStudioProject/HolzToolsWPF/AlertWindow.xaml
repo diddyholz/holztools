@@ -23,7 +23,7 @@
             </BeginStoryboard>
         </EventTrigger>
     </Window.Triggers>
-    <Border CornerRadius="4" Background="#FF2D2D2D" BorderThickness="1"
+    <Border CornerRadius="1" Background="#FF2D2D2D" BorderThickness="1"
             BorderBrush="{DynamicResource AccentColor}" x:Name="rootBorder">
         <Grid>
             <Grid.ColumnDefinitions>
