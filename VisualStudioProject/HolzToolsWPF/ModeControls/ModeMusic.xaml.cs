@@ -22,7 +22,7 @@ namespace HolzTools.ModeControls
     public partial class ModeMusic : INotifyPropertyChanged
     {
         private string[] selectedDevice;
-        
+
         private byte intensity;
 
         private Analyzer analyzer;
@@ -45,27 +45,34 @@ namespace HolzTools.ModeControls
         public void SetIntensity(List<byte> data)
         {
             if (data.Count < 16) return;
-        
-            //send the sound intensity value to all items using music mode
-            foreach(LedItem item in LedItem.AllItems)
+
+            //send the sound intensity value to all items using music mode (each item can have their own musicFrequency setting)
+            foreach (LedItem item in LedItem.AllItems)
             {
                 if(item.CurrentMode == "Music")
                 {
-                    //each item can have their own musicFrequency setting
-                    item.SerialWrite($"+{ data[item.MusicFrequency] }\\n");
+                    if(item.MusicUseExponential)
+                        item.SerialWrite($"+{ expSensFunction(data[item.MusicFrequency]) }\\n");
+                    else
+                        item.SerialWrite($"+{ data[item.MusicFrequency] }\\n");
                 }
             }
 
             //set the intensity for the preview
-            Intensity = data[MusicFrequency];
+            //Intensity = data[MusicFrequency];
         }
 
+        private int expSensFunction(int x)
+        {
+            return ((int)Math.Pow(1.021983957, x)) - 1;
+        }
+
+        //events
         private void Analyzer_InitFinished(object sender, EventArgs e)
         {
             MessageBox.Show("Successfully loaded Bass.net");
         }
 
-        //events
         private void SoundDevicesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             selectedDevice = (soundDevicesList.Items[soundDevicesList.SelectedIndex] as string).Split('-');
@@ -104,6 +111,21 @@ namespace HolzTools.ModeControls
         public string[] SelectedDevice
         {
             get { return selectedDevice; }
+        }
+
+        public bool UseExponential
+        {
+            get
+            {
+                if (MainWindow.ActiveWindow.SelectedLedItem == null) return true;
+
+                return MainWindow.ActiveWindow.SelectedLedItem.MusicUseExponential; 
+            }
+            set 
+            {
+                MainWindow.ActiveWindow.SelectedLedItem.MusicUseExponential = value;
+                OnPropertyChanged("UseExponential");
+            }
         }
 
         public byte Intensity

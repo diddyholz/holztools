@@ -41,6 +41,7 @@ namespace HolzTools.UserControls
         private byte backgroundColorBrightness = 255;
 
         private bool isOn = true;
+        private bool musicUseExponential = true;
 
         private string itemName = "LED";
         private string mode = "Static";
@@ -533,6 +534,16 @@ namespace HolzTools.UserControls
             {
                 isOn = value;
                 OnPropertyChanged("IsOn");
+            }
+        }
+
+        public bool MusicUseExponential
+        {
+            get { return musicUseExponential; }
+            set
+            {
+                musicUseExponential = value;
+                OnPropertyChanged("MusicUseExponential");
             }
         }
 
