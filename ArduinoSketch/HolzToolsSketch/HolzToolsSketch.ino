@@ -3,7 +3,7 @@
 
 #define BAUDRATE 4800
 
-const String binaryVer = "1.00";
+const String binaryVer = "1.06";
 const String arduinoModel = "NanoR3";
 
 String usbMessage = "";

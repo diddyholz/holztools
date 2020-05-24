@@ -189,6 +189,17 @@ namespace HolzTools
             //get and set the installLocation of the program
             InstallLocation = Assembly.GetEntryAssembly().Location;
 
+            bool startup = false;
+
+            if (App.Args != null)
+            {
+                foreach (string s in App.Args)
+                {
+                    if (s == "-startup")
+                        startup = true;
+                }
+            }
+
             activeWindow = this;
 
             InitializeComponent();
@@ -201,7 +212,7 @@ namespace HolzTools
                 HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(WindowProc));
             };
 
-            Thread applicationStartThread = new Thread(() => applicationStart(App.Args));
+            Thread applicationStartThread = new Thread(() => applicationStart(startup));
             applicationStartThread.IsBackground = true;
             applicationStartThread.SetApartmentState(ApartmentState.STA);
             applicationStartThread.Start();
@@ -407,17 +418,12 @@ namespace HolzTools
             }
         }
 
-        private void applicationStart(string[] args)
+        private void applicationStart(bool startup)
         {
-            bool startup = false;
-
-            if (args != null)
+            if (startup)
             {
-                foreach (string s in args)
-                {
-                    if (s == "-startup")
-                        startup = true;
-                }
+                this.Dispatcher.Invoke(new Action(() => this.Hide()));
+                isMinimized = true;
             }
 
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -481,12 +487,6 @@ namespace HolzTools
                 ShowMainGrid = true;
                 MadeChanges = false;
             }));
-
-            if (startup)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() => this.Hide()));
-                isMinimized = true;
-            }
         }
 
         private void setEveryLedMode(bool getInformation)
@@ -707,14 +707,17 @@ namespace HolzTools
                 xml.WriteString(item.SyncedLedItem);
                 xml.WriteEndElement();
 
+                xml.WriteStartElement("OverlappedMusicMode");
+                xml.WriteString(item.OverlappedMusicMode);
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("MusicUseExponential");
+                xml.WriteString(item.MusicUseExponential.ToString());
+                xml.WriteEndElement();
+
                 //on status
                 xml.WriteStartElement("On");
                 xml.WriteString(item.IsOn.ToString());
-                xml.WriteEndElement();
-
-                //overlaped mode
-                xml.WriteStartElement("OverlappedMusicMode");
-                xml.WriteString(item.OverlappedMusicMode);
                 xml.WriteEndElement();
 
                 xml.WriteEndElement();
@@ -818,6 +821,7 @@ namespace HolzTools
                         byte spinnerModeBackgroundColorBrightness = 0;
 
                         bool on = true;
+                        bool musicUseExponential = true;
 
                         Color staticModeColor = Color.FromRgb(255, 0, 0);
                         Color lightningModeColor = Color.FromRgb(255, 0, 0);
@@ -967,13 +971,17 @@ namespace HolzTools
                             {
                                 syncedLedItem = valueNode.InnerText;
                             }
-                            else if (valueNode.Name == "On")
-                            {
-                                on = Convert.ToBoolean(valueNode.InnerText);
-                            }
                             else if (valueNode.Name == "OverlappedMusicMode")
                             {
                                 overlappedMusicMode = valueNode.InnerText;
+                            }
+                            else if (valueNode.Name == "MusicUseExponential")
+                            {
+                                musicUseExponential = Convert.ToBoolean(valueNode.InnerText);
+                            }
+                            else if (valueNode.Name == "On")
+                            {
+                                on = Convert.ToBoolean(valueNode.InnerText);
                             }
                             else
                             {
@@ -1013,7 +1021,8 @@ namespace HolzTools
                             SpinnerModeBackgroundColor = spinnerModeBackgroundColor,
                             SpinnerModeSpinnerColorBrightness = spinnerModeSpinnerColorBrightness,
                             SpinnerModeBackgroundColorBrightness = spinnerModeBackgroundColorBrightness,
-                            SyncedLedItem = syncedLedItem
+                            SyncedLedItem = syncedLedItem,
+                            MusicUseExponential = musicUseExponential
                         };
                     }
                 }
@@ -1896,10 +1905,6 @@ namespace HolzTools
                     SelectedMode = selectedItem.CurrentMode;
                     noItemsAlert.Visibility = Visibility.Collapsed;
 
-                    //set the overlap mode for music
-                    modeMusic.OverlappedMode = SelectedLedItem.OverlappedMusicMode;
-
-                    //set every mode argument for the selected leditem
                     modeStatic.Brightness = SelectedLedItem.StaticBrightness;
                     modeStatic.SelectedColor = SelectedLedItem.StaticModeColor;
                     modeCycle.Speed = SelectedLedItem.CycleSpeed;
@@ -1917,8 +1922,10 @@ namespace HolzTools
                     modeSpinner.Speed = SelectedLedItem.SpinnerSpeed;
                     modeSpinner.Length = SelectedLedItem.SpinnerLength;
                     modeSync.SelectedItemSyncableItems = SelectedLedItem.SyncableItems;
+                    modeMusic.OverlappedMode = SelectedLedItem.OverlappedMusicMode;
+                    modeMusic.UseExponential = SelectedLedItem.MusicUseExponential;
 
-                    if(SelectedLedItem.SyncedLedItem != "DONTSYNC")
+                    if (SelectedLedItem.SyncedLedItem != "DONTSYNC")
                         modeSync.SyncedLedItem = SelectedLedItem.SyncedLedItem;
 
                     //make sync mode unavailable if syncableitems is empty

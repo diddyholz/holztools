@@ -8,11 +8,14 @@
              xmlns:controls="clr-namespace:HolzTools.CustomControls"
              xmlns:main="clr-namespace:HolzTools"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance local:ModeMusic, IsDesignTimeCreatable=True}"
+             d:DataContext="{d:DesignInstance local:ModeMusic, 
+    IsDesignTimeCreatable=True}"
              d:DesignHeight="585" d:DesignWidth="740" >
     <UserControl.Resources>
-        <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
-            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
+        <SolidColorBrush x:Key="AccentColor" 
+                         Color="{Binding Path=ActiveWindow.AccentColor,
+            RelativeSource={RelativeSource Mode=FindAncestor, 
+            AncestorType={x:Type main:MainWindow}}}"/>
     </UserControl.Resources>
     <Grid>
         <ScrollViewer Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto" 
@@ -24,7 +27,8 @@
                         <Setter Property="Margin" Value="10"/>
                         <Setter Property="Width" Value="275"/>
                         <Setter Property="CornerRadius" Value="4"/>
-                        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+                        <Setter Property="Background" 
+                                Value="{StaticResource CardBackground}"/>
                         <Setter Property="BorderThickness" Value="0"/>
                         <Setter Property="VerticalAlignment" Value="Top"/>
                     </Style>
@@ -118,6 +122,8 @@
                             <RowDefinition Height="10"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
                         </Grid.RowDefinitions>
 
                         <!-- Title -->
@@ -141,7 +147,7 @@
 
                         <!-- Displayed Mode -->
                         <ComboBox Background="Transparent" Grid.Column="1" 
-                                  Grid.Row="3" Width="200" Margin="5" 
+                                  Grid.Row="3" Margin="5" 
                                   Text="{Binding OverlappedMode, Mode=TwoWay}"
                                   x:Name="overlappedMode">
                             <ComboBoxItem Content="Static"/>
@@ -149,6 +155,27 @@
                             <ComboBoxItem Content="Rainbow"/>
                             <ComboBoxItem Content="Color Overlay"/>
                         </ComboBox>
+
+                        <!-- Exponential mode -->
+                        <Grid Grid.Column="1" Grid.Row="5" Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox Foreground="White" VerticalAlignment="Center"
+                                      IsChecked="{Binding UseExponential}"
+                                      Content="Use exponential mode"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Choose if you want to use an exponential function
+                                    to calculate the brightness of the LED's. The result
+                                    of that will be less noticable flickering and an 
+                                    overall better/smoother looking effect.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
                     </Grid>
                 </Border>
 
@@ -201,7 +228,7 @@
         <Grid Background="#373737">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Visible"/>
+                    <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SoundAnalyzer.IsInitialized}"
                                      Value="True">
@@ -227,7 +254,8 @@
                        Foreground="White" FontSize="15"/>
             <Button Content="Start BASS.NET" Grid.Column="1" Grid.Row="3" 
                     Style="{StaticResource secondaryBtnStyle}" Background="Gray"
-                    Height="25" HorizontalAlignment="Center" Click="StartBassNetBtn_Click"/>
+                    Height="25" HorizontalAlignment="Center" 
+                    Click="StartBassNetBtn_Click"/>
         </Grid>
     </Grid>
 </UserControl>
