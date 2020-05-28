@@ -16,7 +16,7 @@
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
         Background="Transparent" TextOptions.TextFormattingMode="Display"
         Foreground="White" AllowsTransparency="True" Closing="Window_Closing"
-        StateChanged="Window_StateChanged" 
+        StateChanged="Window_StateChanged"  Loaded="Window_Loaded"
         Icon="Icons/icon.ico"
         d:DesignWidth="975.258" d:DesignHeight="596.5" >
     <Window.Resources>

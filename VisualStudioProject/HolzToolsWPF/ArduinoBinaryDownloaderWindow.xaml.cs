@@ -22,9 +22,18 @@ namespace HolzTools
         public ArduinoBinaryDownloaderWindow()
         {
             InitializeComponent();
+
+            DataContext = this;
         }
 
         //events
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Window window = (Window)sender;
+            window.Topmost = true;
+            window.Activate();
+        }
+
         private void DownloadFinished(object sender, RoutedEventArgs e)
         {
             DoubleAnimation closeAnim = new DoubleAnimation()

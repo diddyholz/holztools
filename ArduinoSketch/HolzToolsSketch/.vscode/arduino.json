@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:nano",
-    "configuration": "cpu=atmega328old",
-    "sketch": "HolzToolsSketch.ino",
-    "port": "COM3"
-}

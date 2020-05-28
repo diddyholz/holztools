@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+#Arduino Hex files
+*.hex
+
+VisualStudioProject/HolzToolsWPF/bin/
+VisualStudioProject/Installer/bin/

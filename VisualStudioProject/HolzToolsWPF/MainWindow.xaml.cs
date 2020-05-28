@@ -27,7 +27,7 @@ namespace HolzTools
 
         public static string InstallLocation = "";
 
-        private const string currentVersion = "1.05";
+        private const string currentVersion = "1.07";
         private const string updatePasteBin = "https://pastebin.com/raw/t2r0pWMr";
         private const string changelogPasteBin = "https://pastebin.com/raw/mQK7VVGZ";
         private const string arduinoBinaryPasteBin = "https://pastebin.com/raw/eAYERLEs";
@@ -50,6 +50,7 @@ namespace HolzTools
         private bool isMinimized = false;
         private bool enableFanAnim = false;
         private bool syncAvailable = true;
+        private bool firstLoad = true;
 
         private double lastTop = 0.00;
 
@@ -189,17 +190,6 @@ namespace HolzTools
             //get and set the installLocation of the program
             InstallLocation = Assembly.GetEntryAssembly().Location;
 
-            bool startup = false;
-
-            if (App.Args != null)
-            {
-                foreach (string s in App.Args)
-                {
-                    if (s == "-startup")
-                        startup = true;
-                }
-            }
-
             activeWindow = this;
 
             InitializeComponent();
@@ -212,7 +202,7 @@ namespace HolzTools
                 HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(WindowProc));
             };
 
-            Thread applicationStartThread = new Thread(() => applicationStart(startup));
+            Thread applicationStartThread = new Thread(() => applicationStart());
             applicationStartThread.IsBackground = true;
             applicationStartThread.SetApartmentState(ApartmentState.STA);
             applicationStartThread.Start();
@@ -225,207 +215,198 @@ namespace HolzTools
             Update update = new Update(currentVersion, updatePasteBin, Process.GetCurrentProcess().Id, updateWindow.updateProgressBar, updateWindow.updateTextBlock, updateWindow);
 
             //check for internet connection
-            bool connectionAvailable = Update.CheckForInternet();
-
-            if (connectionAvailable)
-            {
-
-                //check for a new update
-                if (update.CheckForUpdate())
-                {
-                    AlertWindow updateAlert = new AlertWindow("An update is available. Do you want to update?", true);
-                    updateAlert.ShowDialog();
-
-                    if (updateAlert.DialogResult.Value)
-                    {
-                        update.Upgrade();
-                    }
-                }
-                else
-                {
-                    if (notifyIfNoUpdate)
-                        new AlertWindow($"{ApplicationName} is on the newest version.").ShowDialog();
-                }
-
-                using (WebClient wc = new WebClient())
-                {
-                    string newestVersion = wc.DownloadString(arduinoBinaryPasteBin).Split('|')[0];
-
-                    bool foundUpdate = false;
-
-                    List<Arduino> updatableArduinos = new List<Arduino>();
-
-                    //check if arduinos can be updated
-                    foreach (Arduino arduino in Arduino.AllArduinos)
-                    {
-                        if (arduino.BinaryVersion == "")
-                        {
-                            new AlertWindow($"Could not receive the binary Information of your Arduino at { arduino.SerialPortName }!\n" +
-                                $"If this error keeps coming up, try to replug your arduino or reflash its binary.").ShowDialog();
-                        }
-                        else if (arduino.BinaryVersion != newestVersion)
-                        {
-                            foundUpdate = true;
-                            updatableArduinos.Add(arduino);
-                        }
-                    }
-
-                    if (foundUpdate)
-                    {
-                        AlertWindow alert = new AlertWindow($"An update for { updatableArduinos.Count } of your Arduino/s is available. Do you want to install it now? " +
-                            $"Your LEDs might not continue to work properly if you don't update.", true);
-
-                        alert.ShowDialog();
-
-                        if (alert.DialogResult.Value)
-                        {
-                            string[] downloadString = wc.DownloadString(MainWindow.ArduinoBinaryPasteBin).Split('|');
-
-                            string fileName = "";
-
-                            //install the binary for the arduinos
-                            foreach (Arduino arduino in updatableArduinos)
-                            {
-                                string downloadUrl = "";
-
-                                bool finishedDownloading = false;
-
-                                //close the serialport to give the uploader access to the comport
-                                arduino.ActiveSerialPort.Close();
-
-                                //set the filename for the binary
-                                fileName = ArduinoBinaryDirectory + $@"binary{downloadString[0]}m{arduino.ArduinoType}.hex";
-
-                                //delete the file if it already exists
-                                if (File.Exists(fileName))
-                                    File.Delete(fileName);
-
-                                //set the correct downloadlink
-                                switch (arduino.ArduinoType)
-                                {
-                                    case Arduino.Type.NanoR3:
-                                        downloadUrl = downloadString[1];
-                                        break;
-
-                                    case Arduino.Type.UnoR3:
-                                        downloadUrl = downloadString[2];
-                                        break;
-                                }
-
-                                if (downloadUrl == "")
-                                {
-                                    this.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        logBoxText.Text += $"Couldn't get a valid type for Arduino at {arduino.SerialPortName}";
-                                        logBoxText.Text += Environment.NewLine;
-                                    }));
-
-                                    break;
-                                }
-
-                                this.Dispatcher.BeginInvoke(new Action(() =>
-                                {
-                                    //create a window that shows the status of the flashing progress
-                                    arduinoBinaryDownloadWindow = new ArduinoBinaryDownloaderWindow();
-                                    arduinoBinaryDownloadWindow.ShowDialog();
-                                }));
-
-                                wc.DownloadProgressChanged += (o, e) =>
-                                {
-                                    this.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
-
-                                        arduinoBinaryDownloadWindow.updateProgressBar.Value = (int)(progress * 100);
-                                    }));
-                                };
-
-                                wc.DownloadFileCompleted += (o, e) =>
-                                {
-                                    this.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing Binary";
-                                    }));
-                                    finishedDownloading = true;
-                                };
-
-                                wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
-
-                                //wait for the download to finish
-                                while (!finishedDownloading) { Thread.Sleep(100); }
-
-                                //upload the binary
-                                try
-                                {
-                                    ArduinoSketchUploader uploader = new ArduinoSketchUploader(
-                                        new ArduinoSketchUploaderOptions()
-                                        {
-                                            FileName = fileName,
-                                            PortName = arduino.SerialPortName,
-                                            ArduinoModel = (ArduinoUploader.Hardware.ArduinoModel)arduino.ArduinoType
-                                        });
-
-                                    uploader.UploadSketch();
-
-                                    this.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        logBoxText.Text += $"Finished flashing of binary for model { arduino.ArduinoType } at { arduino.SerialPortName }";
-                                        logBoxText.Text += Environment.NewLine;
-                                    }));
-                                }
-                                catch (Exception ex)
-                                {
-                                    this.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        new AlertWindow("Failed to upload binary!", false).ShowDialog();
-
-                                        logBoxText.Text += $"Failed to upload binary to model { arduino.ArduinoType } at { arduino.SerialPortName } ({ ex.GetType().Name })";
-                                        logBoxText.Text += Environment.NewLine;
-                                    }));
-                                }
-
-                                this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloadWindow.Close()));
-                            }
-
-                            //display the changelog for the newer binary
-                            new ChangeLogWindow(wc.DownloadString(arduinoBinaryChangelogPasteBin), newestVersion).ShowDialog();
-
-                            //set every led mode again
-                            setEveryLedMode(false);
-                        }
-                    }
-                    else
-                    {
-                        if (notifyIfNoUpdate)
-                        {
-                            if(Arduino.AllArduinos.Count == 1)
-                                new AlertWindow("The binary on your Arduino is on the newest version.").ShowDialog();
-                            else
-                                new AlertWindow("The binary on your Arduinos is on the newest version.").ShowDialog();
-                        }
-                    }
-                }
-            }
-            else if (!connectionAvailable)
+            if (!Update.CheckForInternet())
             {
                 new AlertWindow("Couldn't check for updates!", false).ShowDialog();
 
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                this.Dispatcher.Invoke(new Action(() =>
                 {
                     logBoxText.Text += $"Couldn't check for updates (Unable to connect to 'http://google.com/generate_204')";
                     logBoxText.Text += Environment.NewLine;
                 }));
+
+                return;
+            }
+
+            //check for application update
+            if (update.CheckForUpdate())
+            {
+                string changelogString = "";
+
+                using(WebClient wc = new WebClient())
+                {
+                    changelogString = wc.DownloadString(changelogPasteBin);
+                }
+
+                NewUpdateWindow updateAlert = new NewUpdateWindow(update.LatestVersion, changelogString);
+                updateAlert.ShowDialog();
+
+                if (updateAlert.DialogResult.Value)
+                {
+                    update.Upgrade();
+                }
+            }
+            else
+            {
+                if (notifyIfNoUpdate)
+                    new AlertWindow($"{ApplicationName} is on the newest version.").ShowDialog();
+            }
+
+            //check for arduino binary update
+            using (WebClient wc = new WebClient())
+            {
+                string newestVersion = wc.DownloadString(arduinoBinaryPasteBin).Split('|')[0];
+
+                List<Arduino> updatableArduinos = new List<Arduino>();
+
+                //check which arduinos can be updated
+                foreach (Arduino arduino in Arduino.AllArduinos)
+                {
+                    if (arduino.BinaryVersion == "")
+                    {
+                        new AlertWindow($"Could not receive the binary information of your Arduino at { arduino.SerialPortName }!\n" +
+                            $"Please check if your Arduino is properly connected. If you plugged the Arduino into a different port, " +
+                            $"then you must update the COM-Port settings for that Arduino.").ShowDialog();
+                    }
+                    else if (arduino.BinaryVersion != newestVersion)
+                    {
+                        updatableArduinos.Add(arduino);
+                    }
+                }
+
+                if (updatableArduinos.Count > 0)
+                {
+                    NewUpdateWindow alert = new NewUpdateWindow(newestVersion, wc.DownloadString(arduinoBinaryChangelogPasteBin), true, (byte)updatableArduinos.Count);
+
+                    alert.ShowDialog();
+
+                    if (alert.DialogResult.Value)
+                    {
+                        string[] downloadString = wc.DownloadString(MainWindow.ArduinoBinaryPasteBin).Split('|');
+
+                        string fileName = "";
+
+                        //install the binary for the arduinos
+                        foreach (Arduino arduino in updatableArduinos)
+                        {
+                            string downloadUrl = "";
+
+                            bool finishedDownloading = false;
+
+                            //close the serialport to give the uploader access to the comport
+                            arduino.ActiveSerialPort.Close();
+
+                            //set the filename for the binary
+                            fileName = ArduinoBinaryDirectory + $@"binary{downloadString[0]}m{arduino.ArduinoType}.hex";
+
+                            //delete the file if it already exists
+                            if (File.Exists(fileName))
+                                File.Delete(fileName);
+
+                            //set the correct downloadlink
+                            switch (arduino.ArduinoType)
+                            {
+                                case Arduino.Type.NanoR3:
+                                    downloadUrl = downloadString[1];
+                                    break;
+
+                                case Arduino.Type.UnoR3:
+                                    downloadUrl = downloadString[2];
+                                    break;
+                            }
+
+                            if (downloadUrl == "")
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    logBoxText.Text += $"Couldn't get a valid type for Arduino at {arduino.SerialPortName}";
+                                    logBoxText.Text += Environment.NewLine;
+                                }));
+
+                                break;
+                            }
+
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                //create a window that shows the status of the flashing progress
+                                arduinoBinaryDownloadWindow = new ArduinoBinaryDownloaderWindow();
+                                arduinoBinaryDownloadWindow.ShowDialog();
+                            }));
+
+                            wc.DownloadProgressChanged += (o, e) =>
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
+
+                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = (int)(progress * 100);
+                                }));
+                            };
+
+                            wc.DownloadFileCompleted += (o, e) =>
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = 70;
+                                    arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing Binary";
+                                }));
+                                finishedDownloading = true;
+                            };
+
+                            wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
+
+                            //wait for the download to finish
+                            while (!finishedDownloading) { Thread.Sleep(100); }
+
+                            //upload the binary
+                            try
+                            {
+                                ArduinoSketchUploader uploader = new ArduinoSketchUploader(
+                                    new ArduinoSketchUploaderOptions()
+                                    {
+                                        FileName = fileName,
+                                        PortName = arduino.SerialPortName,
+                                        ArduinoModel = (ArduinoUploader.Hardware.ArduinoModel)arduino.ArduinoType
+                                    });
+
+                                uploader.UploadSketch();
+
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    logBoxText.Text += $"Finished flashing of binary for model { arduino.ArduinoType } at { arduino.SerialPortName }";
+                                    logBoxText.Text += Environment.NewLine;
+                                }));
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    new AlertWindow("Failed to upload binary!", false).ShowDialog();
+
+                                    logBoxText.Text += $"Failed to upload binary to model { arduino.ArduinoType } at { arduino.SerialPortName } ({ ex.GetType().Name })";
+                                    logBoxText.Text += Environment.NewLine;
+                                }));
+                            }
+
+                            this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloadWindow.Close()));
+                        }
+
+                        //set every led mode again
+                        setEveryLedMode(false);
+                    }
+                }
+                else if (notifyIfNoUpdate)
+                {
+                    if(Arduino.AllArduinos.Count == 1)
+                        new AlertWindow("The binary on your Arduino is on the newest version.").ShowDialog();
+                    else
+                        new AlertWindow("The binaries on your Arduinos are on the newest version.").ShowDialog();
+                }
             }
         }
 
-        private void applicationStart(bool startup)
+        private void applicationStart()
         {
-            if (startup)
-            {
-                this.Dispatcher.Invoke(new Action(() => this.Hide()));
-                isMinimized = true;
-            }
-
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 loadingText.Text = "Loading Settings";
@@ -439,7 +420,7 @@ namespace HolzTools
             if (Directory.Exists(Update.InstallerLocation))
             {
                 Directory.Delete(Update.InstallerLocation, true);
-                new Thread(getChangelogThread) { ApartmentState = ApartmentState.STA, IsBackground = true }.Start();
+                getChangelogThread();
             }
 
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -1477,7 +1458,7 @@ namespace HolzTools
             LedItem item = new LedItem();
         }
 
-        private void ModeTabControl_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ModeTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source == modeTabControl)
             {
@@ -1492,6 +1473,9 @@ namespace HolzTools
         {
             this.Show();
             this.Opacity = 1;
+            this.Topmost = true;
+            this.Activate();
+
             isMinimized = false;
         }
 
@@ -1526,6 +1510,22 @@ namespace HolzTools
             }
 
             isMinimized = this.WindowState == WindowState.Minimized;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!firstLoad) return;
+
+            firstLoad = false;
+
+            if (App.Args != null)
+            {
+                foreach (string s in App.Args)
+                {
+                    if (s == "-startup")
+                        this.Hide();
+                }
+            }
         }
 
         private void Icon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
