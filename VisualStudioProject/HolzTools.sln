@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "Installer\Inst
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolzTools", "HolzToolsWPF\HolzTools.csproj", "{5449C742-A056-43D9-9E48-63A302A8AFDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoUpdate", "..\..\Update\Update\AutoUpdate.csproj", "{5AF74723-09E7-4F6A-BDD9-ECD6EABB83CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5449C742-A056-43D9-9E48-63A302A8AFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5449C742-A056-43D9-9E48-63A302A8AFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5449C742-A056-43D9-9E48-63A302A8AFDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AF74723-09E7-4F6A-BDD9-ECD6EABB83CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AF74723-09E7-4F6A-BDD9-ECD6EABB83CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AF74723-09E7-4F6A-BDD9-ECD6EABB83CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AF74723-09E7-4F6A-BDD9-ECD6EABB83CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

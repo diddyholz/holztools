@@ -143,6 +143,9 @@
     <Compile Include="ModeControls\ModeSync.xaml.cs">
       <DependentUpon>ModeSync.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NewUpdateWindow.xaml.cs">
+      <DependentUpon>NewUpdateWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -224,6 +227,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ModeControls\ModeStatic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NewUpdateWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

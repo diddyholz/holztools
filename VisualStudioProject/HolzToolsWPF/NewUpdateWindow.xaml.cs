@@ -1,40 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace HolzTools
 {
-    public partial class ChangeLogWindow : Window
+    /// <summary>
+    /// Interaction logic for NewUpdateWindow.xaml
+    /// </summary>
+    public partial class NewUpdateWindow
     {
+        bool value = false;
+        bool isArduinoUpdate = false;
+
+        string newVersion = "PLACEHOLDER";
+
         ObservableCollection<string> fixList = new ObservableCollection<string>();          //the list that contains all fixes
         ObservableCollection<string> featureList = new ObservableCollection<string>();      //the list that contains all new features
         ObservableCollection<string> optimizeList = new ObservableCollection<string>();     //the list that contains all optimizations
 
-        private string binaryVersion = "";
-
-        public ChangeLogWindow(string changelogString = "(i)No Changelog Available", string binaryVersion = "")
+        public NewUpdateWindow(string _newVersion, string _changelogString, bool _isArduinoUpdate = false, byte _updatableArduinos = 0)
         {
-            InitializeComponent();
+            newVersion = _newVersion;
+            isArduinoUpdate = _isArduinoUpdate;
 
             fixList.CollectionChanged += FixList_CollectionChanged;
             featureList.CollectionChanged += FeatureList_CollectionChanged;
             optimizeList.CollectionChanged += OptimizeList_CollectionChanged;
 
-            bool isTypeAttribute = false;
+            InitializeComponent(); bool isTypeAttribute = false;
             bool isFistChar = false;
 
             ObservableCollection<string> activeList = null;
 
-            this.binaryVersion = binaryVersion;
-
-            if (!string.IsNullOrEmpty(binaryVersion))
-                versionText.Text = "Changelog for binary version ";
-
             string change = "";
 
-            foreach (char c in changelogString)
+            foreach (char c in _changelogString)
             {
                 if (c == '(' && !isTypeAttribute)
                 {
@@ -43,7 +56,6 @@ namespace HolzTools
                 }
                 else if (c == '(' && isTypeAttribute)
                 {
-                    //gets the next char as a type attribute
                     change += c;
                     isTypeAttribute = false;
                 }
@@ -97,9 +109,13 @@ namespace HolzTools
                 activeList.Add(change);
             }
 
+            if (IsArduinoUpdate)
+                yesBtn.Content = $"Update {_updatableArduinos} Arduino/s";
+
             DataContext = this;
         }
 
+        //events
         private void OptimizeList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             optimizeGrid.Visibility = Visibility.Visible;
@@ -115,20 +131,15 @@ namespace HolzTools
             fixGrid.Visibility = Visibility.Visible;
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void YesNoBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (MainWindow.ActiveWindow.BlockPopups)
-                this.DialogResult = false;
+            Button btn = (Button)sender;
+
+            if (btn.Name == "yesBtn")
+                value = true;
             else
-                System.Media.SystemSounds.Asterisk.Play();
+                value = false;
 
-            Window window = (Window)sender;
-            window.Topmost = true;
-            window.Activate();
-        }
-
-        private void OkBtn_Click(object sender, RoutedEventArgs e)
-        {
             DoubleAnimation closeAnim = new DoubleAnimation()
             {
                 From = 1,
@@ -142,7 +153,37 @@ namespace HolzTools
 
         private void ClosingStoryboard_Completed(object sender, EventArgs e)
         {
-            this.Close();
+            if (this.DialogResult == null)
+                this.DialogResult = value;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (MainWindow.ActiveWindow.BlockPopups)
+                this.DialogResult = false;
+            else
+                System.Media.SystemSounds.Asterisk.Play();
+
+            Window window = (Window)sender;
+            window.Topmost = true;
+            window.Activate();
+        }
+
+        //getters and setters
+        public string NewVersion
+        {
+            get
+            {
+                return newVersion;
+            }
+        }
+
+        public bool IsArduinoUpdate
+        {
+            get
+            {
+                return isArduinoUpdate;
+            }
         }
 
         public ObservableCollection<string> FixList
@@ -158,17 +199,6 @@ namespace HolzTools
         public ObservableCollection<string> OptimizeList
         {
             get { return optimizeList; }
-        }
-
-        public string CurrentVersion
-        {
-            get 
-            {
-                if (binaryVersion != "")
-                    return binaryVersion;
-
-                return MainWindow.CurrentVersion; 
-            }
         }
 
         public Color AccentColor

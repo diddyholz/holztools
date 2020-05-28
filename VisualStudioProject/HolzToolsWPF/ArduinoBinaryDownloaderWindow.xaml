@@ -7,9 +7,10 @@
         mc:Ignorable="d"
         Title="UpdateWindow" Height="95" Width="400" WindowStyle="None"
         ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
-        TextOptions.TextFormattingMode="Display" WindowStartupLocation="CenterScreen">
+        TextOptions.TextFormattingMode="Display" WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
     <Window.Resources>
-        <SolidColorBrush x:Key="AccentColor" Color="#FFC80000"/>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
     </Window.Resources>
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
@@ -22,14 +23,14 @@
             </BeginStoryboard>
         </EventTrigger>
     </Window.Triggers>
-    <Border CornerRadius="4"  Background="#FF464646" BorderThickness="1"
+    <Border CornerRadius="1"  Background="#FF464646" BorderThickness="1"
             BorderBrush="{DynamicResource AccentColor}" x:Name="rootBorder">
         <Grid>
             <TextBlock Text="Updating Binary" Foreground="White" FontSize="15"
                        Margin="10,10,0,0"/>
-            <ProgressBar x:Name="updateProgressBar" Height="15" BorderThickness="0"
+            <ProgressBar x:Name="updateProgressBar"  BorderThickness="0"
                      Foreground="{DynamicResource AccentColor}" Width="360"
-                     VerticalAlignment="Bottom" Margin="0,0,0,35"/>
+                     VerticalAlignment="Bottom" Margin="0,0,0,40"/>
             <TextBlock x:Name="statusTextBlock" Text="Downloading" Foreground="White"
                        VerticalAlignment="Bottom" HorizontalAlignment="Center"
                        Margin="0,0,0,12" FontSize="12"/>
