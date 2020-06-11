@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">HolzTools</string>
+    <string name="navigation_drawer_open">Open Navigation Drawer</string>
+    <string name="navigation_drawer_close">Close Navigation Drawer</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="led_type_3_PIN_ARGB">0</string>
+    <string name="led_type_4_PIN_RGB">1</string>
+
+    <string name="direction_incrementing">0</string>
+    <string name="direction_decrementing">1</string>
+
+    <string-array name="led_type_entry_list">
+        <item>3-PIN A-RGB</item>
+        <item>4-PIN RGB</item>
+    </string-array>
+
+    <string-array name="led_type_value_list">
+        <item>@string/led_type_3_PIN_ARGB</item>
+        <item>@string/led_type_4_PIN_RGB</item>
+    </string-array>
+
+    <string-array name="direction_entry_list">
+        <item>Incrementing</item>
+        <item>Decrementing</item>
+    </string-array>
+
+    <string-array name="direction_value_list">
+        <item>@string/direction_incrementing</item>
+        <item>@string/direction_decrementing</item>
+    </string-array>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+</resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="PrivateResource">
+
+    <PreferenceCategory
+        android:title="Mode Preferences"
+        app:iconSpaceReserved="false"
+        app:pref_categoryColor="@color/colorPrimary">
+
+        <SeekBarPreference
+            android:key="MODE_CYCLE_BRIGHTNESS"
+            android:layout="@layout/preference_widget_seekbar"
+            android:max="255"
+            android:title="Brightness"
+            android:summary="Choose how bright your LED-strip should be"
+            app:iconSpaceReserved="false"
+            app:min="0"
+            app:showSeekBarValue="true" />
+
+        <SeekBarPreference
+            android:key="MODE_CYCLE_SPEED"
+            android:layout="@layout/preference_widget_seekbar"
+            android:max="50"
+            android:title="Speed"
+            android:summary="Choose how fast the LEDs should change their color"
+            app:iconSpaceReserved="false"
+            app:min="0"
+            app:showSeekBarValue="true" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
