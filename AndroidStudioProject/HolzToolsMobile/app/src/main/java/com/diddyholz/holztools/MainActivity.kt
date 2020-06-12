@@ -14,6 +14,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.Call
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity()
 {
@@ -29,6 +35,16 @@ class MainActivity : AppCompatActivity()
         const val ModeOverlay:Byte = 4
         const val ModeSpinner:Byte = 5
 
+        // constants for tcp codes
+        const val TCPGETINFO = "GETINFO"
+        const val TCPINVALIDCOMMAND = 400
+        const val TCPNOCONNECTEDLEDS = 300
+        const val TCPREQUESTOK = 200
+
+        val client = OkHttpClient.Builder().connectTimeout(200, TimeUnit.MILLISECONDS).build()
+
+        var serverPort = 39769
+
         lateinit var activeMainActivity:MainActivity
 
         fun isNetworkOnline(): Boolean
@@ -37,6 +53,29 @@ class MainActivity : AppCompatActivity()
             val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
 
             return activeNetwork?.isConnectedOrConnecting == true
+        }
+
+        fun sendGetRequest(targetIp: String, targetPort: String, attributes: MutableList<HTTPAttribute>): String?
+        {
+            val urlBuilder = "http://$targetIp:$targetPort".toHttpUrlOrNull()!!.newBuilder()
+
+            // add every attribute
+            for(attr in attributes)
+            {
+                urlBuilder.addQueryParameter(attr.attrName, attr.attrValue)
+            }
+
+            urlBuilder.port(targetPort.toInt())
+
+            val url = urlBuilder.build().toString()
+
+            val request: Request = Request.Builder().url(url).addHeader("Connection", "close").build()
+
+            val call: Call = client.newCall(request)
+
+            val response: Response = call.execute()
+
+            return response.body?.string()
         }
     }
 
@@ -75,7 +114,7 @@ class MainActivity : AppCompatActivity()
         if(selectedLedItem == null)
             return false
 
-        var newIntent = Intent(this, PropertiesActivity().javaClass)
+        var newIntent = Intent(this, LedPropertiesActivity().javaClass)
         newIntent.putExtra("LedItemName", selectedLedItem!!.customName)
         startActivity(newIntent)
 

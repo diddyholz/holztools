@@ -62,7 +62,8 @@
             android:key="PREFERENCE_LED_AUTOIP"
             android:layout="@layout/preference"
             android:summary="Choose which IP to use from an automatically scanned range of IP-Addresses"
-            android:title="IP-Address" />
+            android:title="IP-Address"
+            android:enabled="false" />
 
     </PreferenceCategory>
 

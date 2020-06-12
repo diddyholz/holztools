@@ -11,12 +11,13 @@ import androidx.preference.ListPreference
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.takisoft.preferencex.EditTextPreference
 import com.takisoft.preferencex.PreferenceFragmentCompat
-import kotlinx.android.synthetic.main.fragment_select_mode.*
 import kotlinx.coroutines.*
+import java.net.ConnectException
 import java.net.InetAddress
+import java.net.SocketTimeoutException
 
 
-class PropertiesFragment : PreferenceFragmentCompat()
+class LedPropertiesFragment : PreferenceFragmentCompat()
 {
     val useAdvancedIpSettingsPreference = "PREFERENCE_LED_USEADVANCED"
     val ledIsConnectedToPC = "PREFERENCE_LED_ISCONNECTEDTOPC"
@@ -117,24 +118,80 @@ class PropertiesFragment : PreferenceFragmentCompat()
 
         CoroutineScope(Dispatchers.Default).launch {
             var reachableAddresses = mutableListOf<InetAddress>()
-            var addresses = mutableListOf<String>()
+            var addressesEntries = mutableListOf<String>()
+            var addressesValues = mutableListOf<String>()
 
             reachableAddresses = getReachableIPs()
 
             // add every discovered ip to a list
             for (address in reachableAddresses)
-                if(address.hostAddress != ownIP)
-                    addresses.add(address.hostAddress)
+            {
+                if (address.hostAddress != ownIP)
+                {
+                    // check if HolzTools desktop can be reached with that ip address
+                    try {
+                        val response = MainActivity.sendGetRequest(address.hostAddress, MainActivity.serverPort.toString(), mutableListOf<HTTPAttribute>(HTTPAttribute("Command", "GETINFO")))
 
-            addresses.sort()
+                        // decode the response
+                        if(response != null && response != MainActivity.TCPINVALIDCOMMAND.toString() && response != MainActivity.TCPNOCONNECTEDLEDS.toString())
+                        {
+                            val tmp = response.split('&')
 
-            findPreference<ListPreference>(ledAutoIPAddress)!!.entries = addresses.toTypedArray()
-            findPreference<ListPreference>(ledAutoIPAddress)!!.entryValues = addresses.toTypedArray()
+                            var hostname: String = ""
+                            var ledNames: List<String> = listOf()
 
-            if(addresses.count() == 0)
-                CoroutineScope(Dispatchers.Main).launch { requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.VISIBLE }
+                            // get all attributes in the response
+                            for(arg in tmp)
+                            {
+                                val argName = arg.split('=')[0]
+                                val argValue = arg.split('=')[1]
+
+                                when(argName)
+                                {
+                                    "Hostname" -> hostname = argValue
+                                    "Leds" -> ledNames = argValue.split(',')
+                                }
+                            }
+
+                            if(hostname.isNullOrEmpty())
+                                hostname = address.hostAddress
+
+                            for(ledName in ledNames)
+                            {
+                                addressesEntries.add("$ledName@$hostname (${address.hostAddress})")
+                                addressesValues.add("$ledName@${address.hostAddress}")
+                            }
+                        }
+                    }
+                    catch (e: SocketTimeoutException)
+                    {
+                        addressesEntries.add(address.hostAddress)
+                        addressesValues.add(address.hostAddress)
+                    }
+                    catch(e: ConnectException)
+                    {
+                        addressesEntries.add(address.hostAddress)
+                        addressesValues.add(address.hostAddress)
+                    }
+                }
+            }
+
+            addressesEntries.sort()
+            addressesValues.sort()
+
+            findPreference<ListPreference>(ledAutoIPAddress)!!.entries = addressesEntries.toTypedArray()
+            findPreference<ListPreference>(ledAutoIPAddress)!!.entryValues = addressesValues.toTypedArray()
+
+            if(addressesEntries.count() == 0)
+                CoroutineScope(Dispatchers.Main).launch {
+                    requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.VISIBLE
+                    findPreference<ListPreference>(ledAutoIPAddress)!!.isEnabled = false
+                }
             else
-                CoroutineScope(Dispatchers.Main).launch { requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.GONE }
+                CoroutineScope(Dispatchers.Main).launch {
+                    requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.GONE
+                    findPreference<ListPreference>(ledAutoIPAddress)!!.isEnabled = true
+                }
 
             swipeRefreshLayout.isRefreshing = false
         }

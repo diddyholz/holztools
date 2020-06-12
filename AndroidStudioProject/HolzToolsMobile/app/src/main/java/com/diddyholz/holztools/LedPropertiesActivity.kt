@@ -4,12 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.toolbar
-import kotlinx.android.synthetic.main.activity_properties.*
 
-class PropertiesActivity : AppCompatActivity() {
+class LedPropertiesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_properties)
@@ -22,7 +19,7 @@ class PropertiesActivity : AppCompatActivity() {
             finish()
         }
 
-        supportFragmentManager.beginTransaction().add(R.id.preferenceFragmentContainer, PropertiesFragment()).commit()
+        supportFragmentManager.beginTransaction().add(R.id.preferenceFragmentContainer, LedPropertiesFragment()).commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -451,6 +451,7 @@ namespace HolzTools
                         tmp[0] = tmp[0].Substring(1);
                         tmp[tmp.Length - 1] = tmp[tmp.Length - 1].Split(' ')[0];
 
+                        string command = "";
                         string ledItemName = "";
                         string mode = "";
 
@@ -484,6 +485,10 @@ namespace HolzTools
 
                             switch (argName)
                             {
+                                case "Command":
+                                    command = argValue;
+                                    break;
+
                                 case "LEDItem":
                                     ledItemName = argValue;
                                     break;
@@ -562,88 +567,113 @@ namespace HolzTools
                             }
                         }
 
-                        // find the correct led
-                        foreach (LedItem item in LedItem.AllItems)
+                        if (command == TCPADDLED)
                         {
-                            if (item.ItemName == ledItemName)
-                                ledItem = item;
-                        }
 
-                        if (ledItem != null)
-                        {
-                            // set the mode and mode preferences
-                            ledItem.CurrentMode = mode;
-
-                            switch(mode)
+                            // find the correct led
+                            foreach (LedItem item in LedItem.AllItems)
                             {
-                                case "Static":
-                                    ledItem.StaticModeColor = staticModeColor;
-                                    ledItem.StaticBrightness = staticBrightness;
-                                    break;
-
-                                case "Cycle":
-                                    ledItem.CycleBrightness = cycleBrightness;
-                                    ledItem.CycleSpeed = cycleSpeed;
-                                    break;
-
-                                case "Rainbow":
-                                    ledItem.RainbowBrightness = rainbowBrightness;
-                                    ledItem.RainbowSpeed = rainbowSpeed;
-                                    break;
-
-                                case "Lightning":
-                                    ledItem.LightningModeColor = lightningModeColor;
-                                    ledItem.LightningBrightness = lightningBrightness;
-                                    break;
-
-                                case "Color Overlay":
-                                    ledItem.OverlaySpeed = overlaySpeed;
-                                    ledItem.OverlayDirection = overlayDirection;
-                                    break;
-
-                                case "Color Spinner":
-                                    ledItem.SpinnerModeSpinnerColor = spinnerModeSpinnerColor;
-                                    ledItem.SpinnerModeSpinnerColorBrightness = spinnerColorBrightness;
-                                    ledItem.SpinnerModeBackgroundColor = spinnerModeBackgroundColor;
-                                    ledItem.SpinnerModeBackgroundColorBrightness = backgroundColorBrightness;
-                                    ledItem.SpinnerSpeed = spinnerSpeed;
-                                    ledItem.SpinnerLength = spinnerLength;
-                                    break;
+                                if (item.ItemName == ledItemName)
+                                    ledItem = item;
                             }
 
-                            //set every mode argument for the current leditem
-                            this.Dispatcher.Invoke(() =>
+                            if (ledItem != null)
                             {
-                                modeStatic.Brightness = ledItem.StaticBrightness;
-                                modeStatic.SelectedColor = ledItem.StaticModeColor;
-                                modeCycle.Brightness = ledItem.CycleBrightness;
-                                modeCycle.Speed = ledItem.CycleSpeed;
-                                modeRainbow.Speed = ledItem.RainbowSpeed;
-                                modeRainbow.Brightness = ledItem.RainbowBrightness;
-                                modeLightning.Brightness = ledItem.LightningBrightness;
-                                modeLightning.SelectedColor = ledItem.LightningModeColor;
-                                modeOverlay.Speed = ledItem.OverlaySpeed;
-                                modeOverlay.Direction = ledItem.OverlayDirection;
-                                modeSpinner.Speed = ledItem.SpinnerSpeed;
-                                modeSpinner.SpinnerColor = ledItem.SpinnerModeSpinnerColor;
-                                modeSpinner.BackgroundColor = ledItem.SpinnerModeBackgroundColor;
-                                modeSpinner.Length = ledItem.SpinnerLength;
-                                modeSpinner.SpinnerColorBrightness = ledItem.SpinnerModeSpinnerColorBrightness;
-                                modeSpinner.BackgroundColorBrightness = ledItem.SpinnerModeBackgroundColorBrightness;
-                                modeSync.SelectedItemSyncableItems = ledItem.SyncableItems;
-                                modeSync.SyncedLedItem = ledItem.SyncedLedItem;
-                            });
+                                // set the mode and mode preferences
+                                ledItem.CurrentMode = mode;
 
-                            sendDataToArduino(ledItem, ledItem.CurrentMode, false);
+                                switch (mode)
+                                {
+                                    case "Static":
+                                        ledItem.StaticModeColor = staticModeColor;
+                                        ledItem.StaticBrightness = staticBrightness;
+                                        break;
 
-                            // reset the mode arguments for the selected LedItem
-                            this.Dispatcher.Invoke(() => SelectedLedItem = SelectedLedItem);
+                                    case "Cycle":
+                                        ledItem.CycleBrightness = cycleBrightness;
+                                        ledItem.CycleSpeed = cycleSpeed;
+                                        break;
 
-                            response = TCPREQUESTOK.ToString();
+                                    case "Rainbow":
+                                        ledItem.RainbowBrightness = rainbowBrightness;
+                                        ledItem.RainbowSpeed = rainbowSpeed;
+                                        break;
+
+                                    case "Lightning":
+                                        ledItem.LightningModeColor = lightningModeColor;
+                                        ledItem.LightningBrightness = lightningBrightness;
+                                        break;
+
+                                    case "Color Overlay":
+                                        ledItem.OverlaySpeed = overlaySpeed;
+                                        ledItem.OverlayDirection = overlayDirection;
+                                        break;
+
+                                    case "Color Spinner":
+                                        ledItem.SpinnerModeSpinnerColor = spinnerModeSpinnerColor;
+                                        ledItem.SpinnerModeSpinnerColorBrightness = spinnerColorBrightness;
+                                        ledItem.SpinnerModeBackgroundColor = spinnerModeBackgroundColor;
+                                        ledItem.SpinnerModeBackgroundColorBrightness = backgroundColorBrightness;
+                                        ledItem.SpinnerSpeed = spinnerSpeed;
+                                        ledItem.SpinnerLength = spinnerLength;
+                                        break;
+                                }
+
+                                //set every mode argument for the current leditem
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    modeStatic.Brightness = ledItem.StaticBrightness;
+                                    modeStatic.SelectedColor = ledItem.StaticModeColor;
+                                    modeCycle.Brightness = ledItem.CycleBrightness;
+                                    modeCycle.Speed = ledItem.CycleSpeed;
+                                    modeRainbow.Speed = ledItem.RainbowSpeed;
+                                    modeRainbow.Brightness = ledItem.RainbowBrightness;
+                                    modeLightning.Brightness = ledItem.LightningBrightness;
+                                    modeLightning.SelectedColor = ledItem.LightningModeColor;
+                                    modeOverlay.Speed = ledItem.OverlaySpeed;
+                                    modeOverlay.Direction = ledItem.OverlayDirection;
+                                    modeSpinner.Speed = ledItem.SpinnerSpeed;
+                                    modeSpinner.SpinnerColor = ledItem.SpinnerModeSpinnerColor;
+                                    modeSpinner.BackgroundColor = ledItem.SpinnerModeBackgroundColor;
+                                    modeSpinner.Length = ledItem.SpinnerLength;
+                                    modeSpinner.SpinnerColorBrightness = ledItem.SpinnerModeSpinnerColorBrightness;
+                                    modeSpinner.BackgroundColorBrightness = ledItem.SpinnerModeBackgroundColorBrightness;
+                                    modeSync.SelectedItemSyncableItems = ledItem.SyncableItems;
+                                    modeSync.SyncedLedItem = ledItem.SyncedLedItem;
+                                });
+
+                                sendDataToArduino(ledItem, ledItem.CurrentMode, false);
+
+                                // reset the mode arguments for the selected LedItem
+                                this.Dispatcher.Invoke(() => SelectedLedItem = SelectedLedItem);
+
+                                response = TCPREQUESTOK.ToString();
+                            }
+                            else
+                            {
+                                response = TCPLEDNOTFOUND.ToString();
+                            }
+                        }
+                        else if (command == TCPGETINFO)
+                        {
+                            response = $"Hostname={Environment.MachineName}&Leds=";
+
+                            // add every ledname
+                            foreach(LedItem item in LedItem.AllItems)
+                            {
+                                response += $"{item.ItemName},";
+                            }
+
+                            // cut the last comma
+                            response = response.Substring(0, response.Length - 1);
+
+                            // send an error if there are no connected leds
+                            if (LedItem.AllItems.Count == 0)
+                                response = TCPNOCONNECTEDLEDS.ToString();
                         }
                         else
                         {
-                            response = TCPNOLEDFOUND.ToString();
+                            response = TCPINVALIDCOMMAND.ToString();
                         }
 
                         tcpSendResponse(response, sw);
@@ -2247,15 +2277,35 @@ namespace HolzTools
             set { settingsWindow = value; }
         }
 
-        //tcp listener error codes
+        //tcp listener codes
         public static int TCPREQUESTOK
         {
             get { return 200; }
         }
 
-        public static int TCPNOLEDFOUND
+        public static int TCPINVALIDCOMMAND
+        {
+            get { return 400; }
+        }
+
+        public static int TCPLEDNOTFOUND
         {
             get { return 404; }
+        }
+
+        public static int TCPNOCONNECTEDLEDS
+        {
+            get { return 300; }
+        }
+
+        public static string TCPADDLED
+        {
+            get { return "ADDLED"; }
+        }
+
+        public static string TCPGETINFO
+        {
+            get { return "GETINFO"; }
         }
 
         // Declare the event
