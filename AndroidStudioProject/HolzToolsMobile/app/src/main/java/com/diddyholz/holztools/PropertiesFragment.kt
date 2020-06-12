@@ -35,7 +35,8 @@ class PropertiesFragment : PreferenceFragmentCompat()
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var ownIP: String
 
-    override fun onCreatePreferencesFix(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreatePreferencesFix(savedInstanceState: Bundle?, rootKey: String?)
+    {
         requireActivity().setTheme(R.style.PreferenceStyle)
 
         addPreferencesFromResource(R.xml.led_item_preferences)

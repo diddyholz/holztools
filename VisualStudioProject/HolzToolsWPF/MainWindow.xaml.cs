@@ -18,6 +18,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml;
+using System.Net.Sockets;
 
 namespace HolzTools
 {
@@ -52,6 +53,8 @@ namespace HolzTools
         private bool syncAvailable = true;
         private bool firstLoad = true;
 
+        private int tcpPort = 39769;
+
         private double lastTop = 0.00;
 
         private byte loadingProgress = 0;
@@ -66,6 +69,8 @@ namespace HolzTools
         private Settings settingsWindow;
 
         private ArduinoBinaryDownloaderWindow arduinoBinaryDownloadWindow;
+
+        private Thread tcpListenerThread = null;
 
         #region Stuff to maximize properly
 
@@ -405,6 +410,273 @@ namespace HolzTools
             }
         }
 
+        private void tcpListenerLoop()
+        {
+            TcpListener server = null;
+
+            try
+            {
+                IPAddress localAddr = IPAddress.Parse("0.0.0.0");
+
+                // TcpListener server = new TcpListener(port);
+                server = new TcpListener(localAddr, TCPPort);
+
+                // Start listening for client requests
+                server.Start();
+
+                // Enter the listening loop
+                while (true)
+                {
+                    // Perform a blocking call to accept requests
+                    TcpClient client = server.AcceptTcpClient();
+
+                    string data = "";
+                    string response = "";
+
+                    // Get a stream object for reading and writing and process the request
+                    using (StreamWriter sw = new StreamWriter(client.GetStream()))
+                    using (StreamReader sr = new StreamReader(client.GetStream()))
+                    {
+                        string readData = "";
+
+                        do
+                        {
+                            readData = sr.ReadLine();
+                            data += (readData + Environment.NewLine);
+                        } while (readData.Length > 0);
+
+                        // decode the request
+                        string[] tmp = data.Split('/');
+                        tmp = tmp[1].Split('&');
+                        tmp[0] = tmp[0].Substring(1);
+                        tmp[tmp.Length - 1] = tmp[tmp.Length - 1].Split(' ')[0];
+
+                        string ledItemName = "";
+                        string mode = "";
+
+                        bool isOn = true;
+
+                        byte staticBrightness = 255;
+                        byte cycleBrightness = 255;
+                        byte rainbowBrightness = 255;
+                        byte lightningBrightness = 255;
+                        byte cycleSpeed = 0;
+                        byte rainbowSpeed = 0;
+                        byte overlaySpeed = 0;
+                        byte overlayDirection = 0;
+                        byte spinnerSpeed = 0;
+                        byte spinnerLength = 0;
+                        byte spinnerColorBrightness = 255;
+                        byte backgroundColorBrightness = 255;
+
+                        Color staticModeColor = new Color();
+                        Color lightningModeColor = new Color();
+                        Color spinnerModeSpinnerColor = new Color();
+                        Color spinnerModeBackgroundColor = new Color();
+
+                        LedItem ledItem = null;
+
+                        // get all arguments
+                        foreach (string arg in tmp)
+                        {
+                            string argName = arg.Split('=')[0];
+                            string argValue = arg.Split('=')[1];
+
+                            switch (argName)
+                            {
+                                case "LEDItem":
+                                    ledItemName = argValue;
+                                    break;
+
+                                case "LEDMode":
+                                    mode = argValue;
+                                    break;
+
+                                case "IsOn":
+                                    isOn = Convert.ToBoolean(argValue);
+                                    break;
+
+                                case "StaticBrightness":
+                                    staticBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "CycleBrightness":
+                                    cycleBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "RainbowBrightness":
+                                    rainbowBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "LightningBrightness":
+                                    lightningBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "CycleSpeed":
+                                    cycleSpeed = Convert.ToByte(argValue);
+                                    break;
+
+                                case "RainbowSpeed":
+                                    rainbowSpeed = Convert.ToByte(argValue);
+                                    break;
+
+                                case "OverlaySpeed":
+                                    overlaySpeed = Convert.ToByte(argValue);
+                                    break;
+
+                                case "OverlayDirection":
+                                    overlayDirection = Convert.ToByte(argValue);
+                                    break;
+
+                                case "SpinnerSpeed":
+                                    spinnerSpeed = Convert.ToByte(argValue);
+                                    break;
+
+                                case "SpinnerLength":
+                                    spinnerLength = Convert.ToByte(argValue);
+                                    break;
+
+                                case "SpinnerColorBrightness":
+                                    spinnerColorBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "BackgroundColorBrightness":
+                                    backgroundColorBrightness = Convert.ToByte(argValue);
+                                    break;
+
+                                case "StaticModeColor":
+                                    staticModeColor = Color.FromRgb(Convert.ToByte(argValue.Split(',')[0]), Convert.ToByte(argValue.Split(',')[1]), Convert.ToByte(argValue.Split(',')[2]));
+                                    break;
+
+                                case "LightningModeColor":
+                                    lightningModeColor = Color.FromRgb(Convert.ToByte(argValue.Split(',')[0]), Convert.ToByte(argValue.Split(',')[1]), Convert.ToByte(argValue.Split(',')[2]));
+                                    break;
+
+                                case "SpinnerModeSpinnerColor":
+                                    spinnerModeSpinnerColor = Color.FromRgb(Convert.ToByte(argValue.Split(',')[0]), Convert.ToByte(argValue.Split(',')[1]), Convert.ToByte(argValue.Split(',')[2]));
+                                    break;
+
+                                case "SpinnerModeBackgroundColor":
+                                    spinnerModeBackgroundColor = Color.FromRgb(Convert.ToByte(argValue.Split(',')[0]), Convert.ToByte(argValue.Split(',')[1]), Convert.ToByte(argValue.Split(',')[2]));
+                                    break;
+                            }
+                        }
+
+                        // find the correct led
+                        foreach (LedItem item in LedItem.AllItems)
+                        {
+                            if (item.ItemName == ledItemName)
+                                ledItem = item;
+                        }
+
+                        if (ledItem != null)
+                        {
+                            // set the mode and mode preferences
+                            ledItem.CurrentMode = mode;
+
+                            switch(mode)
+                            {
+                                case "Static":
+                                    ledItem.StaticModeColor = staticModeColor;
+                                    ledItem.StaticBrightness = staticBrightness;
+                                    break;
+
+                                case "Cycle":
+                                    ledItem.CycleBrightness = cycleBrightness;
+                                    ledItem.CycleSpeed = cycleSpeed;
+                                    break;
+
+                                case "Rainbow":
+                                    ledItem.RainbowBrightness = rainbowBrightness;
+                                    ledItem.RainbowSpeed = rainbowSpeed;
+                                    break;
+
+                                case "Lightning":
+                                    ledItem.LightningModeColor = lightningModeColor;
+                                    ledItem.LightningBrightness = lightningBrightness;
+                                    break;
+
+                                case "Color Overlay":
+                                    ledItem.OverlaySpeed = overlaySpeed;
+                                    ledItem.OverlayDirection = overlayDirection;
+                                    break;
+
+                                case "Color Spinner":
+                                    ledItem.SpinnerModeSpinnerColor = spinnerModeSpinnerColor;
+                                    ledItem.SpinnerModeSpinnerColorBrightness = spinnerColorBrightness;
+                                    ledItem.SpinnerModeBackgroundColor = spinnerModeBackgroundColor;
+                                    ledItem.SpinnerModeBackgroundColorBrightness = backgroundColorBrightness;
+                                    ledItem.SpinnerSpeed = spinnerSpeed;
+                                    ledItem.SpinnerLength = spinnerLength;
+                                    break;
+                            }
+
+                            //set every mode argument for the current leditem
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                modeStatic.Brightness = ledItem.StaticBrightness;
+                                modeStatic.SelectedColor = ledItem.StaticModeColor;
+                                modeCycle.Brightness = ledItem.CycleBrightness;
+                                modeCycle.Speed = ledItem.CycleSpeed;
+                                modeRainbow.Speed = ledItem.RainbowSpeed;
+                                modeRainbow.Brightness = ledItem.RainbowBrightness;
+                                modeLightning.Brightness = ledItem.LightningBrightness;
+                                modeLightning.SelectedColor = ledItem.LightningModeColor;
+                                modeOverlay.Speed = ledItem.OverlaySpeed;
+                                modeOverlay.Direction = ledItem.OverlayDirection;
+                                modeSpinner.Speed = ledItem.SpinnerSpeed;
+                                modeSpinner.SpinnerColor = ledItem.SpinnerModeSpinnerColor;
+                                modeSpinner.BackgroundColor = ledItem.SpinnerModeBackgroundColor;
+                                modeSpinner.Length = ledItem.SpinnerLength;
+                                modeSpinner.SpinnerColorBrightness = ledItem.SpinnerModeSpinnerColorBrightness;
+                                modeSpinner.BackgroundColorBrightness = ledItem.SpinnerModeBackgroundColorBrightness;
+                                modeSync.SelectedItemSyncableItems = ledItem.SyncableItems;
+                                modeSync.SyncedLedItem = ledItem.SyncedLedItem;
+                            });
+
+                            sendDataToArduino(ledItem, ledItem.CurrentMode, false);
+
+                            // reset the mode arguments for the selected LedItem
+                            this.Dispatcher.Invoke(() => SelectedLedItem = SelectedLedItem);
+
+                            response = TCPREQUESTOK.ToString();
+                        }
+                        else
+                        {
+                            response = TCPNOLEDFOUND.ToString();
+                        }
+
+                        tcpSendResponse(response, sw);
+                    }
+
+                    // Shutdown and end connection
+                    client.Close();
+                }
+            }
+            catch (SocketException e)
+            {
+                new AlertWindow($"Could not start the server on port {TCPPort}. The port may be in use by another application. Try to change the port in the settings menu.");
+            }
+            finally
+            {
+                // Stop listening for new clients.
+                server.Stop();
+            }
+        }
+
+        private void tcpSendResponse(string body, StreamWriter writer)
+        {
+            writer.Write("HTTP/1.1 200 OK");
+            writer.Write(Environment.NewLine);
+            writer.Write("Content-Type: text/plain; charset=UTF-8");
+            writer.Write(Environment.NewLine);
+            writer.Write("Content-Length: " + body.Length);
+            writer.Write(Environment.NewLine);
+            writer.Write(Environment.NewLine);
+            writer.Write(body);
+            writer.Flush();
+        }
+
         private void applicationStart()
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -460,7 +732,7 @@ namespace HolzTools
                 }));
             }
 
-            this.Dispatcher.BeginInvoke(new Action(() =>
+            this.Dispatcher.Invoke(new Action(() =>
             {
                 loadingText.Text = "Finishing";
                 LoadingProgress = 100;
@@ -468,6 +740,10 @@ namespace HolzTools
                 ShowMainGrid = true;
                 MadeChanges = false;
             }));
+
+            //create the Tcplistener thread
+            tcpListenerThread = new Thread(() => tcpListenerLoop()) { IsBackground = true };
+            tcpListenerThread.Start();
         }
 
         private void setEveryLedMode(bool getInformation)
@@ -743,6 +1019,10 @@ namespace HolzTools
 
             xml.WriteStartElement("AccentBlue");
             xml.WriteString(AccentColor.B.ToString());
+            xml.WriteEndElement();
+
+            xml.WriteStartElement("TCPPort");
+            xml.WriteString(TCPPort.ToString());
             xml.WriteEndElement();
 
             xml.WriteEndElement();
@@ -1051,6 +1331,10 @@ namespace HolzTools
                         else if (subNode.Name == "AccentBlue")
                         {
                             blue = Convert.ToByte(subNode.InnerText);
+                        }
+                        else if (subNode.Name == "TCPPort")
+                        {
+                            TCPPort = Convert.ToInt32(subNode.InnerText);
                         }
                     }
 
@@ -1882,6 +2166,16 @@ namespace HolzTools
             }
         }
 
+        public int TCPPort
+        {
+            get { return tcpPort; }
+            set
+            {
+                tcpPort = value;
+                OnPropertyChanged("TCPPort");
+            }
+        }
+
         public LedItem SelectedLedItem
         {
             get { return selectedItem; }
@@ -1951,6 +2245,17 @@ namespace HolzTools
         {
             get { return settingsWindow; }
             set { settingsWindow = value; }
+        }
+
+        //tcp listener error codes
+        public static int TCPREQUESTOK
+        {
+            get { return 200; }
+        }
+
+        public static int TCPNOLEDFOUND
+        {
+            get { return 404; }
         }
 
         // Declare the event
