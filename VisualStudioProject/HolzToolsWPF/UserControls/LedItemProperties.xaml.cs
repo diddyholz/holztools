@@ -137,7 +137,7 @@ namespace HolzTools.UserControls
 
         private void Name_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            e.Handled = new Regex(",|&|=").IsMatch(e.Text);
+            e.Handled = new Regex(",|&|=|@").IsMatch(e.Text);
         }
 
         //getters and setters

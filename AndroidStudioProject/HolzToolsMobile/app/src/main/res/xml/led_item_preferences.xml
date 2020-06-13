@@ -16,10 +16,10 @@
             android:title="LED Name"/>
 
         <ListPreference
+            android:key="PREFERENCE_LED_TYPE"
             android:entries="@array/led_type_entry_list"
             android:entryValues="@array/led_type_value_list"
             android:layout="@layout/preference"
-            android:key="PREFERENCE_LED_TYPE"
             android:summary="Set the correct type of your LED strip"
             android:title="LED Type" />
 
@@ -68,20 +68,21 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="CAT_TYPE_SPECIFIC"
         android:title="Type Specific Properties"
         app:pref_categoryColor="@color/colorPrimary"
         app:iconSpaceReserved="false">
 
         <EditTextPreference
-            android:inputType="number"
             android:key="PREFERENCE_LED_AMOUNT"
+            android:inputType="number"
             android:summary="Set the amount of LEDs that your LED strip has"
             android:title="LED-Amount"
             android:layout="@layout/preference"/>
 
         <EditTextPreference
-            android:inputType="number"
             android:key="PREFERENCE_LED_D_PIN"
+            android:inputType="number"
             android:summary="Set the data pin for the A-RGB strip"
             android:title="D-Pin"
             android:layout="@layout/preference"/>

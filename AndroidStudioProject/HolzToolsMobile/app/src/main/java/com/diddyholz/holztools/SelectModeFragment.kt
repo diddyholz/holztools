@@ -1,13 +1,15 @@
 package com.diddyholz.holztools
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_select_mode.*
 
-class SelectModeFragment : Fragment() {
+
+class SelectModeFragment : Fragment(){
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -20,6 +22,18 @@ class SelectModeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewPager.adapter = ModeCollectionPagerAdapter(childFragmentManager)
 
-        tabLayout.setupWithViewPager(viewPager)
+        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                MainActivity.selectedLedItem?.currentMode = position.toByte()
+            }
+        })
+
+        if(MainActivity.selectedLedItem != null)
+            viewPager.currentItem = MainActivity.selectedLedItem!!.currentMode!!.toInt()
+    }
+
+    fun setViewPagerItem(position: Int)
+    {
+        viewPager?.currentItem = position
     }
 }

@@ -3,11 +3,14 @@ package com.diddyholz.holztools
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.text.InputFilter
 import android.text.format.Formatter
 import android.view.View
 import android.widget.TextView
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.takisoft.preferencex.EditTextPreference
 import com.takisoft.preferencex.PreferenceFragmentCompat
@@ -15,24 +18,11 @@ import kotlinx.coroutines.*
 import java.net.ConnectException
 import java.net.InetAddress
 import java.net.SocketTimeoutException
+import com.diddyholz.holztools.PreferenceKeys.Companion
 
 
 class LedPropertiesFragment : PreferenceFragmentCompat()
 {
-    val useAdvancedIpSettingsPreference = "PREFERENCE_LED_USEADVANCED"
-    val ledIsConnectedToPC = "PREFERENCE_LED_ISCONNECTEDTOPC"
-    val ledAutoIPAddress = "PREFERENCE_LED_AUTOIP"
-    val ledCustomIPAddress = "PREFERENCE_LED_CUSTOMIP"
-    val ledCustomPort = "PREFERENCE_LED_CUSTOMPORT"
-    val ledNamePreference = "PREFERENCE_LED_NAME"
-    val ledTypePreference = "PREFERENCE_LED_TYPE"
-    val ledAmountPreference = "PREFERENCE_LED_AMOUNT"
-    val ledDPinPreference = "PREFERENCE_LED_D_PIN"
-    val ledRPinPreference = "PREFERENCE_LED_R_PIN"
-    val ledGPinPreference = "PREFERENCE_LED_G_PIN"
-    val ledBPinPreference = "PREFERENCE_LED_B_PIN"
-    val ledCustomName = "PREFERENCE_LED_HOSTLEDNAME"
-
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var ownIP: String
 
@@ -40,57 +30,142 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
     {
         requireActivity().setTheme(R.style.PreferenceStyle)
 
+        // load all settings
+        with(PreferenceManager.getDefaultSharedPreferences(context).edit())
+        {
+            putString(PreferenceKeys.ledNamePreference, MainActivity.selectedLedItem!!.customName)
+            putString(PreferenceKeys.ledTypePreference, MainActivity.selectedLedItem!!.type.toString())
+            putBoolean(PreferenceKeys.useAdvancedIpSettingsPreference, MainActivity.selectedLedItem!!.useAdvancedIpSettings)
+            putString(PreferenceKeys.ledAutoIPAddressPreference, MainActivity.selectedLedItem!!.ip)
+            putString(PreferenceKeys.ledCustomIPAddressPreference, MainActivity.selectedLedItem!!.ip)
+            putString(PreferenceKeys.ledCustomPortPreference, MainActivity.selectedLedItem!!.tcpServerPort.toString())
+            putBoolean(PreferenceKeys.ledIsConnectedToPCPreference, MainActivity.selectedLedItem!!.isConnectedToPC)
+            putString(PreferenceKeys.ledHostNamePreference, MainActivity.selectedLedItem!!.hostLedName)
+            putString(PreferenceKeys.ledDPinPreference, MainActivity.selectedLedItem!!.dPin.toString())
+            putString(PreferenceKeys.ledAmountPreference, MainActivity.selectedLedItem!!.ledCount.toString())
+            putString(PreferenceKeys.ledRPinPreference, MainActivity.selectedLedItem!!.rPin.toString())
+            putString(PreferenceKeys.ledGPinPreference, MainActivity.selectedLedItem!!.gPin.toString())
+            putString(PreferenceKeys.ledBPinPreference, MainActivity.selectedLedItem!!.bPin.toString())
+
+            if(MainActivity.selectedLedItem!!.isConnectedToPC)
+            {
+                putString(PreferenceKeys.ledAutoIPAddressPreference, "${MainActivity.selectedLedItem!!.hostLedName}@${MainActivity.selectedLedItem!!.ip}")
+            }
+
+            apply()
+        }
+
         addPreferencesFromResource(R.xml.led_item_preferences)
 
-        findPreference<ListPreference>(ledTypePreference)!!.setOnPreferenceChangeListener { preference, value ->
+        // hide and show all necessary options for this led type
+        if (findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.value == getString(R.string.led_type_3_PIN_ARGB)) {
+            findPreference<EditTextPreference>(PreferenceKeys.ledRPinPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledGPinPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledBPinPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledDPinPreference)!!.isVisible = true
+            findPreference<EditTextPreference>(PreferenceKeys.ledAmountPreference)!!.isVisible = true
+        } else if (findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.value == getString(R.string.led_type_4_PIN_RGB)) {
+            findPreference<EditTextPreference>(PreferenceKeys.ledDPinPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledAmountPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledRPinPreference)!!.isVisible = true
+            findPreference<EditTextPreference>(PreferenceKeys.ledGPinPreference)!!.isVisible = true
+            findPreference<EditTextPreference>(PreferenceKeys.ledBPinPreference)!!.isVisible = true
+        }
+
+        //show or hide advanced settings
+        if (findPreference<CheckBoxPreference>(PreferenceKeys.useAdvancedIpSettingsPreference)!!.isChecked)
+        {
+            findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledCustomIPAddressPreference)!!.isVisible = true
+            findPreference<EditTextPreference>(PreferenceKeys.ledCustomPortPreference)!!.isVisible = true
+            findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isVisible = true
+
+            if(findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isChecked)
+            {
+                findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = true
+            }
+        } else {
+            findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.isVisible = true
+            findPreference<EditTextPreference>(PreferenceKeys.ledCustomIPAddressPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledCustomPortPreference)!!.isVisible = false
+            findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isVisible = false
+            findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = false
+        }
+
+        if(findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isChecked)
+        {
+            findPreference<PreferenceCategory>(PreferenceKeys.typSpecificCat)!!.isVisible = false
+            findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.isVisible = false
+
+            if(findPreference<CheckBoxPreference>(PreferenceKeys.useAdvancedIpSettingsPreference)!!.isChecked)
+                findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = true
+        }
+
+        findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.setOnPreferenceChangeListener { preference, value ->
             // hide and show all necessary options for this led type
             if (value == getString(R.string.led_type_3_PIN_ARGB)) {
-                findPreference<EditTextPreference>(ledRPinPreference)!!.isVisible = false
-                findPreference<EditTextPreference>(ledGPinPreference)!!.isVisible = false
-                findPreference<EditTextPreference>(ledBPinPreference)!!.isVisible = false
-                findPreference<EditTextPreference>(ledDPinPreference)!!.isVisible = true
-                findPreference<EditTextPreference>(ledAmountPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledRPinPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledGPinPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledBPinPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledDPinPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledAmountPreference)!!.isVisible = true
             } else if (value == getString(R.string.led_type_4_PIN_RGB)) {
-                findPreference<EditTextPreference>(ledDPinPreference)!!.isVisible = false
-                findPreference<EditTextPreference>(ledAmountPreference)!!.isVisible = false
-                findPreference<EditTextPreference>(ledRPinPreference)!!.isVisible = true
-                findPreference<EditTextPreference>(ledGPinPreference)!!.isVisible = true
-                findPreference<EditTextPreference>(ledBPinPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledDPinPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledAmountPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledRPinPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledGPinPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledBPinPreference)!!.isVisible = true
             }
 
             return@setOnPreferenceChangeListener true
         }
 
-        findPreference<CheckBoxPreference>(useAdvancedIpSettingsPreference)!!.setOnPreferenceChangeListener { preference, value ->
+        findPreference<CheckBoxPreference>(PreferenceKeys.useAdvancedIpSettingsPreference)!!.setOnPreferenceChangeListener { preference, value ->
             //show or hide advanced settings
             if (value == true)
             {
-                findPreference<ListPreference>(ledAutoIPAddress)!!.isVisible = false
-                findPreference<EditTextPreference>(ledCustomIPAddress)!!.isVisible = true
-                findPreference<EditTextPreference>(ledCustomPort)!!.isVisible = true
-                findPreference<CheckBoxPreference>(ledIsConnectedToPC)!!.isVisible = true
+                findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledCustomIPAddressPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledCustomPortPreference)!!.isVisible = true
+                findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isVisible = true
 
-                if(findPreference<CheckBoxPreference>(ledIsConnectedToPC)!!.isChecked)
+                if(findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isChecked)
                 {
-                    findPreference<EditTextPreference>(ledCustomName)!!.isVisible = true
+                    findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = true
                 }
             } else {
-                findPreference<ListPreference>(ledAutoIPAddress)!!.isVisible = true
-                findPreference<EditTextPreference>(ledCustomIPAddress)!!.isVisible = false
-                findPreference<EditTextPreference>(ledCustomPort)!!.isVisible = false
-                findPreference<CheckBoxPreference>(ledIsConnectedToPC)!!.isVisible = false
-                findPreference<EditTextPreference>(ledCustomName)!!.isVisible = false
+                findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.isVisible = true
+                findPreference<EditTextPreference>(PreferenceKeys.ledCustomIPAddressPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledCustomPortPreference)!!.isVisible = false
+                findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.isVisible = false
+                findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = false
             }
 
             return@setOnPreferenceChangeListener true
         }
 
-        findPreference<CheckBoxPreference>(ledIsConnectedToPC)!!.setOnPreferenceChangeListener { preference, value ->
-            findPreference<EditTextPreference>(ledCustomName)!!.isVisible = value as Boolean
+        findPreference<CheckBoxPreference>(PreferenceKeys.ledIsConnectedToPCPreference)!!.setOnPreferenceChangeListener { preference, value ->
+            findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.isVisible = value as Boolean
+            findPreference<PreferenceCategory>(PreferenceKeys.typSpecificCat)!!.isVisible = !value as Boolean
+            findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.isVisible = !value
 
             return@setOnPreferenceChangeListener true
         }
 
+        findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.setOnPreferenceChangeListener { preference, value ->
+            findPreference<PreferenceCategory>(PreferenceKeys.typSpecificCat)!!.isVisible = !(value as String).contains('@')
+            findPreference<ListPreference>(PreferenceKeys.ledTypePreference)!!.isVisible = !(value as String).contains('@')
+
+            return@setOnPreferenceChangeListener true
+        }
+
+        findPreference<EditTextPreference>(PreferenceKeys.ledNamePreference)!!.setOnBindEditTextListener { editText ->
+            editText.filters = arrayOf(MainActivity.nameFilter)
+        }
+
+        findPreference<EditTextPreference>(PreferenceKeys.ledHostNamePreference)!!.setOnBindEditTextListener { editText ->
+            editText.filters = arrayOf(MainActivity.nameFilter)
+        }
 
         swipeRefreshLayout = requireActivity().findViewById(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setOnRefreshListener { refreshIPList() }
@@ -179,19 +254,32 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
             addressesEntries.sort()
             addressesValues.sort()
 
-            findPreference<ListPreference>(ledAutoIPAddress)!!.entries = addressesEntries.toTypedArray()
-            findPreference<ListPreference>(ledAutoIPAddress)!!.entryValues = addressesValues.toTypedArray()
+            findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.entries = addressesEntries.toTypedArray()
+            findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.entryValues = addressesValues.toTypedArray()
 
             if(addressesEntries.count() == 0)
                 CoroutineScope(Dispatchers.Main).launch {
-                    requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.VISIBLE
-                    findPreference<ListPreference>(ledAutoIPAddress)!!.isEnabled = false
+                    activity?.findViewById<TextView>(R.id.noDeviceFoundAlert)?.visibility = View.VISIBLE
+                    findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)?.isEnabled = false
                 }
             else
                 CoroutineScope(Dispatchers.Main).launch {
-                    requireActivity().findViewById<TextView>(R.id.noDeviceFoundAlert).visibility = View.GONE
-                    findPreference<ListPreference>(ledAutoIPAddress)!!.isEnabled = true
+                    activity?.findViewById<TextView>(R.id.noDeviceFoundAlert)?.visibility = View.GONE
+                    findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)?.isEnabled = true
                 }
+
+            if(!MainActivity.selectedLedItem!!.isConnectedToPC)
+            {
+                var index = findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.findIndexOfValue("${MainActivity.selectedLedItem!!.hostLedName}@${MainActivity.selectedLedItem!!.ip}")
+
+                if(index != -1)
+                    CoroutineScope(Dispatchers.Main).launch { findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.setValueIndex(index) }
+            } else {
+                var index = findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.findIndexOfValue(MainActivity.selectedLedItem!!.ip)
+
+                if(index != -1)
+                    CoroutineScope(Dispatchers.Main).launch { findPreference<ListPreference>(PreferenceKeys.ledAutoIPAddressPreference)!!.setValueIndex(index) }
+            }
 
             swipeRefreshLayout.isRefreshing = false
         }

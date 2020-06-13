@@ -5,14 +5,17 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.text.InputFilter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
+import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.Call
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -21,7 +24,8 @@ import okhttp3.Request
 import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity()
+
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
     companion object
     {
@@ -41,9 +45,12 @@ class MainActivity : AppCompatActivity()
         const val TCPNOCONNECTEDLEDS = 300
         const val TCPREQUESTOK = 200
 
+        const val blockCharacterSet = ",&=@"
+
         val client = OkHttpClient.Builder().connectTimeout(200, TimeUnit.MILLISECONDS).build()
 
         var serverPort = 39769
+        var selectedLedItem: LedItem? = null
 
         lateinit var activeMainActivity:MainActivity
 
@@ -77,9 +84,16 @@ class MainActivity : AppCompatActivity()
 
             return response.body?.string()
         }
+
+        val nameFilter =
+            InputFilter { source, start, end, dest, dstart, dend ->
+                if (source != null && blockCharacterSet.contains("" + source)) {
+                    ""
+                } else null
+            }
     }
 
-    var selectedLedItem: LedItem? = null
+    val selectModeFragment = SelectModeFragment()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -90,17 +104,46 @@ class MainActivity : AppCompatActivity()
 
         setSupportActionBar(toolbar)
 
-        var drawerToggle = ActionBarDrawerToggle(this, mainDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val drawerToggle = ActionBarDrawerToggle(
+            this,
+            mainDrawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
         mainDrawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
         MenuCompat.setGroupDividerEnabled(navView.menu, true)
 
-        navView.setNavigationItemSelectedListener{ item -> onNavViewItemSelected(item) }
+        navView.setNavigationItemSelectedListener(this)
 
-        supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, NoLedsFragment()).commit()
-
-        if(!isNetworkOnline())
+        if (!isNetworkOnline())
             noConnectionAlert.visibility = View.VISIBLE
+
+        // create a menu item for all leds
+        for(ledItem in LedItem.allItems)
+        {
+            ledItem.createNavViewMenuItem()
+        }
+
+        if(selectedLedItem != null)
+        {
+            navView.setCheckedItem(selectedLedItem!!.menuItemId)
+            toolbar.title = selectedLedItem!!.customName
+        }
+
+        if(savedInstanceState == null)
+        {
+            supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, NoLedsFragment()).commit()
+        }
+    }
+
+    fun setSelectedLedItem(item: LedItem)
+    {
+        selectedLedItem = item
+
+        // set the correct mode
+        selectModeFragment.setViewPagerItem(selectedLedItem!!.currentMode.toInt())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean
@@ -121,7 +164,7 @@ class MainActivity : AppCompatActivity()
         return true
     }
 
-    private fun onNavViewItemSelected(item:MenuItem):Boolean
+    override fun onNavigationItemSelected(item: MenuItem): Boolean
     {
         //choose what happens when what menuitem is pressed
         when(item.itemId)
@@ -130,12 +173,12 @@ class MainActivity : AppCompatActivity()
             R.id.menuAbout -> supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, AboutFragment()).commit()
             R.id.menuAddItem -> {
                 LedItem()
-                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SelectModeFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, selectModeFragment).commit()
                 toolbar.title = selectedLedItem!!.customName
             }
             else -> {
                 //show the modeSelectFragment if an LEDItem is clicked
-                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SelectModeFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, selectModeFragment).commit()
 
                 var foundLedItem = false
 
@@ -144,7 +187,7 @@ class MainActivity : AppCompatActivity()
                 {
                     if(leditem.customName == item.title)
                     {
-                        selectedLedItem = leditem
+                        setSelectedLedItem(leditem)
                         foundLedItem = true
                     }
                 }

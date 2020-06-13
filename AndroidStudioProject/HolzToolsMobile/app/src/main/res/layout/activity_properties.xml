@@ -32,6 +32,18 @@
         android:visibility="gone"/>
 
     <TextView
+        android:id="@+id/nameExistsAlert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryText"
+        android:background="@color/colorPrimary"
+        android:text="An LED with that name already exists"
+        android:textSize="6pt"
+        android:padding="2dp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <TextView
         android:id="@+id/noDeviceFoundAlert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
