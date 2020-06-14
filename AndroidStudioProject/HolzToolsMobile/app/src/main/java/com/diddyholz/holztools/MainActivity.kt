@@ -2,6 +2,7 @@ package com.diddyholz.holztools
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
@@ -24,6 +25,11 @@ import okhttp3.Request
 import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
+/*
+* TODO:
+*  SPINNERMODE NOT WORKING WHEN CONNECTED TO PC
+* */
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
@@ -41,9 +47,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // constants for tcp codes
         const val TCPGETINFO = "GETINFO"
+        const val TCPSETLED = "SETLED"
         const val TCPINVALIDCOMMAND = 400
         const val TCPNOCONNECTEDLEDS = 300
         const val TCPREQUESTOK = 200
+        const val TCPLEDNOTFOUND = 404
 
         const val blockCharacterSet = ",&=@"
 
@@ -62,7 +70,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return activeNetwork?.isConnectedOrConnecting == true
         }
 
-        fun sendGetRequest(targetIp: String, targetPort: String, attributes: MutableList<HTTPAttribute>): String?
+        fun sendGetRequest(targetIp: String, targetPort: Int, attributes: MutableList<HTTPAttribute>): String?
         {
             val urlBuilder = "http://$targetIp:$targetPort".toHttpUrlOrNull()!!.newBuilder()
 
@@ -72,7 +80,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 urlBuilder.addQueryParameter(attr.attrName, attr.attrValue)
             }
 
-            urlBuilder.port(targetPort.toInt())
+            urlBuilder.port(targetPort)
 
             val url = urlBuilder.build().toString()
 
@@ -85,6 +93,65 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return response.body?.string()
         }
 
+        fun sendDataToPC(item: LedItem) : Int?
+        {
+            val attrs = mutableListOf<HTTPAttribute>()
+
+            var modeString = ""
+
+            attrs.add(HTTPAttribute("Command", TCPSETLED))
+
+            attrs.add(HTTPAttribute("LEDItem", item.hostLedName))
+
+            // set the current mode as a string
+            when(item.currentMode)
+            {
+                ModeStatic -> {
+                    modeString = "Static"
+                    attrs.add(HTTPAttribute("StaticBrightness", item.staticBrightness.toString()))
+                    attrs.add(HTTPAttribute("StaticModeColor", "${Color.red(item.staticColor)},${Color.green(item.staticColor)},${Color.blue(item.staticColor)}"))
+                }
+                ModeCycle -> {
+                    modeString = "Cycle"
+                    attrs.add(HTTPAttribute("CycleBrightness", item.cycleBrightness.toString()))
+                    attrs.add(HTTPAttribute("CycleSpeed", item.cycleSpeed.toString()))
+                }
+                ModeRainbow -> {
+                    modeString = "Rainbow"
+                    attrs.add(HTTPAttribute("RainbowBrightness", item.rainbowBrightness.toString()))
+                    attrs.add(HTTPAttribute("RainbowSpeed", item.rainbowSpeed.toString()))
+                }
+                ModeLightning -> {
+                    modeString = "Lightning"
+                    attrs.add(HTTPAttribute("LightningBrightness", item.lightningBrightness.toString()))
+                    attrs.add(HTTPAttribute("LightningModeColor", "${Color.red(item.lightningColor)},${Color.green(item.lightningColor)},${Color.blue(item.lightningColor)}"))
+                }
+                ModeOverlay -> {
+                    modeString = "Color_Overlay"
+                    attrs.add(HTTPAttribute("OverlaySpeed", item.overlaySpeed.toString()))
+                    attrs.add(HTTPAttribute("OverlayDirection", item.overlayDirection.toString()))
+                }
+                ModeSpinner -> {
+                    modeString = "Color_Spinner"
+                    attrs.add(HTTPAttribute("SpinnerModeSpinnerColor", "${Color.red(item.spinnerSpinnerColor)},${Color.green(item.spinnerSpinnerColor)},${Color.blue(item.spinnerSpinnerColor)}"))
+                    attrs.add(HTTPAttribute("SpinnerColorBrightness", item.spinnerColorBrightness.toString()))
+                    attrs.add(HTTPAttribute("SpinnerSpeed", item.spinnerSpeed.toString()))
+                    attrs.add(HTTPAttribute("SpinnerLength", item.spinnerLength.toString()))
+                    attrs.add(HTTPAttribute("SpinnerModeBackgroundColor", "${Color.red(item.spinnerBackgroundColor)},${Color.green(item.spinnerBackgroundColor)},${Color.blue(item.spinnerBackgroundColor)}"))
+                    attrs.add(HTTPAttribute("BackgroundColorBrightness", item.backgroundColorBrightness.toString()))
+                }
+                else -> {
+                    modeString = "Static"
+                    attrs.add(HTTPAttribute("StaticBrightness", item.staticBrightness.toString()))
+                    attrs.add(HTTPAttribute("StaticModeColor", "${Color.red(item.staticColor)},${Color.green(item.staticColor)},${Color.blue(item.staticColor)}"))
+                }
+            }
+
+            attrs.add(HTTPAttribute("LEDMode", modeString))
+
+            return sendGetRequest(item.ip, item.tcpServerPort, attrs)?.toInt()
+        }
+
         val nameFilter =
             InputFilter { source, start, end, dest, dstart, dend ->
                 if (source != null && blockCharacterSet.contains("" + source)) {
@@ -93,7 +160,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
     }
 
-    val selectModeFragment = SelectModeFragment()
+    val selectModeFragmentTag = "FRAGMENT_SELECTMODE"
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -143,7 +210,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         selectedLedItem = item
 
         // set the correct mode
-        selectModeFragment.setViewPagerItem(selectedLedItem!!.currentMode.toInt())
+        (supportFragmentManager.findFragmentByTag(selectModeFragmentTag) as? SelectModeFragment)?.setViewPagerItem(selectedLedItem!!.currentMode.toInt())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean
@@ -173,12 +240,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.menuAbout -> supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, AboutFragment()).commit()
             R.id.menuAddItem -> {
                 LedItem()
-                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, selectModeFragment).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SelectModeFragment(), selectModeFragmentTag).commit()
                 toolbar.title = selectedLedItem!!.customName
             }
             else -> {
                 //show the modeSelectFragment if an LEDItem is clicked
-                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, selectModeFragment).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SelectModeFragment(), selectModeFragmentTag).commit()
 
                 var foundLedItem = false
 

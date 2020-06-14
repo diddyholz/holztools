@@ -10,7 +10,7 @@
         app:pref_categoryColor="@color/colorPrimary">
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:key="MODE_LIGHTNING_COLOR"
+            android:key="PREFERENCE_MODE_LIGHTNING_COLOR"
             android:title="Color"
             android:layout="@layout/preference"
             android:summary="Select the color in which your LED-strip should light up"
@@ -19,7 +19,7 @@
             app:cpv_allowCustom="true"/>
 
         <SeekBarPreference
-            android:key="MODE_LIGHTNING_BRIGHTNESS"
+            android:key="PREFERENCE_MODE_LIGHTNING_BRIGHTNESS"
             android:layout="@layout/preference_widget_seekbar"
             android:max="255"
             android:title="Brightness"

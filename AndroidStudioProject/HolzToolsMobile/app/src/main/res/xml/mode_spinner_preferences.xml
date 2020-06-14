@@ -10,7 +10,7 @@
         app:pref_categoryColor="@color/colorPrimary">
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:key="MODE_SPINNER_SPINNER_COLOR"
+            android:key="PREFERENCE_MODE_SPINNER_SPINNER_COLOR"
             android:title="Color"
             android:layout="@layout/preference"
             android:summary="Select the color of your Spinner element"
@@ -19,7 +19,7 @@
             app:cpv_allowCustom="true"/>
 
         <SeekBarPreference
-            android:key="MODE_SPINNER_SPINNER_BRIGHTNESS"
+            android:key="PREFERENCE_MODE_SPINNER_SPINNER_BRIGHTNESS"
             android:layout="@layout/preference_widget_seekbar"
             android:max="255"
             android:title="Brightness"
@@ -29,7 +29,7 @@
             app:showSeekBarValue="true" />
 
         <SeekBarPreference
-            android:key="MODE_SPINNER_SPINNER_SPEED"
+            android:key="PREFERENCE_MODE_SPINNER_SPINNER_SPEED"
             android:layout="@layout/preference_widget_seekbar"
             android:max="100"
             android:title="Speed"
@@ -39,7 +39,7 @@
             app:showSeekBarValue="true" />
 
         <SeekBarPreference
-            android:key="MODE_SPINNER_SPINNER_LENGTH"
+            android:key="PREFERENCE_MODE_SPINNER_SPINNER_LENGTH"
             android:layout="@layout/preference_widget_seekbar"
             android:max="40"
             android:title="Length"
@@ -56,7 +56,7 @@
         app:pref_categoryColor="@color/colorPrimary">
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:key="MODE_SPINNER_BACKGROUND_COLOR"
+            android:key="PREFERENCE_MODE_SPINNER_BACKGROUND_COLOR"
             android:title="Color"
             android:layout="@layout/preference"
             android:summary="Select the color of the background"
@@ -65,7 +65,7 @@
             app:cpv_allowCustom="true"/>
 
         <SeekBarPreference
-            android:key="MODE_SPINNER_BACKGROUND_BRIGHTNESS"
+            android:key="PREFERENCE_MODE_SPINNER_BACKGROUND_BRIGHTNESS"
             android:layout="@layout/preference_widget_seekbar"
             android:max="255"
             android:title="Brightness"

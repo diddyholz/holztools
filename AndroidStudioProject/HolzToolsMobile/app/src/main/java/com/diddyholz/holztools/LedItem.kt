@@ -1,5 +1,6 @@
 package com.diddyholz.holztools
 
+import android.graphics.Color
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
@@ -46,6 +47,24 @@ class LedItem
 
     var useAdvancedIpSettings = false
     var isConnectedToPC = false
+
+    // all mode variables
+    var staticBrightness = 255
+    var cycleBrightness = 255
+    var rainbowBrightness = 255
+    var lightningBrightness = 255
+    var cycleSpeed = 0
+    var rainbowSpeed = 0
+    var overlaySpeed = 0
+    var overlayDirection = 0
+    var spinnerSpeed = 0
+    var spinnerLength = 10
+    var spinnerColorBrightness = 255
+    var backgroundColorBrightness = 255
+    var staticColor = Color.parseColor("#FF0000")
+    var lightningColor = Color.parseColor("#FF0000")
+    var spinnerSpinnerColor = Color.parseColor("#FF0000")
+    var spinnerBackgroundColor = Color.parseColor("#0000FF")
 
     constructor()
     {

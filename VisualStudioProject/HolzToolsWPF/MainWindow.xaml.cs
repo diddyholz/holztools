@@ -445,6 +445,8 @@ namespace HolzTools
                             data += (readData + Environment.NewLine);
                         } while (readData.Length > 0);
 
+                        data = Uri.UnescapeDataString(data);
+
                         // decode the request
                         string[] tmp = data.Split('/');
                         tmp = tmp[1].Split('&');
@@ -494,7 +496,7 @@ namespace HolzTools
                                     break;
 
                                 case "LEDMode":
-                                    mode = argValue;
+                                    mode = argValue.Replace('_', ' ');
                                     break;
 
                                 case "IsOn":
@@ -567,9 +569,8 @@ namespace HolzTools
                             }
                         }
 
-                        if (command == TCPADDLED)
+                        if (command == TCPSETLED)
                         {
-
                             // find the correct led
                             foreach (LedItem item in LedItem.AllItems)
                             {
@@ -581,6 +582,7 @@ namespace HolzTools
                             {
                                 // set the mode and mode preferences
                                 ledItem.CurrentMode = mode;
+                                ledItem.IsOn = isOn;
 
                                 switch (mode)
                                 {
@@ -2298,9 +2300,9 @@ namespace HolzTools
             get { return 300; }
         }
 
-        public static string TCPADDLED
+        public static string TCPSETLED
         {
-            get { return "ADDLED"; }
+            get { return "SETLED"; }
         }
 
         public static string TCPGETINFO

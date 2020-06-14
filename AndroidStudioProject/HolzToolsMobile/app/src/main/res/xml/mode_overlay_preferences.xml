@@ -10,7 +10,7 @@
         app:pref_categoryColor="@color/colorPrimary">
 
         <DropDownPreference
-            android:key="MODE_OVERLAY_DIRECTION"
+            android:key="PREFERENCE_MODE_OVERLAY_DIRECTION"
             android:layout="@layout/preference_dropdown"
             android:title="Direction"
             android:summary="Set the direction of the LED-ray"
@@ -19,7 +19,7 @@
             app:iconSpaceReserved="false" />
 
         <SeekBarPreference
-            android:key="MODE_OVERLAY_SPEED"
+            android:key="PREFERENCE_MODE_OVERLAY_SPEED"
             android:layout="@layout/preference_widget_seekbar"
             android:max="50"
             android:title="Speed"

@@ -27,7 +27,13 @@ class LedPropertiesActivity : AppCompatActivity()
             finish()
         }
 
-        supportFragmentManager.beginTransaction().add(R.id.preferenceFragmentContainer, LedPropertiesFragment()).commit()
+        if(savedInstanceState == null)
+            supportFragmentManager.beginTransaction().replace(R.id.preferenceFragmentContainer, LedPropertiesFragment()).commit()
+    }
+
+    override fun onStop()
+    {
+        super.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -10,7 +10,7 @@
         app:pref_categoryColor="@color/colorPrimary">
 
         <SeekBarPreference
-            android:key="MODE_RAINBOW_BRIGHTNESS"
+            android:key="PREFERENCE_MODE_RAINBOW_BRIGHTNESS"
             android:layout="@layout/preference_widget_seekbar"
             android:max="255"
             android:title="Brightness"
@@ -20,7 +20,7 @@
             app:showSeekBarValue="true" />
 
         <SeekBarPreference
-            android:key="MODE_RAINBOW_SPEED"
+            android:key="PREFERENCE_MODE_RAINBOW_SPEED"
             android:layout="@layout/preference_widget_seekbar"
             android:max="50"
             android:title="Speed"

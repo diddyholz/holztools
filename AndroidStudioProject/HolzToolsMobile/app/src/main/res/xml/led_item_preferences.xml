@@ -6,6 +6,7 @@
 
     <PreferenceCategory
         android:title="General Properties"
+        android:layout="@layout/preference_category"
         app:pref_categoryColor="@color/colorPrimary"
         app:iconSpaceReserved="false">
 
@@ -70,6 +71,7 @@
     <PreferenceCategory
         android:key="CAT_TYPE_SPECIFIC"
         android:title="Type Specific Properties"
+        android:layout="@layout/preference_category"
         app:pref_categoryColor="@color/colorPrimary"
         app:iconSpaceReserved="false">
 

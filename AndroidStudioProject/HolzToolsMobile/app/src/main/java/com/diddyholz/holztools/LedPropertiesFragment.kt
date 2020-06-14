@@ -29,6 +29,7 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
     override fun onCreatePreferencesFix(savedInstanceState: Bundle?, rootKey: String?)
     {
         requireActivity().setTheme(R.style.PreferenceStyle)
+        retainInstance = true
 
         // load all settings
         with(PreferenceManager.getDefaultSharedPreferences(context).edit())
@@ -167,12 +168,19 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
             editText.filters = arrayOf(MainActivity.nameFilter)
         }
 
-        swipeRefreshLayout = requireActivity().findViewById(R.id.swipeRefreshLayout)
-        swipeRefreshLayout.setOnRefreshListener { refreshIPList() }
-
         // get all ips at the start of the activity
+        swipeRefreshLayout = requireActivity().findViewById(R.id.swipeRefreshLayout)
         swipeRefreshLayout.isRefreshing = true
         refreshIPList()
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        requireActivity().setTheme(R.style.PreferenceStyle)
+
+        swipeRefreshLayout = requireActivity().findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setOnRefreshListener { refreshIPList() }
     }
 
     fun refreshIPList()
@@ -205,7 +213,7 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
                 {
                     // check if HolzTools desktop can be reached with that ip address
                     try {
-                        val response = MainActivity.sendGetRequest(address.hostAddress, MainActivity.serverPort.toString(), mutableListOf<HTTPAttribute>(HTTPAttribute("Command", "GETINFO")))
+                        val response = MainActivity.sendGetRequest(address.hostAddress, MainActivity.serverPort, mutableListOf<HTTPAttribute>(HTTPAttribute("Command", "GETINFO")))
 
                         // decode the response
                         if(response != null && response != MainActivity.TCPINVALIDCOMMAND.toString() && response != MainActivity.TCPNOCONNECTEDLEDS.toString())
