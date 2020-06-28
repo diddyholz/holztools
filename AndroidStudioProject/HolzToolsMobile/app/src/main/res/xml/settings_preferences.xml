@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="PrivateResource">
+
+    <PreferenceCategory
+        android:title="Application Settings"
+        android:layout="@layout/preference_category"
+        app:pref_categoryColor="@color/colorPrimary"
+        app:iconSpaceReserved="false">
+
+        <CheckBoxPreference
+            android:key="PREFERENCE_SETTINGS_NOTIFYOFUPDATES"
+            android:title="Notify of Updates"
+            android:layout="@layout/preference"
+            android:widgetLayout="@layout/preference_checkbox"
+            android:summary="Choose if you want to be notified of new updates when you start the application" />
+
+        <EditTextPreference
+            android:key="PREFERENCE_SETTINGS_DEFAULT_PORT"
+            android:title="Default Port"
+            android:inputType="number"
+            android:layout="@layout/preference"
+            android:summary="Choose the port where the application should look for the HolzTools Server on your Arduino or desktop\n(default: 39769)"/>
+
+        <EditTextPreference
+            android:key="PREFERENCE_SETTINGS_CONNECTION_TIMEOUT"
+            android:title="Connection Timeout"
+            android:layout="@layout/preference"
+            android:inputType="number"
+            android:summary="Set the time in ms after which a connection is declared as unavailable. Choose a higher value when you are in a slow network or have trouble connecting to a HolzTools server\n(default: 150)"/>
+    </PreferenceCategory>
+</PreferenceScreen>

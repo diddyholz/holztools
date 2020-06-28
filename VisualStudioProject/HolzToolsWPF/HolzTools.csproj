@@ -128,6 +128,9 @@
       <DependentUpon>ChangeLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arduino.cs" />
+    <Compile Include="HolzToolsMobileAlert.xaml.cs">
+      <DependentUpon>HolzToolsMobileAlert.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModeControls\ModeSpinner.xaml.cs">
       <DependentUpon>ModeSpinner.xaml</DependentUpon>
     </Compile>
@@ -180,6 +183,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ChangeLogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HolzToolsMobileAlert.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -376,6 +383,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\githubIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\5802.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\appScreenShot.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

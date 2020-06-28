@@ -1,0 +1,88 @@
+﻿<Window x:Class="HolzTools.HolzToolsMobileAlert"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HolzTools"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="HolzTools Mobile" MaxHeight="500" MaxWidth="700" 
+        Width="700" ResizeMode="NoResize" 
+        WindowStyle="None" WindowStartupLocation="CenterScreen" 
+        Background="Transparent" TextOptions.TextFormattingMode="Display"
+        AllowsTransparency="True" SizeToContent="Height" Loaded="Window_Loaded">
+    <Window.Resources>
+        <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.Opacity)"
+                                     From="0" To="1" Duration="0:0:0.05" 
+                                     FillBehavior="Stop"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Border BorderBrush="{DynamicResource AccentColor}" BorderThickness="1" Background="#FF2D2D2D" 
+            CornerRadius="1" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+            
+            <Image Grid.Column="2" Source="Images/appScreenShot.png"
+                       Height="400" Margin="20,5,5,5"
+                   Grid.Row="1" Grid.RowSpan="4" HorizontalAlignment="Right"
+                   RenderOptions.BitmapScalingMode="Fant"/>
+
+            <!-- Header -->
+            <TextBlock Text="HolzTools for android is here!" Grid.Column="1" Grid.Row="1"
+                       FontSize="20" Foreground="White" x:Name="versionText"/>
+          
+            <!-- Message -->
+            <TextBlock Foreground="White" TextWrapping="Wrap"
+                        Grid.Column="1" Grid.Row="3">
+                HolzTools for android allows you to control your 
+                LED-strips over your network when they are equipped with an 
+                ESP8266. You can also control LED-strips that are already 
+                connected to your PC with it.
+                <LineBreak/>
+                <LineBreak/>
+                To start download and install the apk file from the HolzTools GitHub 
+                page. After that click on "Add LED" in the navigation drawer. Then 
+                click on the wrench in the top right corner and configure your LED-strip.
+                <LineBreak/>
+                
+            </TextBlock>
+
+
+            <TextBlock Grid.Column="1" Grid.Row="3" Margin="20"
+                       VerticalAlignment="Bottom"
+                                   HorizontalAlignment="Center">
+                <Hyperlink NavigateUri="https://github.com/diddyholz/HolzTools" 
+                           RequestNavigate="Hyperlink_RequestNavigate">
+                    Go to GitHub
+                </Hyperlink>
+            </TextBlock>
+
+            <!-- OK Button -->
+            <Button x:Name="okBtn" Content="Got it!" Grid.Column="1" Grid.Row="5" 
+                    Width="100" Click="okBtn_Click" Grid.ColumnSpan="2"
+                    Style="{StaticResource applyBtnStyle}"/>
+        </Grid>
+    </Border>
+</Window>

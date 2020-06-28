@@ -28,7 +28,7 @@ namespace HolzTools
 
         public static string InstallLocation = "";
 
-        private const string currentVersion = "1.07";
+        private const string currentVersion = "1.08";
         private const string updatePasteBin = "https://pastebin.com/raw/t2r0pWMr";
         private const string changelogPasteBin = "https://pastebin.com/raw/mQK7VVGZ";
         private const string arduinoBinaryPasteBin = "https://pastebin.com/raw/eAYERLEs";
@@ -724,7 +724,7 @@ namespace HolzTools
             if (Directory.Exists(Update.InstallerLocation))
             {
                 Directory.Delete(Update.InstallerLocation, true);
-                getChangelogThread();
+                new HolzToolsMobileAlert().ShowDialog();
             }
 
             this.Dispatcher.BeginInvoke(new Action(() =>

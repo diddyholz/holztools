@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -29,16 +30,20 @@ class SelectModeFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewPager.adapter = ModeCollectionPagerAdapter(childFragmentManager)
 
-        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-            override fun onPageSelected(position: Int) {
-                MainActivity.selectedLedItem?.currentMode = position.toByte()
-            }
-        })
-
         if(MainActivity.selectedLedItem != null)
             viewPager.currentItem = MainActivity.selectedLedItem!!.currentMode.toInt()
 
         floatingApplyBtn.setOnClickListener { v ->
+            if(!MainActivity.isNetworkOnline(requireContext()))
+            {
+                requireActivity().findViewById<TextView>(R.id.noConnectionAlert).visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+
+            requireActivity().findViewById<TextView>(R.id.noConnectionAlert).visibility = View.GONE
+
+            MainActivity.selectedLedItem!!.currentMode = viewPager.currentItem.toByte()
+
             // set all mode arguments to the leditem
             MainActivity.selectedLedItem!!.staticColor = PreferenceManager.getDefaultSharedPreferences(context).getInt(PreferenceKeys.modeStaticColorPreference, -0x10000)
             MainActivity.selectedLedItem!!.staticBrightness = PreferenceManager.getDefaultSharedPreferences(context).getInt(PreferenceKeys.modeStaticBrightnessPreference, 255)
@@ -57,15 +62,35 @@ class SelectModeFragment : Fragment(){
             MainActivity.selectedLedItem!!.spinnerBackgroundColor = PreferenceManager.getDefaultSharedPreferences(context).getInt(PreferenceKeys.modeSpinnerBackgroundColorPreference, -0x10000)
             MainActivity.selectedLedItem!!.backgroundColorBrightness = PreferenceManager.getDefaultSharedPreferences(context).getInt(PreferenceKeys.modeSpinnerBackgroundBrightnessPreference, 255)
 
+            if(MainActivity.selectedLedItem!!.ip == "")
+            {
+                Toast.makeText(context, "Set the IP of that LED first!", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             // send data to pc if selecteditem is an led connected to pc
             if(MainActivity.selectedLedItem!!.isConnectedToPC)
             {
                 CoroutineScope(Dispatchers.IO).launch {
-                    var response = MainActivity.sendDataToPC(MainActivity.selectedLedItem!!)
+                    val response = MainActivity.sendDataToPC(MainActivity.selectedLedItem!!)
 
-                    CoroutineScope(Dispatchers.Main).launch { Toast.makeText(context, response.toString(), Toast.LENGTH_LONG).show() }
+                    if(response == MainActivity.TCPLEDNOTFOUND)
+                        CoroutineScope(Dispatchers.Main).launch { Toast.makeText(context, "Could not find ${MainActivity.selectedLedItem!!.hostLedName} on your PC", Toast.LENGTH_LONG).show() }
+                    else if (response == MainActivity.TCPCOULDNOTCONNECT)
+                        CoroutineScope(Dispatchers.Main).launch { Toast.makeText(context, "Could not connect to your PC", Toast.LENGTH_LONG).show() }
                 }
             }
+            else
+            {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = MainActivity.sendDataToArduino(MainActivity.selectedLedItem!!)
+
+                    if (response == MainActivity.TCPCOULDNOTCONNECT)
+                        CoroutineScope(Dispatchers.Main).launch { Toast.makeText(context, "Could not connect to the Arduino", Toast.LENGTH_LONG).show() }
+                }
+            }
+
+            MainActivity.saveUserData(requireContext())
         }
     }
 

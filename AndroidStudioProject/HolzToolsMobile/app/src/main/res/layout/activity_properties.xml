@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/colorPrimaryText"
         android:background="@color/colorPrimary"
-        android:text="No network devices were found"
+        android:text="No compatible network devices were found"
         android:textSize="6pt"
         android:padding="2dp"
         android:gravity="center"

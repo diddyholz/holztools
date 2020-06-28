@@ -52,6 +52,7 @@ class LedPropertiesActivity : AppCompatActivity()
                     .setMessage("Are you sure you want to delete this LED?")
                     .setPositiveButton(android.R.string.yes) { dialog, which ->
                         MainActivity.selectedLedItem?.deleteLedItem()
+                        MainActivity.saveUserData(this)
                         finish()
                     }
                     .setNegativeButton(android.R.string.no, null)
@@ -75,6 +76,7 @@ class LedPropertiesActivity : AppCompatActivity()
                     var port = 0
                     var isConnectedToPC = false
                     var ledHostName = ""
+                    var hostName = ""
 
                     if(useAdvancedIp)
                     {
@@ -87,14 +89,19 @@ class LedPropertiesActivity : AppCompatActivity()
                     {
                         port = 39769
                         val tmp = getString(PreferenceKeys.ledAutoIPAddressPreference, MainActivity.selectedLedItem!!.ip)
-                        ip = tmp!!
 
-                        isConnectedToPC = tmp.contains('@')
+                        isConnectedToPC = tmp!!.contains('@')
 
                         if(isConnectedToPC)
                         {
                             ledHostName = tmp.split('@')[0]
-                            ip = tmp.split('@')[1]
+                            hostName = tmp.split('@')[1]
+                            ip = tmp.split('@')[2]
+                        }
+                        else
+                        {
+                            hostName = tmp.split('|')[0]
+                            ip = tmp.split('|')[1]
                         }
                     }
 
@@ -109,6 +116,7 @@ class LedPropertiesActivity : AppCompatActivity()
                     }
 
                     MainActivity.selectedLedItem!!.customName = customName!!
+                    MainActivity.selectedLedItem!!.hostname = hostName
                     MainActivity.selectedLedItem!!.type = type
                     MainActivity.selectedLedItem!!.ledCount = ledAmount
                     MainActivity.selectedLedItem!!.dPin = dPin
@@ -123,6 +131,8 @@ class LedPropertiesActivity : AppCompatActivity()
 
                     MainActivity.activeMainActivity.toolbar.title = MainActivity.selectedLedItem!!.customName
                 }
+
+                MainActivity.saveUserData(this)
 
                 finish()
             }

@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.selects.select
+import java.lang.Exception
 
 class LedItem
 {
@@ -38,13 +39,17 @@ class LedItem
     var customName = ""
         set(value) {
             //set the title of the corresponding menu item
-            MainActivity.activeMainActivity.navView.menu.findItem(menuItemId)?.title = value
+            try{
+                MainActivity.activeMainActivity.navView.menu.findItem(menuItemId)?.title = value
+            }catch (ex: UninitializedPropertyAccessException){}
 
             field = value
         }
+    var hostname = ""
 
     var hostLedName = ""
 
+    var isOn = true
     var useAdvancedIpSettings = false
     var isConnectedToPC = false
 
@@ -76,8 +81,38 @@ class LedItem
         val temp = createNavViewMenuItem()
 
         //set the new leditem as selected
-        MainActivity.activeMainActivity.navView.setCheckedItem(temp)
-        MainActivity.activeMainActivity.setSelectedLedItem(this)
+        if(temp != null)
+        {
+            MainActivity.activeMainActivity.navView.setCheckedItem(temp)
+            MainActivity.activeMainActivity.setSelectedLedItem(this)
+        }
+    }
+
+    fun checkConnection(): Boolean
+    {
+        val response = MainActivity.sendGetRequest(ip, tcpServerPort, mutableListOf<HTTPAttribute>(HTTPAttribute("Command", MainActivity.TCPGETINFO)))
+
+        if(response == MainActivity.TCPCOULDNOTCONNECT.toString())
+            return false
+
+        val tmp = response!!.split('&')
+
+        // check the attributes in the response
+        for(arg in tmp)
+        {
+            val argName = arg.split('=')[0]
+            val argValue = arg.split('=')[1]
+
+            when(argName)
+            {
+                "Hostname" -> {
+                    if(hostname == argValue)
+                        return true
+                }
+            }
+        }
+
+        return false
     }
 
     fun deleteLedItem()
@@ -92,6 +127,7 @@ class LedItem
             {
                 MainActivity.activeMainActivity.supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, NoLedsFragment()).commitAllowingStateLoss()
                 MainActivity.activeMainActivity.toolbar.title = "HolzTools"
+                MainActivity.activeMainActivity.setToolbarMenuVisibility(false)
                 return
             }
 
@@ -101,13 +137,18 @@ class LedItem
         }
     }
 
-    fun createNavViewMenuItem() : MenuItem
+    fun createNavViewMenuItem() : MenuItem?
     {
-        menuItemId = Menu.FIRST + id
+        try {
+            menuItemId = Menu.FIRST + id
 
-        val menuItem = MainActivity.activeMainActivity.navView.menu.add(R.id.menuLedItemGroup, menuItemId, 0, customName)
-        MainActivity.activeMainActivity.navView.menu.setGroupCheckable(R.id.menuLedItemGroup, true, true)
+            val menuItem = MainActivity.activeMainActivity.navView.menu.add(R.id.menuLedItemGroup, menuItemId, 0, customName)
+            MainActivity.activeMainActivity.navView.menu.setGroupCheckable(R.id.menuLedItemGroup, true, true)
 
-        return menuItem
+            return menuItem
+        } catch (ex: UninitializedPropertyAccessException)
+        {
+            return null
+        }
     }
 }
