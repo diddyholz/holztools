@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="PrivateResource">
+
+    <PreferenceCategory
+        android:title="Mode Preferences"
+        app:iconSpaceReserved="false"
+        app:pref_categoryColor="@color/colorPrimary">
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:key="PREFERENCE_MODE_LIGHTNING_COLOR"
+            android:title="Color"
+            android:layout="@layout/preference"
+            android:summary="Select the color in which your LED-strip should light up"
+            app:cpv_dialogType="custom"
+            app:cpv_showAlphaSlider="false"
+            app:cpv_allowCustom="true"/>
+
+        <SeekBarPreference
+            android:key="PREFERENCE_MODE_LIGHTNING_BRIGHTNESS"
+            android:layout="@layout/preference_widget_seekbar"
+            android:max="255"
+            android:title="Brightness"
+            android:summary="Choose how bright your LED-strip should be"
+            app:iconSpaceReserved="false"
+            app:min="0"
+            app:showSeekBarValue="true" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:HolzTools"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="ChangeLogWindow" MaxHeight="500" MaxWidth="400" 
+        Title="Changelog" MaxHeight="500" MaxWidth="400" 
         Width="400" ResizeMode="NoResize" 
         WindowStyle="None" WindowStartupLocation="CenterScreen" 
         Background="Transparent" TextOptions.TextFormattingMode="Display"

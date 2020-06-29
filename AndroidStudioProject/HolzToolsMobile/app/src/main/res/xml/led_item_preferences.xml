@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="PrivateResource">
+
+    <PreferenceCategory
+        android:title="General Properties"
+        android:layout="@layout/preference_category"
+        app:pref_categoryColor="@color/colorPrimary"
+        app:iconSpaceReserved="false">
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_NAME"
+            android:layout="@layout/preference"
+            android:summary="Set a name for this LED strip"
+            android:title="LED Name"/>
+
+        <ListPreference
+            android:key="PREFERENCE_LED_TYPE"
+            android:entries="@array/led_type_entry_list"
+            android:entryValues="@array/led_type_value_list"
+            android:layout="@layout/preference"
+            android:summary="Set the correct type of your LED strip"
+            android:title="LED Type" />
+
+        <CheckBoxPreference
+            android:key="PREFERENCE_LED_USEADVANCED"
+            android:title="Use advanced IP-Address settings"
+            android:layout="@layout/preference"
+            android:widgetLayout="@layout/preference_checkbox"/>
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_CUSTOMIP"
+            android:layout="@layout/preference"
+            android:summary="Manually set the IP-Address of this LED strip"
+            android:title="IP-Address"
+            app:isPreferenceVisible="false"/>
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_CUSTOMPORT"
+            android:inputType="number"
+            android:layout="@layout/preference"
+            android:summary="Set the port on which the LED strip can be reached at the specified IP-Address"
+            android:title="Port"
+            app:isPreferenceVisible="false"/>
+
+        <CheckBoxPreference
+            android:key="PREFERENCE_LED_ISCONNECTEDTOPC"
+            android:title="Arduino is connected to a PC"
+            android:layout="@layout/preference"
+            android:widgetLayout="@layout/preference_checkbox"
+            app:isPreferenceVisible="false"/>
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_HOSTLEDNAME"
+            android:layout="@layout/preference"
+            android:summary="Set the name of the LED which is connected to your host PC (The name you enter here must exactly match the name on the PC)"
+            android:title="Host LED Name"
+            app:isPreferenceVisible="false"/>
+
+        <ListPreference
+            android:key="PREFERENCE_LED_AUTOIP"
+            android:layout="@layout/preference"
+            android:summary="Choose which IP to use from an automatically scanned range of IP-Addresses"
+            android:title="IP-Address"
+            android:enabled="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="CAT_TYPE_SPECIFIC"
+        android:title="Type Specific Properties"
+        android:layout="@layout/preference_category"
+        app:pref_categoryColor="@color/colorPrimary"
+        app:iconSpaceReserved="false">
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_AMOUNT"
+            android:inputType="number"
+            android:summary="Set the amount of LEDs that your LED strip has"
+            android:title="LED-Amount"
+            android:layout="@layout/preference"/>
+
+        <EditTextPreference
+            android:key="PREFERENCE_LED_D_PIN"
+            android:inputType="number"
+            android:summary="Set the data pin for the A-RGB strip"
+            android:title="D-Pin"
+            android:layout="@layout/preference"/>
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="PREFERENCE_LED_R_PIN"
+            android:summary="Set the red pin for the RGB strip"
+            android:title="R-Pin"
+            android:layout="@layout/preference"
+            app:isPreferenceVisible="false" />
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="PREFERENCE_LED_G_PIN"
+            android:summary="Set the green pin for the RGB strip"
+            android:title="G-Pin"
+            android:layout="@layout/preference"
+            app:isPreferenceVisible="false" />
+
+        <EditTextPreference
+            android:inputType="number"
+            android:key="PREFERENCE_LED_B_PIN"
+            android:summary="Set the blue pin for the RGB strip"
+            android:title="B-Pin"
+            android:layout="@layout/preference"
+            app:isPreferenceVisible="false"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

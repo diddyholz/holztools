@@ -65,18 +65,15 @@
     <Reference Include="ArduinoUploader, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ArduinoUploader.3.2.0\lib\net452\ArduinoUploader.dll</HintPath>
     </Reference>
-    <Reference Include="AutoUpdate, Version=1.0.7330.32999, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="AutoUpdate, Version=1.0.7453.39490, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Update\Update\bin\Release\AutoUpdate.dll</HintPath>
+      <HintPath>..\..\..\Update\Update\bin\Debug\AutoUpdate.dll</HintPath>
     </Reference>
     <Reference Include="Bass.Net">
       <HintPath>.\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetZip">
-      <HintPath>..\..\Update\Update\bin\Release\DotNetZip.dll</HintPath>
     </Reference>
     <Reference Include="Gu.Wpf.Geometry, Version=2.2.3.0, Culture=neutral, PublicKeyToken=0d16965443c7ed06, processorArchitecture=MSIL">
       <HintPath>..\packages\Gu.Wpf.Geometry.2.2.3.0\lib\net45\Gu.Wpf.Geometry.dll</HintPath>
@@ -131,6 +128,9 @@
       <DependentUpon>ChangeLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arduino.cs" />
+    <Compile Include="HolzToolsMobileAlert.xaml.cs">
+      <DependentUpon>HolzToolsMobileAlert.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModeControls\ModeSpinner.xaml.cs">
       <DependentUpon>ModeSpinner.xaml</DependentUpon>
     </Compile>
@@ -183,6 +183,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ChangeLogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HolzToolsMobileAlert.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -379,6 +383,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\githubIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\5802.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\appScreenShot.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

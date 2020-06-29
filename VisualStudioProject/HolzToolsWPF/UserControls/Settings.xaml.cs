@@ -11,6 +11,7 @@ using System.Windows.Media;
 using IWshRuntimeLibrary;
 using Microsoft.Win32;
 using System;
+using System.Text.RegularExpressions;
 
 namespace HolzTools.UserControls
 {
@@ -26,6 +27,10 @@ namespace HolzTools.UserControls
         private bool selectedBlockPopups = MainWindow.ActiveWindow.BlockPopups;
         private bool selectedStartBassNet = MainWindow.ActiveWindow.StartBassNet;
         private bool selectedAutoStart;
+       
+        private int selectedTCPPort = MainWindow.ActiveWindow.TCPPort;
+
+        private static readonly Regex _regex = new Regex("[^0-9]+");
 
         public Settings()
         {
@@ -63,7 +68,17 @@ namespace HolzTools.UserControls
             }
         }
 
+        private static bool IsTextAllowed(string text)
+        {
+            return !_regex.IsMatch(text);
+        }
+
         //events
+        private void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = !IsTextAllowed(e.Text);
+        }
+
         private void DefaultColorButton_Click(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
@@ -99,6 +114,9 @@ namespace HolzTools.UserControls
 
         private void ApplyBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (MainWindow.ActiveWindow.TCPPort != SelectedTCPPort)
+                new AlertWindow("You must restart the application to make the port change take effect.").ShowDialog();
+
             //save the settings
             MainWindow.ActiveWindow.AutoUpdate = SelectedAutoUpdate;
             MainWindow.ActiveWindow.AccentColor = SelectedAccentColor;
@@ -106,6 +124,7 @@ namespace HolzTools.UserControls
             MainWindow.ActiveWindow.EnableLogBox = SelectedEnableLogBox;
             MainWindow.ActiveWindow.BlockPopups = SelectedBlockPopups;
             MainWindow.ActiveWindow.StartBassNet = SelectedStartBassNet;
+            MainWindow.ActiveWindow.TCPPort = SelectedTCPPort;
 
             //set the autostart shortcut
             if (!System.IO.File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), $"{MainWindow.ApplicationName}.lnk")) && SelectedAutoStart)
@@ -284,6 +303,18 @@ namespace HolzTools.UserControls
             {
                 madeChanges = value;
                 OnPropertyChanged("MadeChanges");
+            }
+        }
+
+        public int SelectedTCPPort
+        {
+            get { return selectedTCPPort; }
+            set
+            {
+                selectedTCPPort = value;
+                OnPropertyChanged("SelectedTCPPort");
+
+                MadeChanges = true;
             }
         }
 

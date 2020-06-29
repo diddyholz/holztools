@@ -25,8 +25,6 @@ namespace HolzTools.UserControls
         private bool madeChanges = false;
         private bool nameExists = false;
 
-        private static readonly Regex _regex = new Regex("[^0-9]+"); 
-
         private LedItem ledItem;
 
         public LedItemProperties(string name, int type, string comPort, int ledCount, int dPin, int rPin, int gPin, int bPin, int bautRate, LedItem ledItem)
@@ -54,11 +52,6 @@ namespace HolzTools.UserControls
         public void RefreshPorts()
         {
             AvailablePorts = SerialPort.GetPortNames();
-        }
-
-        private static bool IsTextAllowed(string text)
-        {
-            return !_regex.IsMatch(text);
         }
 
         //events
@@ -139,7 +132,12 @@ namespace HolzTools.UserControls
 
         private void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            e.Handled = !IsTextAllowed(e.Text);
+            e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
+        }
+
+        private void Name_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = new Regex(",|&|=|@").IsMatch(e.Text);
         }
 
         //getters and setters

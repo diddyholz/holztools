@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/menuLedItemGroup"
+        android:checkableBehavior="single" >
+    </group>
+
+    <item
+        android:id="@+id/menuAddItem"
+        android:icon="@drawable/ic_add"
+        android:title="Add LED"
+        android:orderInCategory="1"/>
+
+    <group android:id="@+id/menuMiscGroup">
+        <item
+            android:id="@+id/menuSettings"
+            android:icon="@drawable/ic_settings"
+            android:iconTint="@color/colorPrimaryText"
+            android:title="Settings"
+            android:orderInCategory="2" />
+        <item
+            android:id="@+id/menuAbout"
+            android:icon="@drawable/ic_about"
+            android:iconTint="@color/colorPrimaryText"
+            android:title="About"
+            android:orderInCategory="2" />
+    </group>
+</menu>
