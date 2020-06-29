@@ -6,11 +6,11 @@
         xmlns:local="clr-namespace:HolzTools"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="HolzTools Mobile" MaxHeight="500" MaxWidth="700" 
-        Width="700" ResizeMode="NoResize" 
+        Title="HolzTools Mobile" MaxHeight="500" MaxWidth="600" 
+        Width="600" ResizeMode="NoResize" 
         WindowStyle="None" WindowStartupLocation="CenterScreen" 
         Background="Transparent" TextOptions.TextFormattingMode="Display"
-        AllowsTransparency="True" SizeToContent="Height" Loaded="Window_Loaded">
+        AllowsTransparency="True" SizeToContent="Height">
     <Window.Resources>
         <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
     </Window.Resources>
@@ -62,7 +62,7 @@
                 connected to your PC with it.
                 <LineBreak/>
                 <LineBreak/>
-                To start download and install the apk file from the HolzTools GitHub 
+                To start, download and install the apk file from the HolzTools GitHub 
                 page. After that click on "Add LED" in the navigation drawer. Then 
                 click on the wrench in the top right corner and configure your LED-strip.
                 <LineBreak/>
