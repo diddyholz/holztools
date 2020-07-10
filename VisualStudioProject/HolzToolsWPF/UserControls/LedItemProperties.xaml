@@ -39,6 +39,82 @@
             <Border Grid.Column="1" Grid.Row="1" CornerRadius="4" 
                     Background="{DynamicResource CardBackground}">
                 <Grid>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding SelectedIsNetwork}" 
+                                                   Value="True" />
+                                        <Condition Binding="{Binding SelectedUseAdvancedIp}"
+                                                   Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                 Storyboard.TargetProperty="Height"
+                                                                 From="191" To="220"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </MultiDataTrigger.EnterActions>
+                                    <MultiDataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                 Storyboard.TargetProperty="Height"
+                                                                 From="220" To="191"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </MultiDataTrigger.ExitActions>
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Height" Value="220"/>
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>
+                                <!--<MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding SelectedIsNetwork}" 
+                                                   Value="Collapsed" />
+                                        <Condition Binding="{Binding SelectedUseAdvancedIp}"
+                                                   Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    --><!--<MultiDataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                 Storyboard.TargetProperty="Height"
+                                                                 From="220" To="191"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </MultiDataTrigger.EnterActions>--><!--
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Height" Value="191"/>
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>-->
+                                <!--<MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Visibility, 
+                                                ElementName=networkPropertiesGrid}" 
+                                                   Value="Visible" />
+                                        <Condition Binding="{Binding SelectedUseAdvancedIp}"
+                                                   Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    --><!--<MultiDataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                 Storyboard.TargetProperty="Height"
+                                                                 From="220" To="191"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </MultiDataTrigger.EnterActions>--><!--
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Height" Value="191"/>
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>-->
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="95"/>
@@ -47,6 +123,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
@@ -63,13 +140,11 @@
                     <!--Name Property-->
                     <TextBlock Text="Name:" Foreground="White" Grid.Column="1" 
                                Grid.Row="2" FontSize="14" Margin="5"/>
-                    <TextBox Grid.Column="2" Grid.Row="2" 
-                             Text="{Binding SelectedItemName}" 
+                    <TextBox Grid.Column="2" Grid.Row="2" Text="{Binding SelectedItemName}" 
                              TextAlignment="Center" FontSize="14" Height="23"
                              VerticalAlignment="Bottom" Margin="20,0,35,0"
                              Background="Transparent" Foreground="White" 
-                             BorderThickness="0,0,0,1" BorderBrush="White"
-                             PreviewTextInput="Name_PreviewTextInput"/>
+                             BorderThickness="0,0,0,1" BorderBrush="White"/>
 
                     <!--Type Property-->
                     <TextBlock Text="Type:" Foreground="White" Grid.Column="1" 
@@ -98,51 +173,93 @@
                         </controls:HelpToolTip>
                     </Grid>
 
-                    <!--COM-Port Property-->
-                    <TextBlock Text="COM-Port:" Foreground="White" Grid.Column="1" 
-                               Grid.Row="4" FontSize="14" Margin="5"/>
-
-                    <Grid Grid.Column="2" Grid.Row="4">
+                    <!-- Is Wifi device Property -->
+                    <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
+                        
+                        <CheckBox  x:Name="isNetworkCB" Content="Is connected to network"
+                               FontSize="14" Margin="5" Foreground="White" 
+                               IsChecked="{Binding SelectedIsNetwork}"/>
 
-                        <ComboBox BorderThickness="0"
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Check this if your Arduino is connected to your network 
+                                via an ESP8266.
+                            </controls:HelpToolTip.ToolTipText>
+                        </controls:HelpToolTip>
+                    </Grid>
+                    
+                    <!-- USB Properties Grid -->
+                    <Grid x:Name="usbPropertiesGrid" Grid.Column="1" Grid.Row="5"
+                          Grid.ColumnSpan="2">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedIsNetwork}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="95"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!--COM-Port Property-->
+                        <TextBlock Text="COM-Port:" Foreground="White" 
+                                   FontSize="14" Margin="5"/>
+
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox BorderThickness="0"
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
                               x:Name="comPortComboBox" Background="#232323"
                               SelectedItem="{Binding SelectedComPort}">
-                        </ComboBox>
+                            </ComboBox>
 
-                        <controls:HelpToolTip Grid.Column="1">
-                            <controls:HelpToolTip.ToolTipText>
-                                Select the COM-Port your device is connected to.
-                            </controls:HelpToolTip.ToolTipText>
-                        </controls:HelpToolTip>
-                    </Grid>
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Select the COM-Port your device is connected to.
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
 
-                    <!--BAUD-Rate Property-->
-                    <TextBlock Text="Baud-Rate:" Foreground="White" Grid.Column="1" 
-                               Grid.Row="5" FontSize="14" Margin="5"/>
+                        <!--BAUD-Rate Property-->
+                        <TextBlock Text="Baud-Rate:" Foreground="White"
+                               Grid.Row="1" FontSize="14" Margin="5"/>
 
-                    <Grid Grid.Column="2" Grid.Row="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
 
 
-                        <TextBox Text="{Binding SelectedBaud}" 
+                            <TextBox Text="{Binding SelectedBaud}" 
                                  TextAlignment="Center" FontSize="14" Height="23"
                                  VerticalAlignment="Bottom" Margin="20,0,20,0"
                                  Background="Transparent" Foreground="White" 
                                  BorderThickness="0,0,0,1" BorderBrush="White"
                                  PreviewTextInput="TextBox_PreviewTextInput"/>
 
-                        <controls:HelpToolTip Grid.Column="1">
-                            <controls:HelpToolTip.ToolTipText>
-                                Select the baud rate which is used on the 
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Select the baud rate which is used on the 
                                 Arduino to communicate with your PC.
                                 The default is 4800 to ensure the best stability. 
                                 If you change the value in the program, 
@@ -151,8 +268,154 @@
                                 Note that any changes you make 
                                 to the baud rate will be applied to all other LEDs that 
                                 are connected to the same Arduino.
-                            </controls:HelpToolTip.ToolTipText>
-                        </controls:HelpToolTip>
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Network Properties Grid -->
+                    <Grid x:Name="networkPropertiesGrid" Grid.Column="1" Grid.Row="5"
+                          Grid.ColumnSpan="2">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedIsNetwork}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="95"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!--Auto IP-Address Property-->
+                        <Grid Grid.ColumnSpan="2" x:Name="autoIpGrid">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding SelectedUseAdvancedIp}"
+                                                           Value="True" />
+                                                <Condition Binding="{Binding SelectedIsNetwork}"
+                                                           Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="IP-Address:" Foreground="White" 
+                                   FontSize="14" Margin="5"/>
+
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox x:Name="ipAddressCB"
+                                BorderThickness="0"
+                              Margin="20,0,20,0" Height="20"
+                              Foreground="White" IsReadOnly="True"
+                                      Background="#232323"
+                              SelectedItem="{Binding SelectedIpDevice}">
+                                </ComboBox>
+
+                                <controls:HelpToolTip Grid.Column="1">
+                                    <controls:HelpToolTip.ToolTipText>
+                                        Choose a supported network device that was discovered
+                                    in your network. If your Arduino is not shown here,
+                                    please use advanced IP settings and enter 
+                                    the IP of the device there.
+                                    </controls:HelpToolTip.ToolTipText>
+                                </controls:HelpToolTip>
+                            </Grid>
+                        </Grid>
+
+                        <!--Advanced IP-Address Settings-->
+                        <Grid Grid.Column="0" Grid.ColumnSpan="2"
+                              Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox Content="Use advanced IP settings"
+                                      IsChecked="{Binding SelectedUseAdvancedIp}" 
+                                      FontSize="14" Margin="5" Foreground="White" />
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Choose this option if you manually want to enter the
+                                    IP-address and Port
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <Grid x:Name="advancedIpGrid" Grid.Row="2" Grid.ColumnSpan="2">
+                            <Grid.Style>
+                                <Style TargetType="Grid" >
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding SelectedUseAdvancedIp}"
+                                                           Value="True" />
+                                                <Condition Binding="{Binding SelectedIsNetwork}"
+                                                           Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="IP-Address:" Foreground="White" 
+                                   FontSize="14" Margin="5"/>
+                            <TextBox Text="{Binding SelectedIpAddress}" Grid.Column="1"
+                                     VerticalAlignment="Bottom" Margin="20,0,35,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                            <TextBlock Text="Port: " Foreground="White" 
+                                   FontSize="14" Margin="5" Grid.Row="1"/>
+                            <TextBox Text="{Binding SelectedServerPort}" Grid.Column="1"
+                                     Grid.Row="1"
+                                     VerticalAlignment="Bottom" Margin="20,0,35,0"
+                                     Background="Transparent" Foreground="White" 
+                                     BorderThickness="0,0,0,1" BorderBrush="White"
+                                     TextAlignment="Center" FontSize="14" Height="23"
+                                     PreviewTextInput="TextBox_PreviewTextInput"/>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Border>

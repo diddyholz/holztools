@@ -13,6 +13,8 @@ namespace HolzTools.UserControls
 
         private string selectedComPort = "COM";
         private string selectedItemName = "LED";
+        private string selectedIpAddress = "";
+        private string selectedIpDevice = "";
 
         private int selectedBaud = 0;
         private int selectedType = 0;  //0 for ARGB, 1 for 4Pin RGB
@@ -21,9 +23,14 @@ namespace HolzTools.UserControls
         private int selectedRPin = 0;
         private int selectedGPin = 0;
         private int selectedBPin = 0;
+        private int selectedServerPort = 39769;
 
         private bool madeChanges = false;
         private bool nameExists = false;
+        private bool selectedIsNetwork = false;
+        private bool selectedUseAdvancedIp = false;
+
+        private static readonly Regex _regex = new Regex("[^0-9]+"); 
 
         private LedItem ledItem;
 
@@ -52,6 +59,11 @@ namespace HolzTools.UserControls
         public void RefreshPorts()
         {
             AvailablePorts = SerialPort.GetPortNames();
+        }
+
+        private static bool IsTextAllowed(string text)
+        {
+            return !_regex.IsMatch(text);
         }
 
         //events
@@ -132,12 +144,7 @@ namespace HolzTools.UserControls
 
         private void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
-        }
-
-        private void Name_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = new Regex(",|&|=|@").IsMatch(e.Text);
+            e.Handled = !IsTextAllowed(e.Text);
         }
 
         //getters and setters
@@ -161,6 +168,32 @@ namespace HolzTools.UserControls
 
                 selectedComPort = value;
                 OnPropertyChanged("SelectedComPort");
+            }
+        }
+
+        public string SelectedIpAddress
+        {
+            get { return selectedIpAddress; }
+            set
+            {
+                if (this.IsLoaded)
+                    MadeChanges = true;
+
+                selectedIpAddress = value;
+                OnPropertyChanged("SelectedIpAddress");
+            }
+        }
+
+        public string SelectedIpDevice
+        {
+            get { return selectedIpDevice; }
+            set
+            {
+                if (this.IsLoaded)
+                    MadeChanges = true;
+
+                selectedIpDevice = value;
+                OnPropertyChanged("SelectedIpDevice");
             }
         }
 
@@ -276,6 +309,19 @@ namespace HolzTools.UserControls
             }
         }
 
+        public int SelectedServerPort
+        {
+            get { return selectedServerPort; }
+            set
+            {
+                if (this.IsLoaded)
+                    MadeChanges = true;
+
+                selectedServerPort = value;
+                OnPropertyChanged("SelectedServerPort");
+            }
+        }
+
         public bool MadeChanges
         {
             get { return madeChanges; }
@@ -293,6 +339,32 @@ namespace HolzTools.UserControls
             {
                 nameExists = value;
                 OnPropertyChanged("NameExists");
+            }
+        }
+
+        public bool SelectedIsNetwork
+        {
+            get { return selectedIsNetwork; }
+            set
+            {
+                if (this.IsLoaded)
+                    MadeChanges = true;
+
+                selectedIsNetwork = value;
+                OnPropertyChanged("SelectedIsNetwork");
+            }
+        }
+
+        public bool SelectedUseAdvancedIp
+        {
+            get { return selectedUseAdvancedIp; }
+            set
+            {
+                if (this.IsLoaded)
+                    MadeChanges = true;
+
+                selectedUseAdvancedIp = value;
+                OnPropertyChanged("SelectedUseAdvancedIp");
             }
         }
 

@@ -14,12 +14,18 @@ class AboutFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        requireActivity().setTheme(R.style.PreferenceStyle)
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_about, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if(MainActivity.isNetworkOnline(requireContext()))
+            ipAddressTextView.text = MainActivity.getOwnIp(requireContext())
+        else
+            ipLayout.visibility = View.GONE
 
         licenses_btn.setOnClickListener {
             AlertDialog.Builder(context)

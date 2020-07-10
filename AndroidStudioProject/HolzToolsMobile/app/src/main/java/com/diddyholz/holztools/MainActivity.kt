@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.text.InputFilter
-import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,15 +17,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceManagerFix
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.math.BigInteger
 import java.net.ConnectException
 import java.net.InetAddress
 import java.net.SocketTimeoutException
+import java.nio.ByteOrder
 import java.util.concurrent.TimeUnit
 
 /*
@@ -175,21 +175,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         fun isNetworkOnline(context: Context): Boolean
         {
-            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-            return activeNetwork?.isConnectedOrConnecting == true
+            val networkCapabilities = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+
+            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        }
+
+        fun getOwnIp(context: Context): String
+        {
+            val wm = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val connectionInfo = wm.connectionInfo
+            val ipAddress = if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) Integer.reverseBytes(connectionInfo.ipAddress) else connectionInfo.ipAddress
+
+            return InetAddress.getByAddress(BigInteger.valueOf(ipAddress.toLong()).toByteArray()).hostAddress
         }
 
         fun getReachableIPs(context: Context): MutableList<InetAddress>
         {
             // get the device ip to check the local ip prefix
-            val wm = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val connectionInfo = wm.connectionInfo
-            val ipAddress = connectionInfo.ipAddress
-            val ipString: String = Formatter.formatIpAddress(ipAddress)
-            val ownIP = ipString
-            val prefix = ipString.substring(0, ipString.lastIndexOf(".") + 1)
+            val ownIP = getOwnIp(context)
+            val prefix = ownIP.substring(0, ownIP.lastIndexOf(".") + 1)
 
             var reachableIPs = mutableListOf<InetAddress>()
 
@@ -467,12 +473,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ledItem.createNavViewMenuItem()
         }
 
-        if(selectedLedItem != null)
-        {
-            navView.setCheckedItem(selectedLedItem!!.menuItemId)
-            toolbar.title = selectedLedItem!!.customName
-        }
-
         if(savedInstanceState == null)
         {
             supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, NoLedsFragment()).commit()
@@ -483,6 +483,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 navView.setCheckedItem(selectedLedItem!!.menuItemId)
             }
         }
+        else
+        {
+            when (savedInstanceState.getSerializable("selected_tab"))
+            {
+                "about" -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, AboutFragment()).commit()
+                    toolbar.title = "About"
+                }
+                "settings" -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SettingsFragment()).commit()
+                    toolbar.title = "Settings"
+                }
+                "ledItem" -> {
+                    if(selectedLedItem != null)
+                    {
+                        navView.setCheckedItem(selectedLedItem!!.menuItemId)
+
+                        toolbar.title = selectedLedItem!!.customName
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putSerializable("selected_tab", when (toolbar.title) {
+            "About" -> "about"
+            "Settings" -> "settings"
+            else -> "ledItem"
+        })
     }
 
     fun setToolbarMenuVisibility(visible: Boolean)
@@ -537,7 +569,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
 
-        if(selectedLedItem == null)
+        if(selectedLedItem == null || toolbar.title == "About" || toolbar.title == "Settings")
             setToolbarMenuVisibility(false)
 
         return true
