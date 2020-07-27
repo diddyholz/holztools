@@ -310,6 +310,29 @@ namespace HolzTools
             {
                 PutNotification("Could not check for updates! (No internet connection available)");
 
+                // starts a thread that keeps looking for an internet connection in the background
+                new Thread(() =>
+                {
+                    while(!Update.CheckForInternet())
+                    {
+                        Thread.Sleep(10000);
+                    }
+
+                    if(notificationList.Count > 1 && notificationList.Contains("Could not check for updates! (No internet connection available)"))
+                    {
+                        notificationList.Remove("Could not check for updates! (No internet connection available)");
+                        NotificationText = notificationList[0];
+                    }
+                    else if(notificationList.Count == 1 && notificationList.Contains("Could not check for updates! (No internet connection available)"))
+                    {
+                        notificationList.Clear();
+                        ShowNotification = false;
+                    }
+
+                    CheckForUpdate();
+                })
+                { IsBackground = true }.Start();
+
                 this.Dispatcher.Invoke(new Action(() =>
                 {
                     logBoxText.Text += $"Couldn't check for updates (Unable to connect to 'http://google.com/generate_204')";
