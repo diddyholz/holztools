@@ -65,7 +65,7 @@
 
                             <controls:HelpToolTip Grid.Column="1">
                                 <controls:HelpToolTip.ToolTipText>
-                                    Customize the brightness of the Cycle Mode.
+                                    Customize the brightness of the Rainbow Mode.
                                 </controls:HelpToolTip.ToolTipText>
                             </controls:HelpToolTip>
                         </Grid>

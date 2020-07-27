@@ -71,47 +71,6 @@
                                         <Setter Property="Height" Value="220"/>
                                     </MultiDataTrigger.Setters>
                                 </MultiDataTrigger>
-                                <!--<MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding SelectedIsNetwork}" 
-                                                   Value="Collapsed" />
-                                        <Condition Binding="{Binding SelectedUseAdvancedIp}"
-                                                   Value="True"/>
-                                    </MultiDataTrigger.Conditions>
-                                    --><!--<MultiDataTrigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Duration="0:0:0.1"
-                                                                 Storyboard.TargetProperty="Height"
-                                                                 From="220" To="191"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </MultiDataTrigger.EnterActions>--><!--
-                                    <MultiDataTrigger.Setters>
-                                        <Setter Property="Height" Value="191"/>
-                                    </MultiDataTrigger.Setters>
-                                </MultiDataTrigger>-->
-                                <!--<MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Visibility, 
-                                                ElementName=networkPropertiesGrid}" 
-                                                   Value="Visible" />
-                                        <Condition Binding="{Binding SelectedUseAdvancedIp}"
-                                                   Value="False"/>
-                                    </MultiDataTrigger.Conditions>
-                                    --><!--<MultiDataTrigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Duration="0:0:0.1"
-                                                                 Storyboard.TargetProperty="Height"
-                                                                 From="220" To="191"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </MultiDataTrigger.EnterActions>--><!--
-                                    <MultiDataTrigger.Setters>
-                                        <Setter Property="Height" Value="191"/>
-                                    </MultiDataTrigger.Setters>
-                                </MultiDataTrigger>-->
                             </Style.Triggers>
                         </Style>
                     </Grid.Style>
@@ -321,6 +280,27 @@
                                 <ColumnDefinition Width="95"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+                            
+                            <!-- Loading Grid -->
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                  Panel.ZIndex="999" 
+                                  Grid.ColumnSpan="2" Background="{StaticResource CardBackground}">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Foreground="White" FontSize="12">
+                                    Loading
+                                </TextBlock>
+                            </Grid>
+                            
                             <TextBlock Text="IP-Address:" Foreground="White" 
                                    FontSize="14" Margin="5"/>
 
@@ -335,6 +315,7 @@
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
                                       Background="#232323"
+                                          ItemsSource="{Binding NetworkDevices}"
                               SelectedItem="{Binding SelectedIpDevice}">
                                 </ComboBox>
 

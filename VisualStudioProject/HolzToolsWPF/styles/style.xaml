@@ -1244,4 +1244,35 @@
             </MultiTrigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="GridSplitterHorizontalGripStyle" TargetType="{x:Type GridSplitter}">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Cursor" Value="SizeNS" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Background"
+                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GridSplitter}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}"
+                                Height="{TemplateBinding Height}">
+                        <Border Height="4" Width="50" VerticalAlignment="Center"
+                                    HorizontalAlignment="Center" BorderThickness="0 1"
+                                    Background="White" BorderBrush="#A0A0A0">
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}"
+                BasedOn="{StaticResource GridSplitterHorizontalGripStyle}">
+        <Setter Property="Height" Value="6" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
 </ResourceDictionary>

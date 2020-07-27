@@ -26,6 +26,7 @@ namespace HolzTools.UserControls
         private int musicFrequency = 2;
         private int isMusic = 0;
         private int baudRate = 4800;
+        private int serverPort = 39769;
 
         private byte staticBrightness = 255;
         private byte cycleBrightness = 255;
@@ -42,12 +43,15 @@ namespace HolzTools.UserControls
 
         private bool isOn = true;
         private bool musicUseExponential = true;
+        private bool useAdvancedIp = false;
+        private bool isNetwork = false;
 
         private string itemName = "LED";
         private string mode = "Static";
         private string overlappedMusicMode = "Static";
         private string comPort = "COM0";
         private string syncedLedItem = "";
+        private string ipAddress = "";
 
         private Color staticModeColor = Color.FromRgb(255, 0, 0);
         private Color lightningModeColor = Color.FromRgb(255, 0, 0);
@@ -226,6 +230,37 @@ namespace HolzTools.UserControls
 
                     LedItem.RefreshSyncableItems();
                 }
+            }
+        }
+
+        public string ComPortName
+        {
+            get { return comPort; }
+            set
+            {
+                comPort = value;
+                OnPropertyChanged("ComPortName");
+
+                foreach (Arduino c in Arduino.AllArduinos)
+                {
+                    if (c.SerialPortName == value)
+                    {
+                        CorrespondingArduino = c;
+                    }
+                }
+
+                if (CorrespondingArduino == null)
+                {
+                    CorrespondingArduino = new Arduino();
+                }
+
+                try
+                {
+                    InitSerial();
+                }
+                catch { }
+
+                LedItem.RefreshSyncableItems();
             }
         }
 
@@ -439,37 +474,6 @@ namespace HolzTools.UserControls
             }
         }
 
-        public string ComPortName
-        {
-            get { return comPort; }
-            set
-            {
-                comPort = value;
-                OnPropertyChanged("ComPortName");
-
-                foreach (Arduino c in Arduino.AllArduinos)
-                {
-                    if (c.SerialPortName == value)
-                    {
-                        CorrespondingArduino = c;
-                    }
-                }
-
-                if (CorrespondingArduino == null)
-                {
-                    CorrespondingArduino = new Arduino();
-                }
-
-                try
-                {
-                    InitSerial();
-                }
-                catch { }
-
-                LedItem.RefreshSyncableItems();
-            }
-        }
-
         public int BaudRate
         {
             get 
@@ -527,6 +531,19 @@ namespace HolzTools.UserControls
             }
         }
 
+        public int ServerPort
+        {
+            get 
+            {
+                return serverPort;
+            }
+            set
+            {
+                serverPort = value;
+                OnPropertyChanged("ServerPort");
+            }
+        }
+
         public bool IsOn
         {
             get { return isOn; }
@@ -544,6 +561,26 @@ namespace HolzTools.UserControls
             {
                 musicUseExponential = value;
                 OnPropertyChanged("MusicUseExponential");
+            }
+        }
+
+        public bool IsNetwork
+        {
+            get { return isNetwork; }
+            set
+            {
+                isNetwork = value;
+                OnPropertyChanged("IsNetwork");
+            }
+        }
+
+        public bool UseAdvancedIp
+        {
+            get { return useAdvancedIp; }
+            set
+            {
+                useAdvancedIp = value;
+                OnPropertyChanged("UseAdvancedIp");
             }
         }
 
@@ -586,6 +623,19 @@ namespace HolzTools.UserControls
                 OnPropertyChanged("SyncedLedItem");
 
                 LedItem.RefreshSyncableItems();
+            }
+        }
+
+        public string IpAddress
+        {
+            get
+            {
+                return ipAddress;
+            }
+            set
+            {
+                ipAddress = value;
+                OnPropertyChanged("IpAddress");
             }
         }
 

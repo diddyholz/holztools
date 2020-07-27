@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -29,8 +31,11 @@ namespace HolzTools.UserControls
         private bool nameExists = false;
         private bool selectedIsNetwork = false;
         private bool selectedUseAdvancedIp = false;
+        private bool isScanning = false;
 
-        private static readonly Regex _regex = new Regex("[^0-9]+"); 
+        private static readonly Regex _regex = new Regex("[^0-9]+");
+
+        private List<string> networkDevices = new List<string>();
 
         private LedItem ledItem;
 
@@ -350,6 +355,14 @@ namespace HolzTools.UserControls
                 if (this.IsLoaded)
                     MadeChanges = true;
 
+                if(value)
+                    new Thread(() => 
+                    {
+                        IsScanning = true;
+                        NetworkDevices = MainWindow.GetNetworkDevices();
+                        IsScanning = false;
+                    }) { IsBackground = true }.Start();
+
                 selectedIsNetwork = value;
                 OnPropertyChanged("SelectedIsNetwork");
             }
@@ -365,6 +378,26 @@ namespace HolzTools.UserControls
 
                 selectedUseAdvancedIp = value;
                 OnPropertyChanged("SelectedUseAdvancedIp");
+            }
+        }
+
+        public bool IsScanning
+        {
+            get { return isScanning; }
+            set
+            {
+                isScanning = value;
+                OnPropertyChanged("IsScanning");
+            }
+        }
+
+        public List<string> NetworkDevices
+        {
+            get { return networkDevices; }
+            set
+            {
+                networkDevices = value;
+                OnPropertyChanged("NetworkDevices");
             }
         }
 

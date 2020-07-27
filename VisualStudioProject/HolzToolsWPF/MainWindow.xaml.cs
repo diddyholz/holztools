@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml;
 using System.Net.Sockets;
+using System.Net.Http;
 
 namespace HolzTools
 {
@@ -52,8 +53,10 @@ namespace HolzTools
         private bool enableFanAnim = false;
         private bool syncAvailable = true;
         private bool firstLoad = true;
+        private bool enableLogBox = false;
 
         private int tcpPort = 39769;
+        private int tcpTimeout = 200;
 
         private double lastTop = 0.00;
 
@@ -189,6 +192,83 @@ namespace HolzTools
         internal static extern IntPtr MonitorFromWindow(IntPtr handle, int flags);
 
         #endregion
+
+        public static List<string> GetNetworkDevices()
+        {
+            try
+            {
+                List<string> discoveredIps = new List<string>();
+
+                UdpClient u = new UdpClient("8.8.8.8", 80);
+                IPAddress localAddr = ((IPEndPoint)u.Client.LocalEndPoint).Address;
+
+                string prefix = localAddr.ToString().Substring(0, localAddr.ToString().LastIndexOf('.') + 1);
+
+                List<HTTPAttribute> attrs = new List<HTTPAttribute>();
+                attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
+
+                byte maxThreads = 4;
+                byte finishedThreads = 0;
+
+                for(int y = 0; y < 4; y++)
+                {
+                    new Thread(() =>
+                    {
+                        for (int x = 255 / maxThreads * y; x <= 255 / maxThreads * (y + 1); x++)
+                        {
+                            string res = SendGetRequest(prefix + x.ToString(), 39769, attrs);
+
+                            if (res != TCPCOULDNOTCONNECT.ToString())
+                                discoveredIps.Add(prefix + x.ToString());
+                        }
+
+                        finishedThreads++;
+                    }) { IsBackground = true }.Start();
+                }
+
+                while (finishedThreads != maxThreads)
+                    Thread.Sleep(100);
+
+                u.Close();
+
+                return discoveredIps;
+            }
+            catch
+            {
+                return new List<string>();
+            }
+
+        }
+
+        public static string SendGetRequest(string url, int port, List<HTTPAttribute> attributes, int timeout = 200)
+        {
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                url = "http://" + url;
+
+            url += $":{port}?";
+
+            foreach (HTTPAttribute attr in attributes)
+            {
+                url += $"{attr.AttributeName}={attr.AttributeValue}&";
+            }
+
+            url = url.TrimEnd('&');
+
+            try
+            {
+
+                string urlData = "";
+                WebRequest wr = WebRequest.Create(new Uri(url));
+                wr.Timeout = timeout;
+                urlData = new StreamReader(wr.GetResponse().GetResponseStream()).ReadToEnd();
+
+                return urlData;
+            }
+            catch
+            {
+                return TCPCOULDNOTCONNECT.ToString();
+            }
+        }
 
         public MainWindow()
         {
@@ -775,6 +855,7 @@ namespace HolzTools
 
             //create the Tcplistener thread
             tcpListenerThread = new Thread(() => tcpListenerLoop()) { IsBackground = true };
+            tcpListenerThread.SetApartmentState(ApartmentState.STA);
             tcpListenerThread.Start();
         }
 
@@ -1972,19 +2053,11 @@ namespace HolzTools
 
         public bool EnableLogBox
         {
-            get { return logBox.IsVisible; }
+            get { return enableLogBox; }
             set
             {
-                if (!logBox.IsVisible && value == true)
-                {
-                    logBox.Visibility = Visibility.Visible;
-                    this.Height = this.Height + logBox.Height;
-                }
-                else if (logBox.IsVisible && value == false)
-                {
-                    logBox.Visibility = Visibility.Collapsed;
-                    this.Height = this.Height - logBox.Height;
-                }
+                enableLogBox = value;
+                OnPropertyChanged("EnableLogBox");
             }
         }
 
@@ -2208,6 +2281,16 @@ namespace HolzTools
             }
         }
 
+        public int TCPTimeout
+        {
+            get { return tcpTimeout; }
+            set 
+            {
+                tcpTimeout = value;
+                OnPropertyChanged("TCPTimeout");
+            }
+        }
+
         public LedItem SelectedLedItem
         {
             get { return selectedItem; }
@@ -2288,6 +2371,11 @@ namespace HolzTools
         public static int TCPINVALIDCOMMAND
         {
             get { return 400; }
+        }
+
+        public static int TCPCOULDNOTCONNECT
+        {
+            get { return 401; }
         }
 
         public static int TCPLEDNOTFOUND
