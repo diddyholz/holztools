@@ -20,6 +20,8 @@ using System.Windows.Media.Animation;
 using System.Xml;
 using System.Net.Sockets;
 using System.Net.Http;
+using System.Net.Mail;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace HolzTools
 {
@@ -54,6 +56,7 @@ namespace HolzTools
         private bool syncAvailable = true;
         private bool firstLoad = true;
         private bool enableLogBox = false;
+        private bool showNotification = false;
 
         private int tcpPort = 39769;
         private int tcpTimeout = 200;
@@ -64,6 +67,9 @@ namespace HolzTools
         private byte iconPressed = 0;
 
         private string selectedMode = "Static";
+        private string notificationText = "";
+
+        private List<string> notificationList = new List<string>();
 
         private Color accentColor = Color.FromRgb(200, 0, 0);
 
@@ -302,7 +308,7 @@ namespace HolzTools
             //check for internet connection
             if (!Update.CheckForInternet())
             {
-                new AlertWindow("Couldn't check for updates!", false).ShowDialog();
+                PutNotification("Could not check for updates! (No internet connection available)");
 
                 this.Dispatcher.Invoke(new Action(() =>
                 {
@@ -458,7 +464,7 @@ namespace HolzTools
 
                                 this.Dispatcher.BeginInvoke(new Action(() =>
                                 {
-                                    logBoxText.Text += $"Finished flashing of binary for model { arduino.ArduinoType } at { arduino.SerialPortName }";
+                                    logBoxText.Text += $"Finished flashing of binary of model { arduino.ArduinoType } at { arduino.SerialPortName }";
                                     logBoxText.Text += Environment.NewLine;
                                 }));
                             }
@@ -488,6 +494,19 @@ namespace HolzTools
                         new AlertWindow("The binaries on your Arduinos are on the newest version.").ShowDialog();
                 }
             }
+        }
+
+        public void PutNotification(string notificationText)
+        {
+            if (notificationList.Contains(notificationText))
+                return;
+
+            ShowNotification = true;
+            
+            if(notificationList.Count == 0)
+                NotificationText = notificationText;
+
+            notificationList.Add(notificationText);
         }
 
         private void tcpListenerLoop()
@@ -767,7 +786,7 @@ namespace HolzTools
             }
             catch (SocketException e)
             {
-                new AlertWindow($"Could not start the server on port {TCPPort}. The port may be in use by another application. Try to change the port in the settings menu.");
+                PutNotification($"Could not start the server on port {TCPPort}. The port may be in use by another application. Try to change the port in the settings menu.");
             }
             finally
             {
@@ -857,6 +876,8 @@ namespace HolzTools
             tcpListenerThread = new Thread(() => tcpListenerLoop()) { IsBackground = true };
             tcpListenerThread.SetApartmentState(ApartmentState.STA);
             tcpListenerThread.Start();
+
+            Thread.Sleep(3000);
         }
 
         private void setEveryLedMode(bool getInformation)
@@ -870,8 +891,10 @@ namespace HolzTools
                 }
                 catch (Exception ex)
                 {
-                    AlertWindow alert = new AlertWindow($"Can't write to {item.ComPortName}", false);
-                    alert.ShowDialog();
+                    if (ex.GetType() == typeof(System.IO.IOException))
+                        PutNotification($"Can't write to {item.ComPortName} (The Port may already be in use)");
+                    else if (ex.GetType() == typeof(NoSerialPortSelectedException))
+                        PutNotification($"No COM-Port is selected for {item.ItemName}");
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -1466,27 +1489,6 @@ namespace HolzTools
             MadeChanges = false;
         }
 
-        private void getChangelogThread()
-        {
-            try
-            {
-                using (WebClient webClient = new WebClient())
-                {
-
-                    ChangeLogWindow changeLogWindow = new ChangeLogWindow(webClient.DownloadString(changelogPasteBin));
-                    changeLogWindow.ShowDialog();
-                }
-            }
-            catch(Exception ex)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    logBoxText.Text += $"Couldn't recieve Changelog ({ex.GetType().Name})";
-                    logBoxText.Text += Environment.NewLine;
-                }));
-            }
-        }
-
         private void sendDataToArduino(LedItem ledItem, string mode, bool setLedItemClassArgs)
         {
             try
@@ -1687,8 +1689,10 @@ namespace HolzTools
             }
             catch (Exception ex)
             {
-                AlertWindow alert = new AlertWindow($"Can't write to {ledItem.ComPortName}", false);
-                alert.ShowDialog();
+                if (ex.GetType() == typeof(System.IO.IOException))
+                    PutNotification($"Can't write to {ledItem.ComPortName} (The Port may already be in use)");
+                else if (ex.GetType() == typeof(NoSerialPortSelectedException))
+                    PutNotification($"No COM-Port is selected for {ledItem.ItemName}");
 
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -1952,6 +1956,20 @@ namespace HolzTools
             }
         }
 
+        private void DismissNotification_Click(object sender, RoutedEventArgs e)
+        {
+            if (notificationList.Count == 1)
+            {
+                ShowNotification = false;
+                notificationList.Clear();
+
+                return;
+            }
+
+            notificationList.Remove(NotificationText);
+            NotificationText = notificationList[0];
+        }
+
         //getters and setters
         public static int IDCounter
         {
@@ -2170,6 +2188,16 @@ namespace HolzTools
             }
         }
 
+        public bool ShowNotification
+        {
+            get { return showNotification; }
+            set
+            {
+                showNotification = value;
+                OnPropertyChanged("ShowNotification");
+            }
+        }
+
         public string SelectedMode
         {
             get { return selectedMode; }
@@ -2268,6 +2296,16 @@ namespace HolzTools
                 }
 
                 return filePath;
+            }
+        }
+
+        public string NotificationText
+        {
+            get { return notificationText; }
+            set
+            {
+                notificationText = value;
+                OnPropertyChanged("NotificationText");
             }
         }
 

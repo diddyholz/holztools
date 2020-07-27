@@ -143,8 +143,6 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <!--Title Bar-->
@@ -224,6 +222,119 @@
                         </Grid>
                     </Grid>
 
+                    <!-- Notification Bar -->
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="Maroon">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="Height" Value="0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ShowNotification}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames 
+                                                        Duration="0:0:0.5"
+                                                        Storyboard.TargetProperty="Height"
+                                                        FillBehavior="Stop">
+                                                        <DiscreteDoubleKeyFrame
+                                                            KeyTime="0:0:0"
+                                                            Value="0"/>
+                                                        <SplineDoubleKeyFrame 
+                                                            KeyTime="0:0:0.5"
+                                                            KeySpline="0,1 0.75,1"
+                                                            Value="25"/>
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimationUsingKeyFrames 
+                                                        Duration="0:0:0.5"
+                                                        Storyboard.TargetProperty="Height"
+                                                        FillBehavior="Stop">
+                                                        <DiscreteDoubleKeyFrame
+                                                            KeyTime="0:0:0"
+                                                            Value="25"/>
+                                                        <SplineDoubleKeyFrame 
+                                                            KeyTime="0:0:0.5"
+                                                            KeySpline="0,1 0.75,1"
+                                                            Value="0"/>
+                                                    </DoubleAnimationUsingKeyFrames>
+                                                    <ObjectAnimationUsingKeyFrames 
+                                                        Duration="0:0:0.5"
+                                                        Storyboard.TargetProperty="(Grid.Visibility)"
+                                                        FillBehavior="Stop">
+                                                        <DiscreteObjectKeyFrame
+                                                            KeyTime="0:0:0"
+                                                            Value="{x:Static Visibility.Visible}"/>
+                                                        <DiscreteObjectKeyFrame
+                                                            KeyTime="0:0:0.5"
+                                                            Value="{x:Static Visibility.Collapsed}"/>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Setter Property="Height" Value="25"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="{Binding NotificationText}" FontSize="13" 
+                                       FontWeight="SemiBold" Margin="15,0,15,0"
+                                       VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="1" Content="Dismiss"
+                                    FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"
+                                    Background="Transparent" Click="DismissNotification_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Foreground" Value="#CCC"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="rootBorder" Background="{TemplateBinding Background}">
+                                                    <ContentPresenter 
+                                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
+                                                        From="#CCC" To="#FFF" FillBehavior="Stop" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
+                                                        From="#FFF" To="#CCC" FillBehavior="Stop" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                        <Setter Property="Foreground" Value="#FFF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+
                     <!-- Item Menu -->
                     <Grid Background="#282828" Grid.Column="0" Grid.Row="1">
                         <Grid.RowDefinitions>
@@ -252,7 +363,7 @@
                     </Grid>
 
                     <!-- Mode Menu -->
-                    <Grid Background="#FF505050" Grid.Column="1" Grid.Row="1">
+                    <Grid Background="#FF505050" Grid.Row="1" Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
                             <RowDefinition Height="*"/>
@@ -326,7 +437,7 @@
 
                     <!-- No Items Alert -->
                     <Grid Background="#FF3C3C3C" Grid.Column="1" Grid.Row="1"
-                  Visibility="Collapsed" x:Name="noItemsAlert">
+                          Visibility="Collapsed" x:Name="noItemsAlert">
                         <TextBlock Text="You haven't added any LEDs yet&#10;Press + to add new LEDs"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            TextAlignment="Center" FontSize="25" FontWeight="SemiBold"/>

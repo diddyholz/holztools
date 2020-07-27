@@ -49,7 +49,7 @@ namespace HolzTools.UserControls
         private string itemName = "LED";
         private string mode = "Static";
         private string overlappedMusicMode = "Static";
-        private string comPort = "COM0";
+        private string comPort = "";
         private string syncedLedItem = "";
         private string ipAddress = "";
 
@@ -136,7 +136,7 @@ namespace HolzTools.UserControls
                     }
                 }
 
-                if (!foundport)
+                if (!foundport && arduino != null)
                 {
                     try
                     {
@@ -168,6 +168,9 @@ namespace HolzTools.UserControls
 
         public void InitSerial()
         {
+            if (string.IsNullOrEmpty(ComPortName))
+                throw new NoSerialPortSelectedException($"No COM-Port was selected for LED {ItemName}.");
+
             arduino.InitializePort();
         }
 
@@ -183,7 +186,10 @@ namespace HolzTools.UserControls
 
         public void SerialWrite(string message)
         {
-            if(arduino.ActiveSerialPort.IsOpen == true)
+            if (string.IsNullOrEmpty(ComPortName))
+                throw new NoSerialPortSelectedException($"No COM-Port was selected for LED {ItemName}.");
+
+            if (arduino.ActiveSerialPort.IsOpen == true)
                 arduino.ActiveSerialPort.Write(message);
         }
 
@@ -663,6 +669,21 @@ namespace HolzTools.UserControls
             {
                 handler(this, new PropertyChangedEventArgs(name));
             }
+        }
+    }
+
+    class NoSerialPortSelectedException : Exception
+    {
+        public NoSerialPortSelectedException()
+        {
+        }
+
+        public NoSerialPortSelectedException(string message) : base(message)
+        {
+        }
+
+        public NoSerialPortSelectedException(string message, Exception inner) : base(message, inner)
+        {
         }
     }
 }
