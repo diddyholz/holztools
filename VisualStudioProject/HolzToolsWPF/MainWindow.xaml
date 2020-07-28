@@ -51,7 +51,7 @@
     </WindowChrome.WindowChrome>
     <Grid>
         <!-- Splash Screen Grid -->
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
+        <Grid x:Name="splashGrid" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
               Height="250" Background="{StaticResource ModeBackground}">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -60,7 +60,7 @@
                         <DataTrigger Binding="{Binding ShowMainGrid}" Value="True">
                             <DataTrigger.EnterActions>
                                 <BeginStoryboard>
-                                    <Storyboard>
+                                    <Storyboard x:Name="splashStoryboard">
                                         <DoubleAnimationUsingKeyFrames 
                                             Storyboard.TargetProperty="(Grid.Opacity)"
                                             Duration="0:0:0.75">
@@ -756,6 +756,88 @@
                                                             <DoubleAnimation 
                                                     Storyboard.TargetProperty="(Viewbox.Width)"
                                                     From="371" To="250" Duration="0:0:0.1"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.ExitActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Viewbox.Style>
+                                <uc:ArduinoUploadWindow/>
+                            </Viewbox>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- MultiColor Editor Window -->
+                    <Grid Background="#B21E1E1E" Grid.RowSpan="20" Grid.ColumnSpan="20" 
+                      Panel.ZIndex="420" x:Name="multiColorEditorGrid">
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="Opacity" Value="1"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ShowMultiColorEditorWindow}" 
+                                                 Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                            Storyboard.TargetProperty="(Grid.Opacity)" 
+                                            From="0" To="1" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                            Storyboard.TargetProperty="(Grid.Opacity)" 
+                                            From="1" To="0" Duration="0:0:0.1"/>
+                                                    <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" 
+                                                                       Storyboard.TargetProperty="(Grid.Visibility)" 
+                                                                       FillBehavior="Stop">
+                                                        <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
+                                                        <DiscreteObjectKeyFrame KeyTime="00:00:0.1" Value="{x:Static Visibility.Collapsed}"/>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid x:Name="multiColorEditorBackgroundGrid" Background="Transparent"/>
+                        <ScrollViewer VerticalAlignment="Center" HorizontalAlignment="Center"
+                                  VerticalScrollBarVisibility="Auto" Padding="1,10,1,10">
+                            <Viewbox Width="419" Height="auto" VerticalAlignment="Center" 
+                                 HorizontalAlignment="Center"
+                                 x:Name="multiColorEditorViewbox">
+                                <Viewbox.Style>
+                                    <Style TargetType="{x:Type Viewbox}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ShowMultiColorEditorWindow}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimationUsingKeyFrames 
+                                                    Storyboard.TargetProperty="(Viewbox.Width)" 
+                                                    Duration="0:0:0.3">
+                                                                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="300"/>
+                                                                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="470" 
+                                                                          KeySpline="0.3,0.0 0.5,0"/>
+                                                                <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="419"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation 
+                                                    Storyboard.TargetProperty="(Viewbox.Width)"
+                                                    From="419" To="300" Duration="0:0:0.1"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.ExitActions>

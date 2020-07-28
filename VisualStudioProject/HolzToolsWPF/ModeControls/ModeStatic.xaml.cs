@@ -16,6 +16,7 @@ namespace HolzTools.ModeControls
         private Color realColor;
 
         private byte brightness = 255;
+        private byte type = 0; // 0 for single; 1 for multi
 
         private bool isDefault = false;
 
@@ -58,6 +59,21 @@ namespace HolzTools.ModeControls
         {
             MainWindow.ActiveWindow.colorPickerViewBox.Child = new CustomColorPicker(SelectedColor, CustomColorPicker.ColorToBeChanged.StaticSelectedColor);
             MainWindow.ActiveWindow.ShowColorPicker = true;
+        }
+
+        private void ShowEditor_Click(object sender, RoutedEventArgs e)
+        {
+            // trim or expand the led list if needed
+            List<Color> ledList = MainWindow.ActiveWindow.SelectedLedItem.LedColorList;
+
+            if (ledList.Count < MainWindow.ActiveWindow.SelectedLedItem.LedCount)
+                while (ledList.Count < MainWindow.ActiveWindow.SelectedLedItem.LedCount)
+                    ledList.Add(Color.FromRgb(200, 0, 0));
+            else if (ledList.Count > MainWindow.ActiveWindow.SelectedLedItem.LedCount)
+                ledList.RemoveRange(MainWindow.ActiveWindow.SelectedLedItem.LedCount, ledList.Count - MainWindow.ActiveWindow.SelectedLedItem.LedCount);
+
+            MainWindow.ActiveWindow.multiColorEditorViewbox.Child = new MultiColorEditor(ledList);
+            MainWindow.ActiveWindow.ShowMultiColorEditorWindow = true;
         }
 
         //getters and settters
@@ -131,6 +147,16 @@ namespace HolzTools.ModeControls
                 OnPropertyChanged("Brightness");
 
                 MainWindow.ActiveWindow.MadeChanges = true;
+            }
+        }
+
+        public byte Type
+        {
+            get { return type; }
+            set
+            {
+                type = value;
+                OnPropertyChanged("Type");
             }
         }
 

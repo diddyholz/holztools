@@ -54,6 +54,9 @@ namespace HolzTools
             {
                 BinaryVersion = message.Split('_')[1];
 
+                if (message.Split('_').Count() != 3)
+                    return;
+
                 switch (message.Split('_')[2])
                 {
                     case "NanoR3":

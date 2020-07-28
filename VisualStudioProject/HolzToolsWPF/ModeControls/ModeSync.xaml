@@ -69,7 +69,7 @@
                         </Grid>
 
                         <!-- LED Selection -->
-                        <ComboBox x:Name="syncableItemsCB"
+                        <ComboBox x:Name="syncableItemsCB" Margin="5"
                                   Grid.Column="1" Grid.Row="3" Background="Transparent"
                                   ItemsSource="{Binding SelectedItemSyncableItems}"
                                   SelectedItem="{Binding SyncedLedItem}"/>

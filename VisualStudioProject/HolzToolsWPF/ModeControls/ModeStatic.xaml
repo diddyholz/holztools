@@ -66,97 +66,181 @@
                             </controls:HelpToolTip>
                         </Grid>
 
-                        <!-- Color Selection -->
                         <Grid Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="42"/>
-                                <ColumnDefinition Width="42"/>
-                                <ColumnDefinition Width="42"/>
-                                <ColumnDefinition Width="42"/>
-                                <ColumnDefinition Width="42"/>
-                                <ColumnDefinition Width="42"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="42"/>
-                            </Grid.RowDefinitions>
+                            <!-- Color Selection -->
+                            <Grid x:Name="colorSelectionGrid">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" 
+                                            Value="Visible"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition 
+                                                        Binding="{Binding Path=ActiveWindow.SelectedLedItem.Type,
+                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"
+                                                        Value="0">
+                                                    </Condition>
+                                                    <Condition 
+                                                        Binding="{Binding Type}"
+                                                        Value="1">
+                                                    </Condition>
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" 
+                                                            Value="Collapsed"/>
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="42"/>
+                                    <ColumnDefinition Width="42"/>
+                                    <ColumnDefinition Width="42"/>
+                                    <ColumnDefinition Width="42"/>
+                                    <ColumnDefinition Width="42"/>
+                                    <ColumnDefinition Width="42"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="42"/>
+                                    <RowDefinition Height="42"/>
+                                    <RowDefinition Height="42"/>
+                                </Grid.RowDefinitions>
 
-                            <!-- Default Colors -->
-                            <Button Background="Red" Grid.Column="0" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Orange" Grid.Column="1" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Yellow" Grid.Column="2" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="#FFAAFF40" Grid.Column="3" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Lime" Grid.Column="4" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="#FF00FFB1" Grid.Column="5" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Cyan" Grid.Column="0" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="#FF00B1FF" Grid.Column="1" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Blue" Grid.Column="2" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="#FFB100FF" Grid.Column="3" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="Magenta" Grid.Column="4" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
-                            <Button Background="#FFFF00B1" Grid.Column="5" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <!-- Default Colors -->
+                                <Button Background="Red" Grid.Column="0" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Orange" Grid.Column="1" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Yellow" Grid.Column="2" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="#FFAAFF40" Grid.Column="3" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Lime" Grid.Column="4" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="#FF00FFB1" Grid.Column="5" Grid.Row="0" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Cyan" Grid.Column="0" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="#FF00B1FF" Grid.Column="1" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Blue" Grid.Column="2" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="#FFB100FF" Grid.Column="3" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="Magenta" Grid.Column="4" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
+                                <Button Background="#FFFF00B1" Grid.Column="5" Grid.Row="1" Margin="6" BorderThickness="0" Click="DefaultColorButton_Click" Style="{StaticResource standardColorBtnStyle}"/>
 
-                            <!-- Custom  Color Button-->
-                            <Button x:Name="customColorBtn" Grid.Column="0" Grid.Row="6"
+                                <!-- Custom  Color Button-->
+                                <Button x:Name="customColorBtn" Grid.Column="0" Grid.Row="6"
                                     Grid.ColumnSpan="6" Click="CustomColorBtn_Click" 
                                     Foreground="White" Content="Custom Color" Margin="5">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="rootBorder" Background="#FF3C3C3C" CornerRadius="3">
-                                                        <Grid>
-                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="rootBorder" Background="#FF3C3C3C" CornerRadius="3">
+                                                            <Grid>
+                                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                                        </Grid>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Trigger.EnterActions>
-                                                                <BeginStoryboard>
-                                                                    <Storyboard>
-                                                                        <ColorAnimation Duration="0:0:0.1" From="#FF3C3C3C"
+                                                            </Grid>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Trigger.EnterActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ColorAnimation Duration="0:0:0.1" From="#FF3C3C3C"
                                                                                         To="#282828" FillBehavior="Stop"
                                                                                         Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                                                         Storyboard.TargetName="rootBorder"/>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </Trigger.EnterActions>
-                                                            <Trigger.ExitActions>
-                                                                <BeginStoryboard>
-                                                                    <Storyboard>
-                                                                        <ColorAnimation Duration="0:0:0.1" From="#282828"
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.EnterActions>
+                                                                <Trigger.ExitActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <ColorAnimation Duration="0:0:0.1" From="#282828"
                                                                                         To="#FF3C3C3C" FillBehavior="Stop"
                                                                                         Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                                                         Storyboard.TargetName="rootBorder"/>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </Trigger.ExitActions>
-                                                            <Setter Property="Background" TargetName="rootBorder" Value="#282828"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter Property="Background" TargetName="rootBorder" Value="#232323"/>
-                                                        </Trigger>
-                                                        <Trigger Property="Tag" Value="Selected">
-                                                            <Setter Property="BorderBrush" Value="Black" TargetName="rootBorder"/>
-                                                            <Setter Property="BorderThickness" Value="3" TargetName="rootBorder"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </Trigger.ExitActions>
+                                                                <Setter Property="Background" TargetName="rootBorder" Value="#282828"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsPressed" Value="True">
+                                                                <Setter Property="Background" TargetName="rootBorder" Value="#232323"/>
+                                                            </Trigger>
+                                                            <Trigger Property="Tag" Value="Selected">
+                                                                <Setter Property="BorderBrush" Value="Black" TargetName="rootBorder"/>
+                                                                <Setter Property="BorderThickness" Value="3" TargetName="rootBorder"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
 
+                            </Grid>
+                        
+                            <!-- Show Editor -->
+                            <Grid x:Name="showEditorGrid">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" 
+                                            Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition 
+                                                        Binding="{Binding Path=ActiveWindow.SelectedLedItem.Type,
+                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"
+                                                        Value="0">
+                                                    </Condition>
+                                                    <Condition 
+                                                        Binding="{Binding Type}"
+                                                        Value="1">
+                                                    </Condition>
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" 
+                                                            Value="Visible"/>
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Button Style="{StaticResource secondaryBtnStyle}"
+                                        Content="Go to editor" Margin="5" 
+                                        Background="#FF3C3C3C" 
+                                        Height="32" Width="242"
+                                        Click="ShowEditor_Click"/>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Border>
-                
+
                 <!-- Brightness Option-->
-                <Border BorderThickness="0" CornerRadius="4" Background="#FF232323"
+                <Border BorderThickness="0" CornerRadius="4" 
+                        Background="{StaticResource CardBackground}"
                         Margin="10" VerticalAlignment="Top" Width="275">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=ActiveWindow.SelectedLedItem.Type,
+                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"
+                                                   Value="0">
+                                        </Condition>
+                                        <Condition Binding="{Binding Type}"
+                                                   Value="1">
+                                        </Condition>
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Visibility" 
+                                                Value="Collapsed"/>
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10"/>
@@ -185,7 +269,7 @@
                                    Foreground="{DynamicResource AccentColor}"
                                     FontSize="16" 
                                    FontWeight="SemiBold" Margin="0,0,0,5"/>
-                            
+
                             <controls:HelpToolTip Grid.Column="1">
                                 <controls:HelpToolTip.ToolTipText>
                                     Customize the brightness of the Static Mode.
@@ -203,6 +287,68 @@
                         <TextBlock Text="255" Grid.Column="3" Grid.Row="3"
                                    FontSize="13" Foreground="White"
                                    TextAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Type Option-->
+                <Border BorderThickness="0" CornerRadius="4" 
+                        Background="{StaticResource CardBackground}"
+                        Margin="10" VerticalAlignment="Top" Width="275">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger 
+                                    Binding="{Binding Path=ActiveWindow.SelectedLedItem.Type,
+            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"
+                                    Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <Grid Grid.Column="1" Grid.Row="1" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Type" 
+                                   Foreground="{DynamicResource AccentColor}"
+                                    FontSize="16" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                            <controls:HelpToolTip Grid.Column="1">
+                                <controls:HelpToolTip.ToolTipText>
+                                    Set the type of the Static mode. 
+                                    When using multicolor type you can set a different 
+                                    color for each LED
+                                </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                        </Grid>
+
+                        <!-- LED Selection -->
+                        <ComboBox x:Name="syncableItemsCB" Margin="5"
+                                  Grid.Column="1" Grid.Row="3" Background="Transparent"
+                                  SelectedIndex="{Binding Type}">
+                            <ComboBoxItem IsSelected="True">Singlecolor</ComboBoxItem>
+                            <ComboBoxItem>Multicolor</ComboBoxItem>
+                        </ComboBox>
                     </Grid>
                 </Border>
                 

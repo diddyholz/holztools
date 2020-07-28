@@ -60,6 +60,8 @@ namespace HolzTools.UserControls
 
         private Arduino arduino;
 
+        private List<Color> ledColorList = new List<Color>();
+
         private List<string> syncableItems = new List<string>();
 
         public LedItem()
@@ -655,6 +657,16 @@ namespace HolzTools.UserControls
                 //check if the com port has the corresponding settings set
                 arduino.SerialPortName = ComPortName;
                 arduino.BaudRate = BaudRate;
+            }
+        }
+
+        public List<Color> LedColorList
+        {
+            get { return ledColorList; }
+            set
+            { 
+                ledColorList = value;
+                OnPropertyChanged("LedColorList");
             }
         }
 

@@ -467,6 +467,24 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="Button" x:Key="ledColorBtnStyle">
+        <Setter Property="Height" Value="25"/>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="templateBorder" CornerRadius="12.5" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     
     <!-- ProgressBar -->
     <SolidColorBrush x:Key="ProgressBar.Progress" Color="#FF06B025"/>

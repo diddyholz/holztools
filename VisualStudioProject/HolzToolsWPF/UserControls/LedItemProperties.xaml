@@ -13,7 +13,7 @@
             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
     </UserControl.Resources>
     
-    <Border Grid.ColumnSpan="4" Grid.RowSpan="3" CornerRadius="4" 
+    <Border CornerRadius="4" 
             Background="{StaticResource ModeBackground}">
         <Grid>
             <Grid.ColumnDefinitions>

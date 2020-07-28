@@ -46,6 +46,7 @@ namespace HolzTools
         private bool showMainGrid = false;
         private bool showColorPicker = false;
         private bool showArduinoUploadWindow = false;
+        private bool showMultiColorEditorWindow = false;
         private bool autoUpdate = true;
         private bool madeChanges = false;
         private bool blockPopups = false;
@@ -377,9 +378,10 @@ namespace HolzTools
                 {
                     if (arduino.BinaryVersion == "")
                     {
-                        new AlertWindow($"Could not receive the binary information of your Arduino at { arduino.SerialPortName }!\n" +
-                            $"Please check if your Arduino is properly connected. If you plugged the Arduino into a different port, " +
-                            $"then you must update the COM-Port settings for that Arduino.").ShowDialog();
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            PutNotification($"Could not receive the binary information of your Arduino ({arduino.SerialPortName})! Please check its connection.");
+                        });
                     }
                     else if (arduino.BinaryVersion != newestVersion)
                     {
@@ -2203,6 +2205,16 @@ namespace HolzTools
 
                 }))
                 { ApartmentState = ApartmentState.STA, IsBackground = true }.Start();
+            }
+        }
+
+        public bool ShowMultiColorEditorWindow
+        {
+            get { return showMultiColorEditorWindow; }
+            set 
+            { 
+                showMultiColorEditorWindow = value;
+                OnPropertyChanged("ShowMultiColorEditorWindow");
             }
         }
 
