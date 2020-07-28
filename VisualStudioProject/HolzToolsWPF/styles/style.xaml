@@ -4,7 +4,10 @@
                     xmlns:controls="clr-namespace:HolzTools.CustomControls">
 
     <!-- Static Colors -->
-    <SolidColorBrush x:Key="CardBackground" Color="#FF232323"/>
+    <SolidColorBrush x:Key="CardBackground" Color="#FF1A1A1A" />
+    <SolidColorBrush x:Key="ModeBackground" Color="#FF2C2C2C" />
+    <SolidColorBrush x:Key="OuterModeBackground" Color="#FF3F3F3F" />
+    <SolidColorBrush x:Key="ItemMenuBackground" Color="#FF232323" />
 
     <!-- Togglebutton -->
     <Style TargetType="{x:Type controls:ToggleButton}">
@@ -312,40 +315,45 @@
     </Style>
 
     <Style TargetType="{x:Type Button}" x:Key="addItemBtnStyle">
-        <Setter Property="Background" Value="#282828"/>
+        <Setter Property="Background" Value="{StaticResource ItemMenuBackground}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Border x:Name="overlayBorder" Background="#00FFFFFF"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            Storyboard.TargetName="overlayBorder"
+                                            From="#00FFFFFF" To="#1FFFFFFF" Duration="0:0:0.1" FillBehavior="Stop"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            Storyboard.TargetName="overlayBorder"
+                                            From="#1FFFFFFF" To="#00FFFFFF" Duration="0:0:0.1" FillBehavior="Stop"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                            <Setter Property="Background" TargetName="overlayBorder" Value="#1FFFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="overlayBorder" Value="#30FFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                            From="#FF2D2D2D" To="#4c4c4c" Duration="0:0:0.1" FillBehavior="Stop"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                            From="#4c4c4c" To="#FF2D2D2D" Duration="0:0:0.1" FillBehavior="Stop"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions>
-                <Setter Property="Background" Value="#4c4c4c"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#404040"/>
-            </Trigger>
-        </Style.Triggers>
     </Style>
 
     <Style TargetType="{x:Type Button}" x:Key="itemPropertyBtnStyle">
@@ -392,7 +400,7 @@
     <Style TargetType="{x:Type TabItem}" x:Key="modeTabItemStyle">
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="#FF505050"/>
+        <Setter Property="Background" Value="{StaticResource OuterModeBackground}"/>
         <Setter Property="Height" Value="29"/>
         <Setter Property="Width" Value="105"/>
         <Setter Property="FontSize" Value="13"/>
@@ -408,10 +416,10 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Panel" Property="Background" Value="#373737"/>
+                            <Setter TargetName="Panel" Property="Background" Value="{StaticResource ModeBackground}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="False">
-                            <Setter TargetName="Panel" Property="Background" Value="#FF505050"/>
+                            <Setter TargetName="Panel" Property="Background" Value="{StaticResource OuterModeBackground}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

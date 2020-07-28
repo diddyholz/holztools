@@ -12,7 +12,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="563.433" d:DesignWidth="741.637" 
              d:DataContext="{d:DesignInstance local:ModeCycle, IsDesignTimeCreatable=True}"
-             Background="#FF3C3C3C"
              TextOptions.TextFormattingMode="Display">
     <UserControl.Resources>
         <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,

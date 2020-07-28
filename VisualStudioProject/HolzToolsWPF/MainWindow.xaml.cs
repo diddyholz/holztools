@@ -31,15 +31,14 @@ namespace HolzTools
 
         public static string InstallLocation = "";
 
+        private static int idCounter = 0;
+
         private const string currentVersion = "1.08";
         private const string updatePasteBin = "https://pastebin.com/raw/t2r0pWMr";
         private const string changelogPasteBin = "https://pastebin.com/raw/mQK7VVGZ";
         private const string arduinoBinaryPasteBin = "https://pastebin.com/raw/eAYERLEs";
         private const string arduinoBinaryChangelogPasteBin = "https://pastebin.com/raw/VHdBVP3b";
         private const string appName = "HolzTools";
-        private const string guid = "{1B3CB67C-6ADF-46DA-8740-752AFC4BA540}";
-
-        private static int idCounter = 0;
 
         private bool isDev = false;
         private bool showProperties = false;
@@ -809,7 +808,7 @@ namespace HolzTools
             }
             catch (SocketException e)
             {
-                PutNotification($"Could not start the server on port {TCPPort}. The port may be in use by another application. Try to change the port in the settings menu.");
+                PutNotification($"Could not start the server on port {TCPPort}. The port may already be in use by another application. Try to change the port in the settings menu.");
             }
             finally
             {
@@ -915,13 +914,13 @@ namespace HolzTools
                 catch (Exception ex)
                 {
                     if (ex.GetType() == typeof(System.IO.IOException))
-                        PutNotification($"Can't write to {item.ComPortName} (The Port may already be in use)");
+                        PutNotification($"Cannot write to {item.ComPortName} (The Port may already be in use)");
                     else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                         PutNotification($"No COM-Port is selected for {item.ItemName}");
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        logBoxText.Text += $"Can't write to {item.ComPortName} ({ ex.GetType().Name })";
+                        logBoxText.Text += $"Cannot write to {item.ComPortName} ({ ex.GetType().Name })";
                         logBoxText.Text += Environment.NewLine;
                     }));
 
@@ -1602,7 +1601,7 @@ namespace HolzTools
                     case "Lightning":
                         tmpMode = "LING";
 
-                        //set the arguments for the usb message (can't just use the realcolor property here because of a invalidopertationexception I can't fix)
+                        //set the arguments for the usb message (Cannot just use the realcolor property here because of a invalidopertationexception I Cannot fix)
                         arg1 = (byte)(modeLightning.SelectedColor.R * (float)(modeLightning.Brightness / 255));
                         arg2 = (byte)(modeLightning.SelectedColor.G * (float)(modeLightning.Brightness / 255));
                         arg3 = (byte)(modeLightning.SelectedColor.B * (float)(modeLightning.Brightness / 255));
@@ -1713,13 +1712,13 @@ namespace HolzTools
             catch (Exception ex)
             {
                 if (ex.GetType() == typeof(System.IO.IOException))
-                    PutNotification($"Can't write to {ledItem.ComPortName} (The Port may already be in use)");
+                    PutNotification($"Cannot write to {ledItem.ComPortName} (The Port may already be in use)");
                 else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                     PutNotification($"No COM-Port is selected for {ledItem.ItemName}");
 
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    logBoxText.Text += $"Can't write to {ledItem.ComPortName} ({ ex.GetType().Name })";
+                    logBoxText.Text += $"Cannot write to {ledItem.ComPortName} ({ ex.GetType().Name })";
                     logBoxText.Text += Environment.NewLine;
                 }));
             }
@@ -1989,6 +1988,7 @@ namespace HolzTools
                 return;
             }
 
+            // show the next notification
             notificationList.Remove(NotificationText);
             NotificationText = notificationList[0];
         }
@@ -2013,6 +2013,11 @@ namespace HolzTools
         public static string ApplicationName
         {
             get { return appName; }
+        }
+
+        public static string GUID
+        {
+            get { return "{1B3CB67C-6ADF-46DA-8740-752AFC4BA540}"; }
         }
 
         public static MainWindow ActiveWindow
@@ -2187,11 +2192,11 @@ namespace HolzTools
                     {
                         this.Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            new AlertWindow("Can't connect to the internet!").ShowDialog();
+                            new AlertWindow("Cannot connect to the internet!").ShowDialog();
 
                             ShowArduinoUploadWindow = false;
 
-                            logBoxText.Text += "Can't connect to the internet (Unable to connect to 'http://google.com/generate_204')";
+                            logBoxText.Text += "Cannot connect to the internet (Unable to connect to 'http://google.com/generate_204')";
                             logBoxText.Text += Environment.NewLine;
                         }));
                     }

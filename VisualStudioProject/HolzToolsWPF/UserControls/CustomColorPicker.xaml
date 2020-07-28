@@ -347,7 +347,7 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Border BorderThickness="0" Background="#FF464646" CornerRadius="4">
+    <Border BorderThickness="0" Background="{StaticResource ModeBackground}" CornerRadius="4">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="10"/>

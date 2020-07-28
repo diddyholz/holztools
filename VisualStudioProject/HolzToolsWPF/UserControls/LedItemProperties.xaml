@@ -14,7 +14,7 @@
     </UserControl.Resources>
     
     <Border Grid.ColumnSpan="4" Grid.RowSpan="3" CornerRadius="4" 
-            Background="#FF464646">
+            Background="{StaticResource ModeBackground}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="10"/>
@@ -115,7 +115,7 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <ComboBox BorderThickness="0"
-                              Margin="20,0,20,0" Height="20" Background="#232323"
+                              Margin="20,0,20,0" Height="20" Background="Transparent"
                               Foreground="White" Text="Select a Type" IsReadOnly="True"
                               x:Name="typeComboBox" SelectedIndex="{Binding SelectedType}"
                               SelectionChanged="TypeComboBox_SelectionChanged">
@@ -187,7 +187,7 @@
                             <ComboBox BorderThickness="0"
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
-                              x:Name="comPortComboBox" Background="#232323"
+                              x:Name="comPortComboBox" Background="Transparent"
                               SelectedItem="{Binding SelectedComPort}">
                             </ComboBox>
 
@@ -314,7 +314,7 @@
                                 BorderThickness="0"
                               Margin="20,0,20,0" Height="20"
                               Foreground="White" IsReadOnly="True"
-                                      Background="#232323"
+                                      Background="Transparent"
                                           ItemsSource="{Binding NetworkDevices}"
                               SelectedItem="{Binding SelectedIpDevice}">
                                 </ComboBox>

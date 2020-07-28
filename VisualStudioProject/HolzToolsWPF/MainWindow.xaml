@@ -52,7 +52,7 @@
     <Grid>
         <!-- Splash Screen Grid -->
         <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
-              Height="250" Background="#FF3C3C3C">
+              Height="250" Background="{StaticResource ModeBackground}">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Opacity" Value="1"/>
@@ -104,7 +104,7 @@
         </Grid>
 
         <!-- Main Application Grid -->
-        <Border BorderThickness="1" BorderBrush="#000" Background="#646464">
+        <Border BorderThickness="1" BorderBrush="#000" Background="#FF3F3F3F">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Opacity" Value="0"/>
@@ -336,7 +336,8 @@
                     </Grid>
 
                     <!-- Item Menu -->
-                    <Grid Background="#282828" Grid.Column="0" Grid.Row="1">
+                    <Grid Background="{StaticResource ItemMenuBackground}"
+                          Grid.Column="0" Grid.Row="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="35"/>
@@ -346,7 +347,7 @@
                             <ColumnDefinition Width="1"/>
                         </Grid.ColumnDefinitions>
 
-                        <ScrollViewer Background="#282828" VerticalAlignment="Top"
+                        <ScrollViewer VerticalAlignment="Top"
                               VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="itemStackPanel"/>
                         </ScrollViewer>
@@ -363,7 +364,8 @@
                     </Grid>
 
                     <!-- Mode Menu -->
-                    <Grid Background="#FF505050" Grid.Row="1" Grid.Column="1">
+                    <Grid Background="{StaticResource OuterModeBackground}"
+                          Grid.Row="1" Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
                             <RowDefinition Height="*"/>
@@ -386,28 +388,34 @@
                                                       x:Name="modeTabControl"
                                                       SelectionChanged="ModeTabControl_SelectionChanged">
                             <TabItem Header="Static" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeStatic x:Name="modeStatic" Background="#373737"/>
+                                <muc:ModeStatic x:Name="modeStatic" 
+                                                Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Cycle" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeCycle x:Name="modeCycle" Background="#373737" />
+                                <muc:ModeCycle x:Name="modeCycle" 
+                                               Background="{StaticResource ModeBackground}" />
                             </TabItem>
                             <TabItem Header="Rainbow" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeRainbow x:Name="modeRainbow" Background="#373737"/>
+                                <muc:ModeRainbow x:Name="modeRainbow"
+                                                 Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Lightning" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeLightning x:Name="modeLightning" Background="#373737"/>
+                                <muc:ModeLightning x:Name="modeLightning" 
+                                                   Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Color Overlay" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeOverlay x:Name="modeOverlay" Background="#373737"/>
+                                <muc:ModeOverlay x:Name="modeOverlay" 
+                                                 Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Color Spinner" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeSpinner x:Name="modeSpinner" Background="#373737"/>
+                                <muc:ModeSpinner x:Name="modeSpinner" 
+                                                 Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeMusic x:Name="modeMusic" Background="#373737"/>
+                                <muc:ModeMusic x:Name="modeMusic" 
+                                               Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                             <TabItem Header="Sync" >
-                                <muc:ModeSync x:Name="modeSync" Background="#373737"/>
                                 <TabItem.Style>
                                     <Style TargetType="TabItem" 
                                        BasedOn="{StaticResource modeTabItemStyle}">
@@ -421,10 +429,13 @@
                                         </Style.Triggers>
                                     </Style>
                                 </TabItem.Style>
+                                <muc:ModeSync x:Name="modeSync" 
+                                              Background="{StaticResource ModeBackground}"/>
                             </TabItem>
                         </mah:MetroAnimatedSingleRowTabControl>
 
-                        <Rectangle Fill="#373737" Grid.Row="1" Grid.RowSpan="3" 
+                        <Rectangle Fill="{StaticResource ModeBackground}" 
+                                   Grid.Row="1" Grid.RowSpan="3" 
                            Margin="0,29,0,0"/>
 
                         <Button x:Name="applyBtn" Content="Apply" Click="ApplyBtn_Click"
