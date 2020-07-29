@@ -157,6 +157,8 @@ namespace HolzTools.ModeControls
             {
                 type = value;
                 OnPropertyChanged("Type");
+
+                MainWindow.ActiveWindow.MadeChanges = true;
             }
         }
 

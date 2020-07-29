@@ -29,6 +29,8 @@ void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte
 
 void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6, byte _arg7, byte _arg8, byte _arg9, byte _music)
 {
+  useMultiColor = false;
+  
 	curMode = _mode;
   
   ARG_PRED = _arg1;
@@ -528,12 +530,15 @@ void LEDItem::modeStatic()
 	
 	if(type == TYPE_ARGB)
 	{
-		for(byte x = 0; x < ledCount; x++)
-		{
-			ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
-		}
-		
-		FastLED.show();
+    if(!useMultiColor)
+    {
+      for(byte x = 0; x < ledCount; x++)
+      {
+        ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
+      }
+      
+      FastLED.show();
+    }
 	}
 	else if(type == TYPE_4RGB)
 	{
@@ -680,6 +685,27 @@ void LEDItem::SetSyncParent(byte parent)
       Serial.println(F("Found and refreshed SyncParent"));
     }
   }
+}
+
+void LEDItem::SetLed(byte led, CRGB color)
+{
+  ledColors[led] = color;
+  FastLED.show();
+
+  //check if this ledItem is the syncParent of any other led
+  for(byte x = 0; x < LEDItem::ItemCount; x++)
+  {
+    if(LEDItem::ItemList[x]->GetSyncParent() == id)
+    {
+       LEDItem::ItemList[x]->SetLed(led, color);
+       Serial.println(F("Found synced ledItem")); 
+    }
+  }
+}
+
+void LEDItem::SetUseMultiColor(bool value)
+{
+  useMultiColor = value;
 }
 
 byte LEDItem::GetID()

@@ -28,6 +28,7 @@ namespace HolzTools.UserControls
         private int baudRate = 4800;
         private int serverPort = 39769;
 
+        private byte staticType = 0;    // 0 for single; 1 for multicolor
         private byte staticBrightness = 255;
         private byte cycleBrightness = 255;
         private byte rainbowBrightness = 255;
@@ -309,6 +310,16 @@ namespace HolzTools.UserControls
             {
                 spinnerModeBackgroundColor = value;
                 OnPropertyChanged("SpinnerModeBackgroundColor");
+            }
+        }
+
+        public byte StaticType
+        {
+            get { return staticType; }
+            set
+            {
+                staticType = value;
+                OnPropertyChanged("StaticType");
             }
         }
 

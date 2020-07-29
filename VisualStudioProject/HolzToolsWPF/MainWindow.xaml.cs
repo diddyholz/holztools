@@ -915,10 +915,12 @@ namespace HolzTools
                 }
                 catch (Exception ex)
                 {
-                    if (ex.GetType() == typeof(System.IO.IOException))
+                    if (ex.GetType() == typeof(UnauthorizedAccessException))
                         PutNotification($"Cannot write to {item.ComPortName} (The Port may already be in use)");
                     else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                         PutNotification($"No COM-Port is selected for {item.ItemName}");
+                    else
+                        PutNotification($"Cannot write to {item.ComPortName}");
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -1026,6 +1028,10 @@ namespace HolzTools
                 //save the mode Arguments
                 xml.WriteStartElement("StaticBrightness");
                 xml.WriteString(item.StaticBrightness.ToString());
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("StaticType");
+                xml.WriteString(item.StaticType.ToString());
                 xml.WriteEndElement();
 
                 xml.WriteStartElement("CycleBrightness");
@@ -1137,6 +1143,30 @@ namespace HolzTools
                 xml.WriteString(item.IsOn.ToString());
                 xml.WriteEndElement();
 
+                // ledColorList for multicolor mode
+                xml.WriteStartElement("LedColorList");
+
+                foreach(Color color in item.LedColorList)
+                {
+                    xml.WriteStartElement("Color");
+
+                    xml.WriteStartElement("Red");
+                    xml.WriteString(color.R.ToString());
+                    xml.WriteEndElement();
+
+                    xml.WriteStartElement("Green");
+                    xml.WriteString(color.G.ToString());
+                    xml.WriteEndElement();
+
+                    xml.WriteStartElement("Blue");
+                    xml.WriteString(color.B.ToString());
+                    xml.WriteEndElement();
+
+                    xml.WriteEndElement();
+                }
+
+                xml.WriteEndElement();
+
                 xml.WriteEndElement();
             }
 
@@ -1228,6 +1258,7 @@ namespace HolzTools
                         byte gPin = 0;
                         byte bPin = 0;
 
+                        byte staticType = 0;
                         byte staticBrightness = 255;
                         byte cycleBrightness = 255;
                         byte rainbowBrightness = 255;
@@ -1248,6 +1279,8 @@ namespace HolzTools
                         Color lightningModeColor = Color.FromRgb(255, 0, 0);
                         Color spinnerModeSpinnerColor = Color.FromRgb(255, 0, 0);
                         Color spinnerModeBackgroundColor = Color.FromRgb(255, 255, 255);
+
+                        List<Color> ledColorList = new List<Color>();
 
                         //get the item properties
                         foreach (XmlNode valueNode in itemNode)
@@ -1404,9 +1437,43 @@ namespace HolzTools
                             {
                                 on = Convert.ToBoolean(valueNode.InnerText);
                             }
+                            else if(valueNode.Name == "StaticType")
+                            {
+                                staticType = Convert.ToByte(valueNode.InnerText);
+                            }
+                            else if(valueNode.Name == "LedColorList")
+                            {
+                                //get the color of every LED
+                                foreach (XmlNode ledColorNode in valueNode)
+                                {
+                                    byte red = 0;
+                                    byte green = 0;
+                                    byte blue = 0;
+
+                                    foreach(XmlNode colorNode in ledColorNode)
+                                    {
+                                        switch(colorNode.Name)
+                                        {
+                                            case "Red":
+                                                red = Convert.ToByte(colorNode.InnerText);
+                                                break;
+
+                                            case "Green":
+                                                green = Convert.ToByte(colorNode.InnerText);
+                                                break;
+
+                                            case "Blue":
+                                                blue = Convert.ToByte(colorNode.InnerText);
+                                                break;
+                                        }
+                                    }
+
+                                    ledColorList.Add(Color.FromRgb(red, green, blue));
+                                }
+                            }
                             else
                             {
-                                MessageBox.Show("Error while loading the settings file. Although the program should still work correctly, it is recommended to reset your settings.");
+                                PutNotification("An error occured while loading the configuration. If the program still works, this message can be ignored.");
                             }
                         }
 
@@ -1443,7 +1510,9 @@ namespace HolzTools
                             SpinnerModeSpinnerColorBrightness = spinnerModeSpinnerColorBrightness,
                             SpinnerModeBackgroundColorBrightness = spinnerModeBackgroundColorBrightness,
                             SyncedLedItem = syncedLedItem,
-                            MusicUseExponential = musicUseExponential
+                            MusicUseExponential = musicUseExponential,
+                            StaticType = staticType,
+                            LedColorList = ledColorList
                         };
                     }
                 }
@@ -1502,7 +1571,7 @@ namespace HolzTools
                 }
                 else
                 {
-                    MessageBox.Show("Error while loading the settings file. Although the program should still work correctly, it is recommended to reset your settings.");
+                    PutNotification("An error occured while loading the configuration. If the program still works, this message can be ignored.");
                 }
             }
 
@@ -1537,6 +1606,8 @@ namespace HolzTools
                 //get the selected mode shortname and get the arguments
                 string tmpMode = null;
 
+                bool useMulticolor = false;
+
                 byte arg1 = 0;
                 byte arg2 = 0;
                 byte arg3 = 0;
@@ -1559,11 +1630,15 @@ namespace HolzTools
                         arg2 = modeStatic.RealColor.G;
                         arg3 = modeStatic.RealColor.B;
 
+                        if (modeStatic.Type == 1 && ledItem.Type == 0)
+                            useMulticolor = true;
+
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
                         {
                             ledItem.StaticModeColor = modeStatic.SelectedColor;
                             ledItem.StaticBrightness = modeStatic.Brightness;
+                            ledItem.StaticType = modeStatic.Type;
                         }
 
                         break;
@@ -1703,7 +1778,26 @@ namespace HolzTools
                 //generate the usb message:     #MODE(4)ISMUSIC(1)TYPE(1)PINS(6)COLOR/ARGS(3 x 3)ID(2)\\n
                 string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{arg4.ToString("D3")}{arg5.ToString("D3")}{arg6.ToString("D3")}{arg7.ToString("D3")}{arg8.ToString("D3")}{arg9.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
 
-                ledItem.SerialWrite(message);
+                if(useMulticolor)
+                {
+                    for(int x = 0; x < ledItem.LedColorList.Count; x++)
+                    {
+                        message = $"&{ledItem.ID.ToString("D2")}{pins}{x.ToString("D3")}";
+                        message += $"{((byte)((float)ledItem.LedColorList[x].R * ((float)modeStatic.Brightness / 255.00))).ToString("D3")}{(ledItem.LedColorList[x].G * (modeStatic.Brightness / 255)).ToString("D3")}{(ledItem.LedColorList[x].B * (modeStatic.Brightness / 255)).ToString("D3")}";
+                        message += "\\n";
+
+                        ledItem.SerialWrite(message);
+
+                        while(!ledItem.CorrespondingArduino.IsOk)
+                            Thread.Sleep(1);
+
+                        ledItem.CorrespondingArduino.IsOk = false;
+                    }
+                }
+                else
+                {
+                    ledItem.SerialWrite(message);
+                }
 
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -1713,10 +1807,12 @@ namespace HolzTools
             }
             catch (Exception ex)
             {
-                if (ex.GetType() == typeof(System.IO.IOException))
+                if (ex.GetType() == typeof(UnauthorizedAccessException))
                     PutNotification($"Cannot write to {ledItem.ComPortName} (The Port may already be in use)");
                 else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                     PutNotification($"No COM-Port is selected for {ledItem.ItemName}");
+                else
+                    PutNotification($"Cannot write to {ledItem.ComPortName}");
 
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -2394,6 +2490,7 @@ namespace HolzTools
 
                     modeStatic.Brightness = SelectedLedItem.StaticBrightness;
                     modeStatic.SelectedColor = SelectedLedItem.StaticModeColor;
+                    modeStatic.Type = SelectedLedItem.StaticType;
                     modeCycle.Speed = SelectedLedItem.CycleSpeed;
                     modeCycle.Brightness = SelectedLedItem.CycleBrightness;
                     modeRainbow.Brightness = SelectedLedItem.RainbowBrightness;

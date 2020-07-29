@@ -219,28 +219,6 @@
                 <Border BorderThickness="0" CornerRadius="4" 
                         Background="{StaticResource CardBackground}"
                         Margin="10" VerticalAlignment="Top" Width="275">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Visible" />
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Path=ActiveWindow.SelectedLedItem.Type,
-                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"
-                                                   Value="0">
-                                        </Condition>
-                                        <Condition Binding="{Binding Type}"
-                                                   Value="1">
-                                        </Condition>
-                                    </MultiDataTrigger.Conditions>
-                                    <MultiDataTrigger.Setters>
-                                        <Setter Property="Visibility" 
-                                                Value="Collapsed"/>
-                                    </MultiDataTrigger.Setters>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10"/>

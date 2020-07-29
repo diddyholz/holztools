@@ -20,6 +20,8 @@ namespace HolzTools
 
         private int baudRate = 4800;
 
+        private bool isOk = false;
+
         public static List<Arduino> AllArduinos = new List<Arduino>();
 
         public enum Type
@@ -74,6 +76,10 @@ namespace HolzTools
                     MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
                 }));
             }
+            else if (message.Contains("^"))
+            {
+                isOk = true;
+            }
             else
             {
                 MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() => { MainWindow.ActiveWindow.logBoxText.Text += message; }));
@@ -111,6 +117,12 @@ namespace HolzTools
         {
             get { return binaryVersion; }
             set { binaryVersion = value; }
+        }
+
+        public bool IsOk
+        {
+            get { return isOk; }
+            set { isOk = value; }
         }
 
         public SerialPort ActiveSerialPort

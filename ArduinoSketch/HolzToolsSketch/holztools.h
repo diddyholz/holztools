@@ -40,6 +40,8 @@ class LEDItem
     
 		LEDItem(byte _id);
 
+    void SetLed(byte led, CRGB color);
+    void SetUseMultiColor(bool value);
     void SetSyncParent(byte parent);
     byte GetSyncParent();
     byte GetID();
@@ -72,6 +74,8 @@ class LEDItem
 		bool redGoingDown = true;
 		bool blueGoingDown = false;
 		bool greenGoingDown = false;
+
+    bool useMultiColor = false;
 
 		bool music = false;
 

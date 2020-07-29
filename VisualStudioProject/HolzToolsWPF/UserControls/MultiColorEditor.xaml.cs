@@ -101,6 +101,7 @@ namespace HolzTools.UserControls
             MainWindow.ActiveWindow.SelectedLedItem.LedColorList = selectedLedColors;
             MainWindow.ActiveWindow.ShowMultiColorEditorWindow = false;
             MainWindow.ActiveWindow.multiColorEditorViewbox.Child = null;
+            MainWindow.ActiveWindow.MadeChanges = true;
 
             MainWindow.ActiveWindow.multiColorEditorBackgroundGrid.MouseUp -= CancelBtn_Click;
         }
