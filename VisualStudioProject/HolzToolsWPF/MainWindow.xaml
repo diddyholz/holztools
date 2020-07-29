@@ -134,324 +134,367 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Grid >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="160"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!--Title Bar-->
-                    <Grid Grid.Column="0" Grid.ColumnSpan="2" Background="#1e1e1e">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="33"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="{Binding ApplicationName}" Grid.Column="1"
-                           FontSize="15" FontWeight="Normal"
-                           VerticalAlignment="Center"/>
-
-                        <!-- Application Icon -->
-                        <Image Grid.Column="0" Source="Icons/holztoolsIcon.png" Width="17" 
-                           Height="17" Margin="0,0,0,0" VerticalAlignment="Center" 
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           MouseUp="Icon_MouseUp" x:Name="icon"
-                           WindowChrome.IsHitTestVisibleInChrome="True" 
-                           RenderTransformOrigin="0.45,0.45">
-                            <Image.RenderTransform>
-                                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0" />
-                            </Image.RenderTransform>
-                        </Image>
-
-                        <!-- Dev TB -->
-                        <TextBlock x:Name="devTB" Text="DEV" Grid.Column="0" Foreground="#00FF00" 
-                               FontWeight="Bold" HorizontalAlignment="Center" FontSize="10"
-                               VerticalAlignment="Center" Visibility="Collapsed"
-                               RenderTransformOrigin="0.5,0.5">
-                            <TextBlock.RenderTransform>
-                                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0" />
-                            </TextBlock.RenderTransform>
-                        </TextBlock>
-
-                        <!-- Title Buttons -->
-                        <Grid Grid.Column="3" WindowChrome.IsHitTestVisibleInChrome="True">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition Width="40"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button x:Name="uploadArduinoBtn" Grid.Column="0" BorderThickness="0" 
-                        Style="{StaticResource titleBarBtnStyle}" 
-                        Click="UploadArduinoBtn_Click" FontFamily="Segoe MDL2 Assets"
-                        Content="&#xE896;" FontSize="13" Foreground="White" >
-                            </Button>
-                            <Button x:Name="settingsBtn" Grid.Column="1" BorderThickness="0" 
-                        Style="{StaticResource titleBarBtnStyle}" Click="SettingsBtn_Click"
-                        Content="&#xE115;" Foreground="White" FontSize="13" 
-                        FontFamily="Segoe MDL2 Assets"/>
-                            <Button x:Name="minimizeAppBtn" Grid.Column="2" BorderThickness="0" 
-                        Style="{StaticResource titleBarBtnStyle}" 
-                        Click="MinimizeAppBtn_Click">
-                                <TextBlock Text="&#xE949;"  Foreground="White" FontSize="13" Margin="0,10,0,0"
-                        FontFamily="Segoe MDL2 Assets"/>
-                            </Button>
-                            <Button x:Name="maximizeAppBtn" Grid.Column="3" BorderThickness="0" 
-                        Style="{StaticResource titleBarBtnStyle}" 
-                        Foreground="White" FontSize="12" Content="&#xE739;"
-                        FontFamily="Segoe MDL2 Assets" 
-                        Click="MaximizeAppBtn_Click"/>
-                            <Button x:Name="restoreAppBtn" Grid.Column="3" BorderThickness="0" 
-                        Style="{StaticResource titleBarBtnStyle}" 
-                        Foreground="White" FontSize="12" Content="&#xE923;"
-                        FontFamily="Segoe MDL2 Assets" Visibility="Collapsed"
-                        Click="RestoreAppBtn_Click"/>
-                            <Button x:Name="closeAppBtn" Grid.Column="4" Click="CloseAppBtn_Click"
-                        Style="{StaticResource closeAppBtnStyle}" BorderThickness="0" 
-                        Content="&#xE106;" Foreground="White" FontSize="13" 
-                        FontFamily="Segoe MDL2 Assets"/>
-                        </Grid>
-                    </Grid>
-
-                    <!-- Notification Bar -->
-                    <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="Maroon">
+                <Grid>
+                    <!-- Blur background grid -->
+                    <Grid>
                         <Grid.Style>
                             <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Setter Property="Height" Value="0"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ShowNotification}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimationUsingKeyFrames 
-                                                        Duration="0:0:0.5"
-                                                        Storyboard.TargetProperty="Height"
-                                                        FillBehavior="Stop">
-                                                        <DiscreteDoubleKeyFrame
-                                                            KeyTime="0:0:0"
-                                                            Value="0"/>
-                                                        <SplineDoubleKeyFrame 
-                                                            KeyTime="0:0:0.5"
-                                                            KeySpline="0,1 0.75,1"
-                                                            Value="25"/>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimationUsingKeyFrames 
-                                                        Duration="0:0:0.5"
-                                                        Storyboard.TargetProperty="Height"
-                                                        FillBehavior="Stop">
-                                                        <DiscreteDoubleKeyFrame
-                                                            KeyTime="0:0:0"
-                                                            Value="25"/>
-                                                        <SplineDoubleKeyFrame 
-                                                            KeyTime="0:0:0.5"
-                                                            KeySpline="0,1 0.75,1"
-                                                            Value="0"/>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                    <ObjectAnimationUsingKeyFrames 
-                                                        Duration="0:0:0.5"
-                                                        Storyboard.TargetProperty="(Grid.Visibility)"
-                                                        FillBehavior="Stop">
-                                                        <DiscreteObjectKeyFrame
-                                                            KeyTime="0:0:0"
-                                                            Value="{x:Static Visibility.Visible}"/>
-                                                        <DiscreteObjectKeyFrame
-                                                            KeyTime="0:0:0.5"
-                                                            Value="{x:Static Visibility.Collapsed}"/>
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Height" Value="25"/>
+                                    <DataTrigger Binding="{Binding ShowSettings}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="20"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ShowProperties}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="20"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ShowColorPicker}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="20"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ShowArduinoUploadWindow}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="20"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ShowMultiColorEditorWindow}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="20"/>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <!--Title Bar-->
+                        <Grid Grid.Column="0" Grid.ColumnSpan="2" Background="#1e1e1e">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="33"/>
+                                <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{Binding NotificationText}" FontSize="13" 
-                                       FontWeight="SemiBold" Margin="15,0,15,0"
-                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ApplicationName}" Grid.Column="1"
+                               FontSize="15" FontWeight="Normal"
+                               VerticalAlignment="Center"/>
 
-                        <Button Grid.Column="1" Content="Dismiss"
-                                    FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"
-                                    Background="Transparent" Click="DismissNotification_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Foreground" Value="#CCC"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border x:Name="rootBorder" Background="{TemplateBinding Background}">
-                                                    <ContentPresenter 
-                                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Trigger.EnterActions>
-                                                            <BeginStoryboard>
-                                                                <Storyboard>
-                                                                    <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
-                                                        From="#CCC" To="#FFF" FillBehavior="Stop" />
-                                                                </Storyboard>
-                                                            </BeginStoryboard>
-                                                        </Trigger.EnterActions>
-                                                        <Trigger.ExitActions>
-                                                            <BeginStoryboard>
-                                                                <Storyboard>
-                                                                    <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
-                                                        From="#FFF" To="#CCC" FillBehavior="Stop" />
-                                                                </Storyboard>
-                                                            </BeginStoryboard>
-                                                        </Trigger.ExitActions>
-                                                        <Setter Property="Foreground" Value="#FFF"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
+                            <!-- Application Icon -->
+                            <Image Grid.Column="0" Source="Icons/holztoolsIcon.png" Width="17" 
+                               Height="17" Margin="0,0,0,0" VerticalAlignment="Center" 
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               MouseUp="Icon_MouseUp" x:Name="icon"
+                               WindowChrome.IsHitTestVisibleInChrome="True" 
+                               RenderTransformOrigin="0.45,0.45">
+                                <Image.RenderTransform>
+                                    <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0" />
+                                </Image.RenderTransform>
+                            </Image>
+
+                            <!-- Dev TB -->
+                            <TextBlock x:Name="devTB" Text="DEV" Grid.Column="0" Foreground="#00FF00" 
+                                   FontWeight="Bold" HorizontalAlignment="Center" FontSize="10"
+                                   VerticalAlignment="Center" Visibility="Collapsed"
+                                   RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0" />
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+
+                            <!-- Title Buttons -->
+                            <Grid Grid.Column="3" WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button x:Name="uploadArduinoBtn" Grid.Column="0" BorderThickness="0" 
+                            Style="{StaticResource titleBarBtnStyle}" 
+                            Click="UploadArduinoBtn_Click" FontFamily="Segoe MDL2 Assets"
+                            Content="&#xE896;" FontSize="13" Foreground="White" >
+                                </Button>
+                                <Button x:Name="settingsBtn" Grid.Column="1" BorderThickness="0" 
+                            Style="{StaticResource titleBarBtnStyle}" Click="SettingsBtn_Click"
+                            Content="&#xE115;" Foreground="White" FontSize="13" 
+                            FontFamily="Segoe MDL2 Assets"/>
+                                <Button x:Name="minimizeAppBtn" Grid.Column="2" BorderThickness="0" 
+                            Style="{StaticResource titleBarBtnStyle}" 
+                            Click="MinimizeAppBtn_Click">
+                                    <TextBlock Text="&#xE949;"  Foreground="White" FontSize="13" Margin="0,10,0,0"
+                            FontFamily="Segoe MDL2 Assets"/>
+                                </Button>
+                                <Button x:Name="maximizeAppBtn" Grid.Column="3" BorderThickness="0" 
+                            Style="{StaticResource titleBarBtnStyle}" 
+                            Foreground="White" FontSize="12" Content="&#xE739;"
+                            FontFamily="Segoe MDL2 Assets" 
+                            Click="MaximizeAppBtn_Click"/>
+                                <Button x:Name="restoreAppBtn" Grid.Column="3" BorderThickness="0" 
+                            Style="{StaticResource titleBarBtnStyle}" 
+                            Foreground="White" FontSize="12" Content="&#xE923;"
+                            FontFamily="Segoe MDL2 Assets" Visibility="Collapsed"
+                            Click="RestoreAppBtn_Click"/>
+                                <Button x:Name="closeAppBtn" Grid.Column="4" Click="CloseAppBtn_Click"
+                            Style="{StaticResource closeAppBtnStyle}" BorderThickness="0" 
+                            Content="&#xE106;" Foreground="White" FontSize="13" 
+                            FontFamily="Segoe MDL2 Assets"/>
+                            </Grid>
+                        </Grid>
+
+                        <!-- Notification Bar -->
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="Maroon">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Height" Value="0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowNotification}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimationUsingKeyFrames 
+                                                            Duration="0:0:0.5"
+                                                            Storyboard.TargetProperty="Height"
+                                                            FillBehavior="Stop">
+                                                            <DiscreteDoubleKeyFrame
+                                                                KeyTime="0:0:0"
+                                                                Value="0"/>
+                                                            <SplineDoubleKeyFrame 
+                                                                KeyTime="0:0:0.5"
+                                                                KeySpline="0,1 0.75,1"
+                                                                Value="25"/>
+                                                        </DoubleAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimationUsingKeyFrames 
+                                                            Duration="0:0:0.5"
+                                                            Storyboard.TargetProperty="Height"
+                                                            FillBehavior="Stop">
+                                                            <DiscreteDoubleKeyFrame
+                                                                KeyTime="0:0:0"
+                                                                Value="25"/>
+                                                            <SplineDoubleKeyFrame 
+                                                                KeyTime="0:0:0.5"
+                                                                KeySpline="0,1 0.75,1"
+                                                                Value="0"/>
+                                                        </DoubleAnimationUsingKeyFrames>
+                                                        <ObjectAnimationUsingKeyFrames 
+                                                            Duration="0:0:0.5"
+                                                            Storyboard.TargetProperty="(Grid.Visibility)"
+                                                            FillBehavior="Stop">
+                                                            <DiscreteObjectKeyFrame
+                                                                KeyTime="0:0:0"
+                                                                Value="{x:Static Visibility.Visible}"/>
+                                                            <DiscreteObjectKeyFrame
+                                                                KeyTime="0:0:0.5"
+                                                                Value="{x:Static Visibility.Collapsed}"/>
+                                                        </ObjectAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="Height" Value="25"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
-                            </Button.Style>
-                        </Button>
-                    </Grid>
+                            </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Item Menu -->
-                    <Grid Background="{StaticResource ItemMenuBackground}"
-                          Grid.Column="0" Grid.Row="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="35"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="1"/>
-                        </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding NotificationText}" FontSize="13" 
+                                           FontWeight="SemiBold" Margin="15,0,15,0"
+                                           VerticalAlignment="Center"/>
 
-                        <ScrollViewer VerticalAlignment="Top"
-                              VerticalScrollBarVisibility="Auto">
-                            <StackPanel x:Name="itemStackPanel"/>
-                        </ScrollViewer>
-
-                        <Button x:Name="addItemBtn" Grid.Row="1" Click="AddItemBtn_Click"
-                        Style="{StaticResource addItemBtnStyle}" BorderThickness="0,1,0,0"
-                        BorderBrush="Gray">
-                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets"
-                               Foreground="White" FontSize="17"/>
-                        </Button>
-
-                        <Rectangle Grid.Column="1" Grid.RowSpan="2"
-                               Fill="#000"/>
-                    </Grid>
-
-                    <!-- Mode Menu -->
-                    <Grid Background="{StaticResource OuterModeBackground}"
-                          Grid.Row="1" Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="10"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="{Binding SelectedLedItem.ItemName}" FontSize="15" 
-                       FontWeight="Bold" Grid.Column="0" Grid.Row="0"  
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Foreground="White" />
-
-                        <controls:ToggleButton Margin="0,0,5,0" HorizontalAlignment="Right"
-                                       Toggled="{Binding SelectedLedItem.IsOn, Mode=TwoWay}"
-                                       ToggledChanged="ItemOnBtn_ToggledChanged"/>
-
-                        <mah:MetroAnimatedSingleRowTabControl Grid.Column="0" Grid.Row="1" 
-                                                      Grid.ColumnSpan="6" Margin="0,0,0,5"
-                                                      Panel.ZIndex="200"
-                                                      x:Name="modeTabControl"
-                                                      SelectionChanged="ModeTabControl_SelectionChanged">
-                            <TabItem Header="Static" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeStatic x:Name="modeStatic" 
-                                                Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Cycle" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeCycle x:Name="modeCycle" 
-                                               Background="{StaticResource ModeBackground}" />
-                            </TabItem>
-                            <TabItem Header="Rainbow" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeRainbow x:Name="modeRainbow"
-                                                 Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Lightning" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeLightning x:Name="modeLightning" 
-                                                   Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Color Overlay" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeOverlay x:Name="modeOverlay" 
-                                                 Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Color Spinner" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeSpinner x:Name="modeSpinner" 
-                                                 Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
-                                <muc:ModeMusic x:Name="modeMusic" 
-                                               Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                            <TabItem Header="Sync" >
-                                <TabItem.Style>
-                                    <Style TargetType="TabItem" 
-                                       BasedOn="{StaticResource modeTabItemStyle}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SyncAvailable}"
-                                                     Value="False">
-                                                <Setter Property="Visibility" 
-                                                    Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
+                            <Button Grid.Column="1" Content="Dismiss"
+                                        FontSize="12" Margin="0,0,15,0" VerticalAlignment="Center"
+                                        Background="Transparent" Click="DismissNotification_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Foreground" Value="#CCC"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="rootBorder" Background="{TemplateBinding Background}">
+                                                        <ContentPresenter 
+                                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Trigger.EnterActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
+                                                            From="#CCC" To="#FFF" FillBehavior="Stop" />
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.EnterActions>
+                                                            <Trigger.ExitActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.1"
+                                                            From="#FFF" To="#CCC" FillBehavior="Stop" />
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </Trigger.ExitActions>
+                                                            <Setter Property="Foreground" Value="#FFF"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                     </Style>
-                                </TabItem.Style>
-                                <muc:ModeSync x:Name="modeSync" 
-                                              Background="{StaticResource ModeBackground}"/>
-                            </TabItem>
-                        </mah:MetroAnimatedSingleRowTabControl>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
 
-                        <Rectangle Fill="{StaticResource ModeBackground}" 
-                                   Grid.Row="1" Grid.RowSpan="3" 
-                           Margin="0,29,0,0"/>
+                        <!-- Item Menu -->
+                        <Grid Background="{StaticResource ItemMenuBackground}"
+                              Grid.Column="0" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="35"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Button x:Name="applyBtn" Content="Apply" Click="ApplyBtn_Click"
-                        Grid.Row="2" FontSize="15" Width="140" Height="30" 
-                        HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                        Style="{StaticResource applyBtnStyle}" Margin="0,0,20,0"
-                        IsEnabled="{Binding MadeChanges, Mode=OneWay}">
-                        </Button>
-                    </Grid>
+                            <ScrollViewer VerticalAlignment="Top"
+                                  VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="itemStackPanel"/>
+                            </ScrollViewer>
 
-                    <!-- No Items Alert -->
-                    <Grid Background="#FF3C3C3C" Grid.Column="1" Grid.Row="1"
+                            <Button x:Name="addItemBtn" Grid.Row="1" Click="AddItemBtn_Click"
+                            Style="{StaticResource addItemBtnStyle}" BorderThickness="0,1,0,0"
+                            BorderBrush="Gray">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets"
+                                   Foreground="White" FontSize="17"/>
+                            </Button>
+
+                            <Rectangle Grid.Column="1" Grid.RowSpan="2"
+                                   Fill="#000"/>
+                        </Grid>
+
+                        <!-- Mode Menu -->
+                        <Grid Background="{StaticResource OuterModeBackground}"
+                              Grid.Row="1" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="10"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="{Binding SelectedLedItem.ItemName}" FontSize="15" 
+                           FontWeight="Bold" Grid.Column="0" Grid.Row="0"  
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="White" />
+
+                            <controls:ToggleButton Margin="0,0,5,0" HorizontalAlignment="Right"
+                                           Toggled="{Binding SelectedLedItem.IsOn, Mode=TwoWay}"
+                                           ToggledChanged="ItemOnBtn_ToggledChanged"/>
+
+                            <mah:MetroAnimatedSingleRowTabControl Grid.Column="0" Grid.Row="1" 
+                                                          Grid.ColumnSpan="6" Margin="0,0,0,5"
+                                                          Panel.ZIndex="200"
+                                                          x:Name="modeTabControl"
+                                                          SelectionChanged="ModeTabControl_SelectionChanged">
+                                <TabItem Header="Static" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeStatic x:Name="modeStatic" 
+                                                    Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Cycle" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeCycle x:Name="modeCycle" 
+                                                   Background="{StaticResource ModeBackground}" />
+                                </TabItem>
+                                <TabItem Header="Rainbow" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeRainbow x:Name="modeRainbow"
+                                                     Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Lightning" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeLightning x:Name="modeLightning" 
+                                                       Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Color Overlay" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeOverlay x:Name="modeOverlay" 
+                                                     Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Color Spinner" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeSpinner x:Name="modeSpinner" 
+                                                     Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Music" Style="{StaticResource modeTabItemStyle}">
+                                    <muc:ModeMusic x:Name="modeMusic" 
+                                                   Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                                <TabItem Header="Sync" >
+                                    <TabItem.Style>
+                                        <Style TargetType="TabItem" 
+                                           BasedOn="{StaticResource modeTabItemStyle}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SyncAvailable}"
+                                                         Value="False">
+                                                    <Setter Property="Visibility" 
+                                                        Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TabItem.Style>
+                                    <muc:ModeSync x:Name="modeSync" 
+                                                  Background="{StaticResource ModeBackground}"/>
+                                </TabItem>
+                            </mah:MetroAnimatedSingleRowTabControl>
+
+                            <Rectangle Fill="{StaticResource ModeBackground}" 
+                                       Grid.Row="1" Grid.RowSpan="3" 
+                               Margin="0,29,0,0"/>
+
+                            <Button x:Name="applyBtn" Content="Apply" Click="ApplyBtn_Click"
+                            Grid.Row="2" FontSize="15" Width="140" Height="30" 
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                            Style="{StaticResource applyBtnStyle}" Margin="0,0,20,0"
+                            IsEnabled="{Binding MadeChanges, Mode=OneWay}">
+                            </Button>
+                        </Grid>
+
+                        <!-- No Items Alert -->
+                        <Grid Background="#FF3C3C3C" Grid.Column="1" Grid.Row="1"
                           Visibility="Collapsed" x:Name="noItemsAlert">
-                        <TextBlock Text="You haven't added any LEDs yet&#10;Press + to add new LEDs"
+                            <TextBlock Text="You haven't added any LEDs yet&#10;Press + to add new LEDs"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            TextAlignment="Center" FontSize="25" FontWeight="SemiBold"/>
+                        </Grid>
                     </Grid>
 
                     <!-- Properties Window -->
