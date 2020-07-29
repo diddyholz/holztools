@@ -22,6 +22,9 @@ using System.Net.Sockets;
 using System.Net.Http;
 using System.Net.Mail;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
+using System.Windows.Data;
+using System.Windows.Input;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 
 namespace HolzTools
 {
@@ -891,6 +894,53 @@ namespace HolzTools
             {
                 loadingText.Text = "Finishing";
                 LoadingProgress = 100;
+
+                Style style = new Style(typeof(Grid));
+                style.Setters.Add(new Setter(Grid.OpacityProperty, 1.00));
+
+                DataTrigger splashTrigger = new DataTrigger();
+                splashTrigger.Binding = new Binding("ShowMainGrid");
+                splashTrigger.Value = true;
+
+                Storyboard storyboard = new Storyboard();
+
+                DoubleAnimationUsingKeyFrames widthAnimation = new DoubleAnimationUsingKeyFrames();
+                DoubleAnimationUsingKeyFrames heightAnimation = new DoubleAnimationUsingKeyFrames();
+                DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames();
+
+                Storyboard.SetTargetProperty(widthAnimation, new PropertyPath("(Grid.Width)"));
+                widthAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(500));
+                widthAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(splashGrid.Width, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+                widthAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(splashGrid.Width - 50, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(200))));
+                widthAnimation.KeyFrames.Add(new SplineDoubleKeyFrame(Application.Current.MainWindow.Width, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500)), new KeySpline(0, 1, .5, 1)));
+
+                Storyboard.SetTargetProperty(heightAnimation, new PropertyPath("(Grid.Height)"));
+                heightAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(500));
+                heightAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(splashGrid.Height, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+                heightAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(splashGrid.Height - 50, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(200))));
+                heightAnimation.KeyFrames.Add(new SplineDoubleKeyFrame(Application.Current.MainWindow.Height, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500)), new KeySpline(0, 1, .5, 1)));
+
+                Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath("(Grid.Opacity)"));
+                opacityAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(800));
+                opacityAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+                opacityAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(800))));
+
+                storyboard.Children.Add(widthAnimation);
+                storyboard.Children.Add(heightAnimation);
+                storyboard.Children.Add(opacityAnimation);
+
+                BeginStoryboard beginStoryboard = new BeginStoryboard();
+                beginStoryboard.Storyboard = storyboard;
+
+                splashTrigger.EnterActions.Add(beginStoryboard);
+                splashTrigger.Setters.Add(new Setter(Grid.WidthProperty, Application.Current.MainWindow.Width));
+                splashTrigger.Setters.Add(new Setter(Grid.HeightProperty, Application.Current.MainWindow.Height));
+                splashTrigger.Setters.Add(new Setter(Grid.OpacityProperty, 0.00));
+
+                style.Triggers.Add(splashTrigger);
+
+                splashGrid.Style = style;
+
                 SelectedLedItem = SelectedLedItem;
                 ShowMainGrid = true;
                 MadeChanges = false;
@@ -938,6 +988,7 @@ namespace HolzTools
                 {
                     modeStatic.Brightness = item.StaticBrightness;
                     modeStatic.SelectedColor = item.StaticModeColor;
+                    modeStatic.Type = item.StaticType;
                     modeCycle.Brightness = item.CycleBrightness;
                     modeCycle.Speed = item.CycleSpeed;
                     modeRainbow.Speed = item.RainbowSpeed;

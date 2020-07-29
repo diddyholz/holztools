@@ -18,7 +18,7 @@
         Foreground="White" AllowsTransparency="True" Closing="Window_Closing"
         StateChanged="Window_StateChanged"  Loaded="Window_Loaded"
         Icon="Icons/icon.ico"
-        d:DesignWidth="975.258" d:DesignHeight="596.5" >
+        d:DesignWidth="700" d:DesignHeight="596.5" >
     <Window.Resources>
         <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
         <Storyboard x:Key="easterEggStoryboardIcon">
@@ -53,7 +53,7 @@
         <!-- Splash Screen Grid -->
         <Grid x:Name="splashGrid" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
               Height="250" Background="{StaticResource ModeBackground}">
-            <Grid.Style>
+            <!--<Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Opacity" Value="1"/>
                     <Style.Triggers>
@@ -91,7 +91,7 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Grid.Style>
+            </Grid.Style>-->
             <Image Width="120" Height="120" VerticalAlignment="Center" Margin="0,0,0,30"
                    HorizontalAlignment="Center" Source="Icons/holztoolsicon.png" 
                    RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -110,20 +110,20 @@
                     <Setter Property="Opacity" Value="0"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowMainGrid}" Value="True">
-                            <Setter Property="Opacity" Value="1"/>
                             <DataTrigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
                                         <DoubleAnimationUsingKeyFrames 
                                             Storyboard.TargetProperty="(Grid.Opacity)"
-                                            Duration="0:0:0.75">
-                                            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0"/>
-                                            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.5"/>
-                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.75"/>
+                                            Duration="0:0:0.8">
+                                            <DiscreteDoubleKeyFrame Value="0" KeyTime="0:0:0"/>
+                                            <DiscreteDoubleKeyFrame Value="0" KeyTime="0:0:0.5"/>
+                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.8"/>
                                         </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </DataTrigger.EnterActions>
+                            <Setter Property="Opacity" Value="1"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
