@@ -895,6 +895,7 @@ namespace HolzTools
                 loadingText.Text = "Finishing";
                 LoadingProgress = 100;
 
+                // create the transition animation to the mainwindow
                 Style style = new Style(typeof(Grid));
                 style.Setters.Add(new Setter(Grid.OpacityProperty, 1.00));
 

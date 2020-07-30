@@ -70,7 +70,7 @@ namespace HolzTools.ModeControls
         //events
         private void Analyzer_InitFinished(object sender, EventArgs e)
         {
-            MessageBox.Show("Successfully loaded Bass.net");
+            new AlertWindow("Successfully loaded Bass.net").ShowDialog();
         }
 
         private void SoundDevicesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -82,7 +82,7 @@ namespace HolzTools.ModeControls
 
         private void StartBassNetBtn_Click(object sender, RoutedEventArgs e)
         {
-            new AlertWindow($"While BASS.NET is starting, {MainWindow.ApplicationName} will get unresponsive.\nDon't worry and have patience.").ShowDialog();
+            startBassNetBtn.Content = "Starting";
             InitAnalyzer();
         }
 

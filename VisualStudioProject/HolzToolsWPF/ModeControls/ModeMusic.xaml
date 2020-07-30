@@ -225,10 +225,10 @@
         </ScrollViewer>
         
         <!-- BASS.NET not active status -->
-        <Grid Background="#373737">
+        <Grid Background="{StaticResource ModeBackground}">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Visibility" Value="Visible"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SoundAnalyzer.IsInitialized}"
                                      Value="True">
@@ -252,7 +252,8 @@
 
             <TextBlock Text="BASS.NET is not active" Grid.Column="1" Grid.Row="1"
                        Foreground="White" FontSize="15"/>
-            <Button Content="Start BASS.NET" Grid.Column="1" Grid.Row="3" 
+            <Button x:Name="startBassNetBtn" Content="Start BASS.NET" 
+                    Grid.Column="1" Grid.Row="3" 
                     Style="{StaticResource secondaryBtnStyle}" Background="Gray"
                     Height="25" HorizontalAlignment="Center" 
                     Click="StartBassNetBtn_Click"/>
