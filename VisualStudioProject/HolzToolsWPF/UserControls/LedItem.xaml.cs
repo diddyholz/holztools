@@ -695,7 +695,7 @@ namespace HolzTools.UserControls
         }
     }
 
-    class NoSerialPortSelectedException : Exception
+    public class NoSerialPortSelectedException : Exception
     {
         public NoSerialPortSelectedException()
         {

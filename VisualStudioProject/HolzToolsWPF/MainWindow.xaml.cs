@@ -1840,8 +1840,19 @@ namespace HolzTools
 
                         ledItem.SerialWrite(message);
 
-                        while(!ledItem.CorrespondingArduino.IsOk)
+                        int delay = 0;
+
+                        DateTime timeAtStart = DateTime.UtcNow;
+
+                        while (!ledItem.CorrespondingArduino.IsOk)
+                        {
                             Thread.Sleep(1);
+                            delay++;
+
+                            // check if the Arduino is not sending a response for 3 seconds
+                            if (DateTime.UtcNow.Subtract(timeAtStart).TotalMilliseconds >= 3000)
+                                throw new ArduinoNotRespondingException();
+                        }
 
                         ledItem.CorrespondingArduino.IsOk = false;
                     }
@@ -1863,6 +1874,8 @@ namespace HolzTools
                     PutNotification($"Cannot write to {ledItem.ComPortName} (The Port may already be in use)");
                 else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                     PutNotification($"No COM-Port is selected for {ledItem.ItemName}");
+                else if (ex.GetType() == typeof(ArduinoNotRespondingException))
+                    PutNotification($"The Arduino at {ledItem.ComPortName} is not responding");
                 else
                     PutNotification($"Cannot write to {ledItem.ComPortName}  (The Arduino might be disconnected or connected to another port)");
 
@@ -2642,6 +2655,21 @@ namespace HolzTools
             {
                 handler(this, new PropertyChangedEventArgs(name));
             }
+        }
+    }
+
+    public class ArduinoNotRespondingException : Exception
+    {
+        public ArduinoNotRespondingException()
+        {
+        }
+
+        public ArduinoNotRespondingException(string message) : base(message)
+        {
+        }
+
+        public ArduinoNotRespondingException(string message, Exception inner) : base(message, inner)
+        {
         }
     }
 }

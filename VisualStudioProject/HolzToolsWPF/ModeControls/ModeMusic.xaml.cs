@@ -39,6 +39,7 @@ namespace HolzTools.ModeControls
             analyzer = new Analyzer(soundDevicesList);
             analyzer.GetDevices();
             analyzer.Init();
+
             OnPropertyChanged("SoundAnalyzer");
         }
 
@@ -70,7 +71,7 @@ namespace HolzTools.ModeControls
         //events
         private void Analyzer_InitFinished(object sender, EventArgs e)
         {
-            new AlertWindow("Successfully loaded Bass.net").ShowDialog();
+            new AlertWindow("Successfully loaded BASS.Net").ShowDialog();
         }
 
         private void SoundDevicesList_SelectionChanged(object sender, SelectionChangedEventArgs e)

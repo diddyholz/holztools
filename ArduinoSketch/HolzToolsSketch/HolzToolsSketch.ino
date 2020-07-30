@@ -68,67 +68,6 @@ void decodeMessage(String message)
   byte overlapedMode = 0;
   byte id = 0;
   byte isMusic = false;
-
-//  if (isMultiColor)
-//  {
-//    Serial.println(F("Using MultiColor"));
-// 
-//    Serial.print(F("LEDCount: "));
-//    Serial.println(message);
-//      
-//    temp = message.substring(1,3);
-//    id = temp.toInt();
-//
-//    temp = message.substring(3,9);
-//    dPin = temp.substring(0,2).toInt();
-//    ledCount = temp.substring(2, 6).toInt();
-//    
-//    bool idExists = false;
-//  
-//    LEDItem* ledItem;
-//    
-//    //check if item with id exists
-//    for(byte x = 0; x < LEDItem::ItemCount; x++)
-//    {
-//      if(LEDItem::ItemList[x]->GetID() == id)
-//      {
-//        idExists = true;
-//        ledItem = LEDItem::ItemList[x];
-//        Serial.print(F("Found existing Item with ID: "));
-//        Serial.println(id);
-//      }
-//    }
-//  
-//    if(!idExists)
-//    {
-//      ledItem = new LEDItem(id);
-//      Serial.print(F("Creating new Item with ID: "));
-//      Serial.println(id);
-//    }
-//
-//    ledItem->SetupItem(type, ledCount, dPin, rPin, gPin, bPin);
-//    
-//    //reset syncparent
-//    ledItem->SetSyncParent(255);
-//    ledItem->ChangeMode("STTC", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, 0);
-//    ledItem->SetUseMultiColor(true);
-//    
-//    Serial.print(F("Set item to mode: "));
-//    Serial.println(mode);
-//    
-//    for(byte x = 0; x < ledCount; x++)
-//    {
-//      ledItem->SetLed(x, CRGB(message.substring(9 + (x * 9), 12 + (x * 9)).toInt(), message.substring(12 + (x * 9), 15 + (x * 9)).toInt(), message.substring(15 + (x * 9), 18 + (x * 9)).toInt()));
-//      Serial.print(F("Set "));
-//      Serial.print(message.substring(9 + (x * 9), 11 + (x * 9)));
-//      Serial.print(F(" LED "));
-//      Serial.println(x);
-//    }
-//
-//    isMultiColor = false;
-//
-//    return;
-//  }
   
   //get the mode
   temp = message.substring(1,5);
@@ -338,16 +277,12 @@ void serialEvent()
           {
             idExists = true;
             ledItem = LEDItem::ItemList[x];
-            Serial.print(F("Found existing Item with ID: "));
-            Serial.println(id);
           }
         }
       
         if(!idExists)
         {
           ledItem = new LEDItem(id);
-          Serial.print(F("Creating new Item with ID: "));
-          Serial.println(id);
         }
     
         ledItem->SetupItem(TYPE_ARGB, ledCount, dPin, 0, 0, 0);
