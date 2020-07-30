@@ -22,28 +22,39 @@
     <Window.Resources>
         <SolidColorBrush x:Key="AccentColor" Color="{Binding AccentColor}"/>
         <Storyboard x:Key="easterEggStoryboardIcon">
-            <DoubleAnimation 
-                Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)" 
-                From="0" To="360" Duration="0:0:0.5" RepeatBehavior="3x"
-                FillBehavior="Stop"/>
-            <DoubleAnimation Storyboard.TargetProperty="(Image.Height)" 
-                             BeginTime="0:0:0.5" FillBehavior="Stop"
-                             Duration="0:0:0.5" From="17" To="0"/>
-            <DoubleAnimation Storyboard.TargetProperty="(Image.Height)" 
-                             BeginTime="0:0:1" FillBehavior="Stop"
-                             Duration="0:0:0.5" From="0" To="0"/>
+            <DoubleAnimationUsingKeyFrames Duration="0:0:2.5" Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"
+                                           FillBehavior="Stop">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" KeySpline="0.75,.01 .25,1" Value="-40" />
+                <SplineDoubleKeyFrame KeyTime="0:0:2" Value="360" KeySpline="0,1 0.5,1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Image.Height)" 
+                                           FillBehavior="Stop" Duration="0:0:2.5">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="17"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" KeySpline=".75,.01 .25,1" Value="20"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:2" KeySpline="0,1 0.5,1" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Image.Width)" 
+                                           FillBehavior="Stop" Duration="0:0:2.5">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="17"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" KeySpline=".75,.01 .25,1" Value="20"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:2" KeySpline="0,1 0.5,1" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
         <Storyboard x:Key="easterEggStoryboardTB">
-            <DoubleAnimation 
-                Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)" 
-                From="0" To="360" Duration="0:0:0.5" RepeatBehavior="2x"
-                FillBehavior="Stop"/>
-            <DoubleAnimation Storyboard.TargetProperty="(TextBlock.FontSize)" 
-                             Duration="0:0:0.5" From="0" To="10"
-                             FillBehavior="Stop"/>
-            <DoubleAnimation Storyboard.TargetProperty="(TextBlock.FontSize)" 
-                             BeginTime="0:0:0.5" Duration="0:0:0.5" From="10" To="10"
-                             FillBehavior="Stop"/>
+            <DoubleAnimationUsingKeyFrames 
+                Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                Duration="0:0:1" FillBehavior="Stop">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="400" KeySpline="0,1 0.5,1"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:1" Value="360" KeySpline=".75,.01 .25,1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(TextBlock.FontSize)" 
+                                           Duration="0:0:1" FillBehavior="Stop">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" KeySpline="0,1 0.5,1" Value="12"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:1" KeySpline="0.75,.01 .25,1" Value="10"/>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
     <WindowChrome.WindowChrome>
@@ -53,45 +64,6 @@
         <!-- Splash Screen Grid -->
         <Grid x:Name="splashGrid" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
               Height="250" Background="{StaticResource ModeBackground}">
-            <!--<Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Opacity" Value="1"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowMainGrid}" Value="True">
-                            <DataTrigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard x:Name="splashStoryboard">
-                                        <DoubleAnimationUsingKeyFrames 
-                                            Storyboard.TargetProperty="(Grid.Opacity)"
-                                            Duration="0:0:0.75">
-                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0"/>
-                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.5"/>
-                                            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:1"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                        <DoubleAnimationUsingKeyFrames
-                                            Storyboard.TargetProperty="(Grid.Width)"
-                                            Duration="0:0:0.5">
-                                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="200"/>
-                                            <SplineDoubleKeyFrame KeySpline="0.6,0.0 0.8,0.00"
-                                                                  KeyTime="0:0:0.5" Value="900"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                        <DoubleAnimationUsingKeyFrames
-                                            Storyboard.TargetProperty="(Grid.Height)"
-                                            Duration="0:0:0.5">
-                                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="250"/>
-                                            <SplineDoubleKeyFrame KeySpline="0.6,0.0 0.8,0.00"
-                                                                  KeyTime="0:0:0.5" Value="500"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.EnterActions>
-                            <Setter Property="Width" Value="900"/>
-                            <Setter Property="Height" Value="501"/>
-                            <Setter Property="Opacity" Value="0"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>-->
             <Image Width="120" Height="120" VerticalAlignment="Center" Margin="0,0,0,30"
                    HorizontalAlignment="Center" Source="Icons/holztoolsicon.png" 
                    RenderOptions.BitmapScalingMode="HighQuality"/>

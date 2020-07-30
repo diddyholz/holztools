@@ -970,7 +970,7 @@ namespace HolzTools
                     else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                         PutNotification($"No COM-Port is selected for {item.ItemName}");
                     else
-                        PutNotification($"Cannot write to {item.ComPortName}");
+                        PutNotification($"Cannot write to {item.ComPortName} (The Arduino might be disconnected or connected to another port)");
 
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -1863,7 +1863,7 @@ namespace HolzTools
                 else if (ex.GetType() == typeof(NoSerialPortSelectedException))
                     PutNotification($"No COM-Port is selected for {ledItem.ItemName}");
                 else
-                    PutNotification($"Cannot write to {ledItem.ComPortName}");
+                    PutNotification($"Cannot write to {ledItem.ComPortName}  (The Arduino might be disconnected or connected to another port)");
 
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -2106,6 +2106,8 @@ namespace HolzTools
 
             if(iconPressed == 8)
             {
+                iconPressed = 0;
+
                 devTB.FontSize = 1;
 
                 Storyboard sbI = this.FindResource("easterEggStoryboardIcon") as Storyboard;
@@ -2200,6 +2202,11 @@ namespace HolzTools
                 {
                     icon.Visibility = Visibility.Visible;
                     devTB.Visibility = Visibility.Collapsed;
+
+                    StartBassNet = true;
+                    EnableLogBox = false;
+                    BlockPopups = false;
+                    TCPPort = 39769;
                 }
 
                 OnPropertyChanged("IsDev");
@@ -2349,7 +2356,6 @@ namespace HolzTools
                             logBoxText.Text += Environment.NewLine;
                         }));
                     }
-
                 }))
                 { ApartmentState = ApartmentState.STA, IsBackground = true }.Start();
             }

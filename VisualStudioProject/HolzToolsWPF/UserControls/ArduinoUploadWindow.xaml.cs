@@ -54,6 +54,8 @@ namespace HolzTools.UserControls
 
         private void FlashBtn_Click(object sender, RoutedEventArgs e)
         {
+            fileName = @"C:\Users\sidne\source\repos\HolzTools\ArduinoSketch\HolzToolsSketch\HolzToolsSketch.ino.eightanaloginputs.hex";
+
             if (arduinoModelComboBox.Text == "" || arduinoModelComboBox.Text == null)
             {
                 new AlertWindow("You have to select a valid Model!", false).ShowDialog();

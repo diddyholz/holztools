@@ -27,6 +27,7 @@ namespace HolzTools.UserControls
         private bool selectedBlockPopups = MainWindow.ActiveWindow.BlockPopups;
         private bool selectedStartBassNet = MainWindow.ActiveWindow.StartBassNet;
         private bool selectedAutoStart;
+        private bool selectedIsDev = MainWindow.ActiveWindow.IsDev;
        
         private int selectedTCPPort = MainWindow.ActiveWindow.TCPPort;
 
@@ -125,6 +126,7 @@ namespace HolzTools.UserControls
             MainWindow.ActiveWindow.BlockPopups = SelectedBlockPopups;
             MainWindow.ActiveWindow.StartBassNet = SelectedStartBassNet;
             MainWindow.ActiveWindow.TCPPort = SelectedTCPPort;
+            MainWindow.ActiveWindow.IsDev = SelectedIsDev;
 
             //set the autostart shortcut
             if (!System.IO.File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), $"{MainWindow.ApplicationName}.lnk")) && SelectedAutoStart)
@@ -303,6 +305,18 @@ namespace HolzTools.UserControls
             {
                 madeChanges = value;
                 OnPropertyChanged("MadeChanges");
+            }
+        }
+
+        public bool SelectedIsDev
+        {
+            get { return selectedIsDev; }
+            set
+            {
+                selectedIsDev = value;
+                OnPropertyChanged("SelectedIsDev");
+
+                MadeChanges = true;
             }
         }
 

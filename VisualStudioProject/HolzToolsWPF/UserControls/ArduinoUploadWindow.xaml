@@ -72,7 +72,9 @@
 
                         <controls:HelpToolTip Grid.Column="1">
                             <controls:HelpToolTip.ToolTipText>
-                                Choose the Arduino Model you want the binary to be flashed on.
+                                Choose the Arduino Model you want the binary to be flashed on. 
+                                If you want to flash an Arduino Nano, it must use the old bootloader 
+                                or else the flashing process will fail.
                             </controls:HelpToolTip.ToolTipText>
                         </controls:HelpToolTip>
                     </Grid>
