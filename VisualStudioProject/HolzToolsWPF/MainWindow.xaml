@@ -116,6 +116,7 @@
                                         <Setter Property="Effect">
                                             <Setter.Value>
                                                 <BlurEffect Radius="20"/>
+                                                
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>

@@ -1849,7 +1849,7 @@ namespace HolzTools
                             Thread.Sleep(1);
                             delay++;
 
-                            // check if the Arduino is not sending a response for 3 seconds
+                            // check if the Arduino is not responding for 3 seconds
                             if (DateTime.UtcNow.Subtract(timeAtStart).TotalMilliseconds >= 3000)
                                 throw new ArduinoNotRespondingException();
                         }

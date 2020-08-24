@@ -28,10 +28,12 @@ namespace HolzTools.UserControls
         private string comPortText = "";
         private string modelText = "";
         private string fileName = "";
+        private string progressText = "";
+        private string errorText = "";
 
         private bool inputValid = false;
-
-        private ArduinoBinaryDownloaderWindow arduinoBinaryDownloaderWindow;
+        private bool isFlashing = false;
+        private bool isSuccessfull = false;
 
         public ArduinoUploadWindow()
         {
@@ -58,17 +60,18 @@ namespace HolzTools.UserControls
 
             if (arduinoModelComboBox.Text == "" || arduinoModelComboBox.Text == null)
             {
-                new AlertWindow("You have to select a valid Model!", false).ShowDialog();
+                ErrorText = "Select a model first";
                 return;
             }
 
             if (comPortComboBox.Text == "" || comPortComboBox.Text == null)
             {
-                new AlertWindow("You have to select a valid COM-Port!", false).ShowDialog();
+                ErrorText = "Select a COM-Port first";
                 return;
             }
 
-            arduinoBinaryDownloaderWindow = new ArduinoBinaryDownloaderWindow();
+            ErrorText = "";
+            progressGrid.Visibility = Visibility.Visible;
 
             comPortText = comPortComboBox.Text;
             modelText = arduinoModelComboBox.Text;
@@ -77,7 +80,8 @@ namespace HolzTools.UserControls
             {
                 model = ArduinoUploader.Hardware.ArduinoModel.UnoR3;
 
-                this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloaderWindow.ShowDialog()));
+                IsFlashing = true;
+                ProgressText = "Getting latest binary info";
 
                 using (WebClient wc = new WebClient())
                 {
@@ -109,6 +113,8 @@ namespace HolzTools.UserControls
                     wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
                     wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
 
+                    ProgressText = "Downloading binary";
+
                     wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
                 }
             }))
@@ -125,7 +131,7 @@ namespace HolzTools.UserControls
                     ArduinoModel = model
                 });
 
-            this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloaderWindow.statusTextBlock.Text = "Uploading the Binary to the Arduino"));
+            ProgressText = "Flashing binary";
 
             //try to close open COM-ports
             foreach(LedItem item in LedItem.AllItems)
@@ -145,7 +151,9 @@ namespace HolzTools.UserControls
             {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    new AlertWindow("Failed to upload binary!", false).ShowDialog();
+                    IsFlashing = false;
+                    IsSuccessfull = false;
+                    ProgressText = "Failed to upload binary";
 
                     MainWindow.ActiveWindow.logBoxText.Text += $"Failed to upload binary to model { modelText } at { comPortText } ({ ex.GetType().Name })";
                     MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
@@ -154,23 +162,15 @@ namespace HolzTools.UserControls
             }
 
             this.Dispatcher.BeginInvoke(new Action(() => {
-                arduinoBinaryDownloaderWindow.Close();
-                new AlertWindow("Finished uploading", false).ShowDialog();
-                MainWindow.ActiveWindow.ShowArduinoUploadWindow = false;
-
-                //remove the eventhandler from the uploadArduinoBinaryBackgroundGrid
-                MainWindow.ActiveWindow.uploadArduinoBinaryBackgroundGrid.MouseUp -= CancelBtn_Click;
+                IsFlashing = false;
+                IsSuccessfull = true;
+                ProgressText = "Done";
             }));
         }
 
         private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            arduinoBinaryDownloaderWindow.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
 
-                arduinoBinaryDownloaderWindow.updateProgressBar.Value = (int)(progress * 100);
-            }));
         }
 
         private void arduinoModelComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -197,6 +197,46 @@ namespace HolzTools.UserControls
             {
                 inputValid = value;
                 OnPropertyChanged("InputValid");
+            }
+        }
+
+        public bool IsSuccessfull
+        {
+            get { return isSuccessfull; }
+            set
+            {
+                isSuccessfull = value;
+                OnPropertyChanged("IsSuccessfull");
+            }
+        }
+
+        public bool IsFlashing
+        {
+            get { return isFlashing; }
+            set
+            {
+                isFlashing = value;
+                OnPropertyChanged("IsFlashing");
+            }
+        }
+
+        public string ProgressText
+        {
+            get { return progressText; }
+            set
+            {
+                progressText = value;
+                OnPropertyChanged("ProgressText");
+            }
+        }
+
+        public string ErrorText
+        {
+            get { return errorText; }
+            set
+            {
+                errorText = value;
+                OnPropertyChanged("ErrorText");
             }
         }
 
