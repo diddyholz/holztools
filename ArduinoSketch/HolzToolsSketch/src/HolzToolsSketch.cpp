@@ -289,7 +289,7 @@ void serialEvent()
         
         //reset syncparent
         ledItem->SetSyncParent(255);
-        ledItem->ChangeMode("STTC", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        ledItem->ChangeMode(MODE_STATIC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         ledItem->SetUseMultiColor(true);
         ledItem->SetLed(led, color);
         
