@@ -59,7 +59,7 @@
                         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="35"/>
+                                <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -70,7 +70,8 @@
                             <!-- Check Now Button -->
                             <Button Content="Check Now" Grid.Column="2" Height="23"
                                 Style="{StaticResource secondaryBtnStyle}"
-                                Background="#666666" Click="UpdateBtn_Click"/>
+                                Background="#666666" Click="UpdateBtn_Click"
+                                    Margin="0,0,5,0"/>
                         </Grid>
 
                         <!--Accent Color Property-->
@@ -176,7 +177,7 @@
 
                 <!--Developer Settings Box-->
                 <Border Grid.Row="2" CornerRadius="4" Background="{DynamicResource CardBackground}"
-                        Margin="0,10,0,0" Visibility="Collapsed" x:Name="devSettings">
+                        Margin="0,10,0,0" Visibility="Visible" x:Name="devSettings">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10"/>
@@ -185,6 +186,7 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
@@ -223,7 +225,7 @@
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!--BAUD-Rate Property-->
+                            <!--TCP-Port Property-->
                             <TextBlock Text="TCP-Port:" Foreground="White" 
                                        Grid.Column="0" Grid.Row="5" FontSize="14"
                                        VerticalAlignment="Center"/>
@@ -239,7 +241,7 @@
 
                             <controls:HelpToolTip Grid.Column="2">
                                 <controls:HelpToolTip.ToolTipText>
-                                    Choose the default TCP-Port where the application 
+                                    Choose the TCP-Port where the application 
                                     will listen for commands by HolzTools Mobile.
                                     The default port is 39769.
                                 </controls:HelpToolTip.ToolTipText>

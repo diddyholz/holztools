@@ -28,7 +28,7 @@
         </EventTrigger>
     </Window.Triggers>
     <Border BorderBrush="Red" BorderThickness="1" Background="#FF464646" 
-            CornerRadius="4" >
+            CornerRadius="1" >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="20"/>

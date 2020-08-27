@@ -680,8 +680,8 @@
                                                             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Viewbox.Width)" 
                                                                                    Duration="0:0:0.3">
                                                                 <LinearDoubleKeyFrame KeyTime="0:0:0" Value="200"/>
-                                                                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="330" KeySpline="0.3,0.0 0.5,0"/>
-                                                                <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="303"/>
+                                                                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="340" KeySpline="0.3,0.0 0.5,0"/>
+                                                                <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="315"/>
                                                             </DoubleAnimationUsingKeyFrames>
                                                         </Storyboard>
                                                     </BeginStoryboard>
@@ -690,7 +690,7 @@
                                                     <BeginStoryboard>
                                                         <Storyboard>
                                                             <DoubleAnimation Storyboard.TargetProperty="(Viewbox.Width)"
-                                                                     From="303" To="200"
+                                                                     From="315" To="200"
                                                                      Duration="0:0:0.1"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>

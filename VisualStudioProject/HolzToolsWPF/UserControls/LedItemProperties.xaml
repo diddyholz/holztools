@@ -140,13 +140,13 @@
                         </Grid.ColumnDefinitions>
                         
                         <CheckBox  x:Name="isNetworkCB" Content="Is connected to network"
-                               FontSize="14" Margin="5" Foreground="White" 
+                               FontSize="14" Margin="5" IsEnabled="False"
                                IsChecked="{Binding SelectedIsNetwork}"/>
 
                         <controls:HelpToolTip Grid.Column="1">
                             <controls:HelpToolTip.ToolTipText>
                                 Check this if your Arduino is connected to your network 
-                                via an ESP8266.
+                                via an ESP8266. (Currently unavailable, will come in future versions)
                             </controls:HelpToolTip.ToolTipText>
                         </controls:HelpToolTip>
                     </Grid>
