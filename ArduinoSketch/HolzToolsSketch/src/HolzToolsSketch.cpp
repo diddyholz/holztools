@@ -1,7 +1,9 @@
-//#include <MemoryFree.h>
+#include <MemoryFree.h>
 #include "holztools.h"
+#include "EEPROM.h"
 
 #define BAUDRATE 4800
+#define EEPROM_OFFSET 
 
 const String binaryVer = "1.07";
 const String arduinoModel = "NanoR3";
@@ -11,178 +13,216 @@ String usbMessage = "";
 bool stringComplete = false;
 bool backslash = false;
 bool isMusicData = false;
-bool isSysInfoRequest = false;
+bool isCommand = false;
 bool isMultiColor = false;
+byte passedms = 0;
 
 //declare functions
 void decodeMessage(String message);
 
 void setup() 
 {
-  Serial.begin(BAUDRATE);
+    Serial.begin(BAUDRATE);
+
+    // load the information of all previous ledItems
+    byte ledCount = 0;
+    EEPROM.get(0, ledCount);
+    
+    Serial.print(F("Ledcount: "));
+    Serial.println(ledCount);
+
+    // stop loading if ledCount is 255 (default value)
+    if(ledCount == 255 || ledCount == 0) return;
+
+    int offset = sizeof(byte);
+
+    for(byte x = 0; x < ledCount; x++)
+    {
+        Serial.print("Reading at address: ");
+        Serial.println(offset);
+
+        LEDItem* item = new LEDItem(x);
+        offset = item->LoadData(offset);
+
+        LEDItem::ItemList[x] = item;
+        
+        item->SetupPins();
+        
+        Serial.print(F("Loaded led with ID ")); 
+        Serial.print(item->GetID());
+        Serial.println();
+    }
+
+    LEDItem::ItemCount = ledCount;
 }
 
 void loop() 
 {
-  if(stringComplete)
-  {
-    stringComplete = false;
-    
-    Serial.print(F("Arduino received: ")); 
-    Serial.print(usbMessage);
-    Serial.println();
-    
-    decodeMessage(usbMessage);
-    usbMessage = "";
-  }
+    if(stringComplete)
+    {
+        stringComplete = false;
+        
+        Serial.print(F("Arduino received: ")); 
+        Serial.print(usbMessage);
+        Serial.println();
+        
+        decodeMessage(usbMessage);
+        usbMessage = "";
 
-  //display the active mode on each leditem
-  for(byte x = 0; x < LEDItem::ItemCount; x++)
-  {
-    LEDItem::ItemList[x]->DisplayMode();
-  }
+        // save the information of all current ledItems to the EEPROM
+        EEPROM.put(0, LEDItem::ItemCount);
 
-  delay(1);
+        int offset = sizeof(byte);
+
+        for(byte x = 0; x < LEDItem::ItemCount; x++)
+        {
+            // EEPROM.put(sizeof(byte) + (x * sizeof(LEDItem)), LEDItem::ItemList[x]);
+            Serial.print("Saving at address: ");
+            Serial.println(offset);
+
+            offset = LEDItem::ItemList[x]->SaveData(offset);
+
+            Serial.print("Saved item with id ");
+            Serial.println(LEDItem::ItemList[x]->GetID());
+        }
+    }
+
+    //display the active mode on each leditem
+    for(byte x = 0; x < LEDItem::ItemCount; x++)
+    {
+        LEDItem::ItemList[x]->DisplayMode();
+    }
+
+    if(passedms == 255)
+    {
+        passedms = 0;
+
+        Serial.print("Free memory: ");
+        Serial.println(freeMemory());
+        Serial.flush();
+    }
+
+    passedms++;
+
+    delay(1);
 }
 
 void decodeMessage(String message)
 { 
-  String temp = ""; 
-  
-  byte mode = 0;
-  byte type = 0;
-  byte ledCount = 0;
-  byte dPin = 0;
-  byte rPin = 0;
-  byte gPin = 0;
-  byte bPin = 0;
-  byte arg1 = 0;
-  byte arg2 = 0;
-  byte arg3 = 0;
-  byte arg4 = 0;
-  byte arg5 = 0;
-  byte arg6 = 0;
-  byte arg7 = 0;
-  byte arg8 = 0;
-  byte arg9 = 0;
-  byte overlapedMode = 0;
-  byte id = 0;
-  byte isMusic = false;
-  
-  //get the mode
-  temp = message.substring(1,5);
+    byte mode = 0;
+    byte type = 0;
+    byte ledCount = 0;
+    byte dPin = 0;
+    byte rPin = 0;
+    byte gPin = 0;
+    byte bPin = 0;
+    byte arg1 = 0;
+    byte arg2 = 0;
+    byte arg3 = 0;
+    byte arg4 = 0;
+    byte arg5 = 0;
+    byte arg6 = 0;
+    byte arg7 = 0;
+    byte arg8 = 0;
+    byte arg9 = 0;
+    byte id = 0;
+    byte isMusic = false;
+    
+    //get the mode
+    if(message.substring(1,5) == "STTC")
+        mode = MODE_STATIC;
+    else if (message.substring(1,5) == "RNBW")
+        mode = MODE_RAINBOW;
+    else if (message.substring(1,5) == "CYCL")
+        mode = MODE_CYCLE;
+    else if (message.substring(1,5) == "LING")
+        mode = MODE_LIGHTNING;
+    else if (message.substring(1,5) == "OVRL")
+        mode = MODE_OVERLAY;
+    else if (message.substring(1,5) == "SPIN")
+        mode = MODE_SPINNER;
+    else if (message.substring(1,5) == "TOFF")
+        mode = MODE_OFF;
 
-  if(temp == "STTC")
-    mode = MODE_STATIC;
-  else if (temp == "RNBW")
-    mode = MODE_RAINBOW;
-  else if (temp == "CYCL")
-    mode = MODE_CYCLE;
-  else if (temp == "LING")
-    mode = MODE_LIGHTNING;
-  else if (temp == "OVRL")
-    mode = MODE_OVERLAY;
-  else if (temp == "SPIN")
-    mode = MODE_SPINNER;
-  else if (temp == "TOFF")
-    mode = MODE_OFF;
+    //check if item should use music mode
+    isMusic = message.substring(5,6).toInt();
 
-  //check if item should use music mode
-  isMusic = message.substring(5,6).toInt();
+    //get the type
+    type = message.substring(6,7).toInt();
 
-  //get the type
-  temp = message.substring(6,7);
-  type = temp.toInt();
-
-  //get the pins
-  temp = message.substring(7,9);
-  
-  if(type == TYPE_ARGB)
-  {
-    dPin = temp.toInt();
-    temp = message.substring(9,13);
-    ledCount = temp.toInt();
-  }
-  else if(type == TYPE_4RGB)
-  {
-    rPin = temp.toInt();
-    temp = message.substring(9,11);
-    gPin = temp.toInt();
-    temp = message.substring(11, 13);
-    bPin = temp.toInt();
-  }
-
-  //get the args
-  temp = message.substring(13, 16);
-  arg1 = temp.toInt();
-  temp = message.substring(16, 19);
-  arg2 = temp.toInt();
-  temp = message.substring(19, 22);
-  arg3 = temp.toInt();
-  temp = message.substring(22, 25);
-  arg4 = temp.toInt();
-  temp = message.substring(25, 28);
-  arg5 = temp.toInt();
-  temp = message.substring(28, 31);
-  arg6 = temp.toInt();
-  temp = message.substring(31, 34);
-  arg7 = temp.toInt();
-  temp = message.substring(34, 37);
-  arg8 = temp.toInt();
-  temp = message.substring(37, 40);
-  arg9 = temp.toInt();
-  temp = message.substring(40,42);
-  id = temp.toInt();
- 
-  bool idExists = false;
-
-  LEDItem* ledItem;
-  
-  //check if item with id exists
-  for(byte x = 0; x < LEDItem::ItemCount; x++)
-  {
-    if(LEDItem::ItemList[x]->GetID() == id)
+    //get the pins    
+    if(type == TYPE_ARGB)
     {
-      idExists = true;
-      ledItem = LEDItem::ItemList[x];
-      Serial.print(F("Found existing Item with ID: "));
-      Serial.println(id);
+        dPin = message.substring(7,9).toInt();
+        ledCount = message.substring(9,13).toInt();
     }
-  }
-
-  if(!idExists)
-  {
-    ledItem = new LEDItem(id);
-    Serial.print(F("Creating new Item with ID: "));
-    Serial.println(id);
-  }
-    
-  ledItem->SetupItem(type, ledCount, dPin, rPin, gPin, bPin);
-
-  //set the syncParent if LED should be synced
-  if(message.substring(1,5) == "SYNC")
-  {
-    Serial.print(F("Set SyncParent to: "));
-    Serial.println(arg1);
-    
-    ledItem->SetSyncParent(arg1);
-  }
-  else
-  {
-    //reset syncparent
-    ledItem->SetSyncParent(255);
-    
-    ledItem->ChangeMode(mode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, isMusic);
-    
-    Serial.print(F("Set item to mode: "));
-    Serial.println(mode);
-  
-    if(isMusic == 1)
+    else if(type == TYPE_4RGB)
     {
-      Serial.println(F("Music Mode is turned on"));
+        rPin = message.substring(7,9).toInt();
+        gPin = message.substring(9,11).toInt();
+        bPin = message.substring(11, 13).toInt();
     }
-  }
-  
+
+    //get the args
+    arg1 = message.substring(13, 16).toInt();
+    arg2 = message.substring(16, 19).toInt();
+    arg3 = message.substring(19, 22).toInt();
+    arg4 = message.substring(22, 25).toInt();
+    arg5 = message.substring(25, 28).toInt();
+    arg6 = message.substring(28, 31).toInt();
+    arg7 = message.substring(31, 34).toInt();
+    arg8 = message.substring(34, 37).toInt();
+    arg9 = message.substring(37, 40).toInt();
+    id = message.substring(40,42).toInt();
+
+    bool idExists = false;
+
+    LEDItem* ledItem;
+    
+    //check if item with id exists
+    for(byte x = 0; x < LEDItem::ItemCount; x++)
+    {
+        if(LEDItem::ItemList[x]->GetID() == id)
+        {
+            idExists = true;
+            ledItem = LEDItem::ItemList[x];
+            Serial.print(F("Found existing Item with ID: "));
+            Serial.println(id);
+        }
+    }
+
+    if(!idExists)
+    {
+        ledItem = new LEDItem(id);
+        Serial.print(F("Creating new Item with ID: "));
+        Serial.println(id);
+    }
+        
+    ledItem->SetupItem(type, ledCount, dPin, rPin, gPin, bPin);
+
+    //set the syncParent if LED should be synced
+    if(message.substring(1,5) == "SYNC")
+    {
+        Serial.print(F("Set SyncParent to: "));
+        Serial.println(arg1);
+        
+        ledItem->SetSyncParent(arg1);
+    }
+    else
+    {
+        //reset syncparent
+        ledItem->SetSyncParent(255);
+        
+        ledItem->ChangeMode(mode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, isMusic);
+        
+        Serial.print(F("Set item to mode: "));
+        Serial.println(mode);
+
+        if(isMusic == 1)
+        {
+        Serial.println(F("Music Mode is turned on"));
+        }
+    }
 }
 
 //fetch data from usb
@@ -210,7 +250,7 @@ void serialEvent()
     else if(c == '_')
     {
       usbMessage = "_";
-      isSysInfoRequest = true;
+      isCommand = true;
     }
     else if(c == '&')
     {
@@ -234,70 +274,81 @@ void serialEvent()
         usbMessage = "";
         isMusicData = false;
       }
-      else if(isSysInfoRequest)
+      else if(isCommand)
       {
         delay(100);
-        Serial.print("_" + binaryVer + "_" + arduinoModel);
         
+        if(usbMessage == "_\\n")
+        {
+            Serial.print("_" + binaryVer + "_" + arduinoModel);
+        }
+        else if(usbMessage == "_CLRROM\\n")
+        {
+            // reset saved leditemcount to 0
+            EEPROM.put(0, (byte)0);
+
+            Serial.println(F("Cleared savedata"));
+        }
+        else if(usbMessage == "_RST\\n")
+        {
+            Serial.println(F("Resetting program..."));
+            Serial.flush();
+            asm ("jmp 0");
+        }
+
         stringComplete = false;
         usbMessage = "";
-        isSysInfoRequest = false;
+        isCommand = false;
       }
       else if(isMultiColor)
       {
-        String temp = "";
+            byte dPin = 0;
+            byte id = 0;
+            byte ledCount = 0;
+            byte led = 0;
+            CRGB color = CRGB(0,0,0);
+
+            id = usbMessage.substring(1,3).toInt();
         
-        byte dPin = 0;
-        byte id = 0;
-        byte ledCount = 0;
-        byte led = 0;
-        CRGB color = CRGB(0,0,0);
-          
-        temp = usbMessage.substring(1,3);
-        id = temp.toInt();
+            dPin = usbMessage.substring(3,9).substring(0,2).toInt();
+            ledCount = usbMessage.substring(3,9).substring(2, 6).toInt();
+
+            led = usbMessage.substring(9, 12).toInt();
+
+            color = CRGB(usbMessage.substring(12, 21).substring(0, 3).toInt(), usbMessage.substring(12, 21).substring(3, 6).toInt(), usbMessage.substring(12, 21).substring(6, 9).toInt());
+            
+            bool idExists = false;
     
-        temp = usbMessage.substring(3,9);
-        dPin = temp.substring(0,2).toInt();
-        ledCount = temp.substring(2, 6).toInt();
+            LEDItem* ledItem;
+            
+            //check if item with id exists
+            for(byte x = 0; x < LEDItem::ItemCount; x++)
+            {
+                if(LEDItem::ItemList[x]->GetID() == id)
+                {
+                    idExists = true;
+                    ledItem = LEDItem::ItemList[x];
+                }
+            }
+        
+            if(!idExists)
+            {
+                ledItem = new LEDItem(id);
+            }
+        
+            ledItem->SetupItem(TYPE_ARGB, ledCount, dPin, 0, 0, 0);
+            
+            //reset syncparent
+            ledItem->SetSyncParent(255);
+            ledItem->ChangeMode(MODE_STATIC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            ledItem->SetUseMultiColor(true);
+            ledItem->SetLed(led, color);
+            
+            stringComplete = false;
+            usbMessage = "";
+            isMultiColor = false;
 
-        temp = usbMessage.substring(9, 12);
-        led = temp.toInt();
-
-        temp = usbMessage.substring(12, 21);
-        color = CRGB(temp.substring(0, 3).toInt(), temp.substring(3, 6).toInt(), temp.substring(6, 9).toInt());
-        
-        bool idExists = false;
-  
-        LEDItem* ledItem;
-        
-        //check if item with id exists
-        for(byte x = 0; x < LEDItem::ItemCount; x++)
-        {
-          if(LEDItem::ItemList[x]->GetID() == id)
-          {
-            idExists = true;
-            ledItem = LEDItem::ItemList[x];
-          }
-        }
-      
-        if(!idExists)
-        {
-          ledItem = new LEDItem(id);
-        }
-    
-        ledItem->SetupItem(TYPE_ARGB, ledCount, dPin, 0, 0, 0);
-        
-        //reset syncparent
-        ledItem->SetSyncParent(255);
-        ledItem->ChangeMode(MODE_STATIC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        ledItem->SetUseMultiColor(true);
-        ledItem->SetLed(led, color);
-        
-        stringComplete = false;
-        usbMessage = "";
-        isMultiColor = false;
-
-        Serial.println("^");
+            Serial.println("^");
       }
       else
       {

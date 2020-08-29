@@ -894,7 +894,8 @@
                         </Style>
                     </ScrollViewer.Style>
                     <TextBox x:Name="logBoxText" Background="White" Foreground="Black" 
-                             TextWrapping="Wrap" Padding="3,2,0,0" IsReadOnly="True"/>
+                             TextWrapping="Wrap" Padding="3,2,0,0" IsReadOnly="True"
+                             FontFamily="Consolas"/>
                 </ScrollViewer>
             </Grid>
         </Border>

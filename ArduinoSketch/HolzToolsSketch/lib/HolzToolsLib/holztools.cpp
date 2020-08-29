@@ -1,5 +1,6 @@
 #include <FastLED.h>
 #include "holztools.h"
+#include <EEPROM.h>
 
 byte LEDItem::ItemCount = 0;
 LEDItem* LEDItem::ItemList[3];
@@ -24,32 +25,32 @@ void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte
 	bPin = _bPin;
 
 	//setup the pins
-	setupPins();
+	SetupPins();
 }
 
 void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _arg4, byte _arg5, byte _arg6, byte _arg7, byte _arg8, byte _arg9, byte _music)
 {
-  useMultiColor = false;
+    useMultiColor = false;
   
 	curMode = _mode;
   
-  ARG_PRED = _arg1;
-  ARG_PGREEN = _arg2;
-  ARG_PBLUE = _arg3;
- 
-  ARG_SRED = _arg4;
-  ARG_SGREEN = _arg5;
-  ARG_SBLUE = _arg6;
- 
-  ARG_SPEED = _arg7;
-  ARG_DIRECTION = _arg8;
-  ARG_BRIGHTNESS = _arg9;
-  
-  passedMS = 0;
+    ARG_PRED = _arg1;
+    ARG_PGREEN = _arg2;
+    ARG_PBLUE = _arg3;
+    
+    ARG_SRED = _arg4;
+    ARG_SGREEN = _arg5;
+    ARG_SBLUE = _arg6;
+    
+    ARG_SPEED = _arg7;
+    ARG_DIRECTION = _arg8;
+    ARG_BRIGHTNESS = _arg9;
+    
+    passedMS = 0;
 	
 	lightningStep = 0;
 
-  rnbwIsSetup = false;
+    rnbwIsSetup = false;
 
 	if(_music == 0)
 		music = false;
@@ -64,30 +65,30 @@ void LEDItem::ChangeMode(byte _mode, byte _arg1, byte _arg2, byte _arg3, byte _a
 	
 	if(_mode == MODE_CYCLE)
 	{
-    //reset the colors for the cycle mode to succesfully cycle
+        //reset the colors for the cycle mode to succesfully cycle
 		ARG_PRED = 255;
 		ARG_PGREEN = 0;
 		ARG_PBLUE = 0;
 	}
-  else if (_mode == MODE_LIGHTNING)
-  {
-    //set the correct speed for lightning and static
-    ARG_SPEED = 20;
-  }
+    else if (_mode == MODE_LIGHTNING)
+    {
+        //set the correct speed for lightning and static
+        ARG_SPEED = 20;
+    }
 	else if (_mode == MODE_STATIC)
 	{
 		ARG_SPEED = 10;
 	}
 
-  //check if this ledItem is the syncParent of any other led
-  for(byte x = 0; x < LEDItem::ItemCount; x++)
-  {
-    if(LEDItem::ItemList[x]->GetSyncParent() == id)
+    //check if this ledItem is the syncParent of any other led
+    for(byte x = 0; x < LEDItem::ItemCount; x++)
     {
-       LEDItem::ItemList[x]->ChangeMode(curMode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, music);
-       Serial.println(F("Found synced ledItem")); 
+        if(LEDItem::ItemList[x]->GetSyncParent() == id)
+        {
+            LEDItem::ItemList[x]->ChangeMode(curMode, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, music);
+            Serial.println(F("Found synced ledItem")); 
+        }
     }
-  }
 }
 
 void LEDItem::SetSoundIntensity(byte _intensity)
@@ -113,12 +114,12 @@ void LEDItem::DisplayMode()
 			case MODE_LIGHTNING:
 				modeLightning();
 				break;
-      case MODE_OVERLAY:
-        modeOverlay();
-        break;
-      case MODE_SPINNER:
-        modeSpinner();
-        break;
+            case MODE_OVERLAY:
+                modeOverlay();
+                break;
+            case MODE_SPINNER:
+                modeSpinner();
+                break;
 			case MODE_OFF:
 				modeOff();
 				break;
@@ -132,7 +133,7 @@ void LEDItem::DisplayMode()
 	}
 }
 
-void LEDItem::setupPins()
+void LEDItem::SetupPins()
 {
 	if(type == TYPE_ARGB)
 	{		
@@ -153,18 +154,6 @@ void LEDItem::setupPins()
 				
 			case 6: 
 				FastLED.addLeds<WS2812, 6, GRB>(ledColors, ledCount);
-				break;
-				
-			case 9: 
-				FastLED.addLeds<WS2812, 9, GRB>(ledColors, ledCount);
-				break;
-				
-			case 10: 
-				FastLED.addLeds<WS2812, 10, GRB>(ledColors, ledCount);
-				break;
-				
-			case 11: 
-				FastLED.addLeds<WS2812, 11, GRB>(ledColors, ledCount);
 				break;
 		}
 		
@@ -190,6 +179,70 @@ void LEDItem::setupPins()
 		
 		return;
 	}
+}
+
+int LEDItem::SaveData(int offset)
+{
+    // save everything
+    EEPROM.put(offset, id);
+    EEPROM.put(offset + sizeof(byte), type);
+    EEPROM.put(offset + (2 * sizeof(byte)), ledCount);
+    EEPROM.put(offset + (3 * sizeof(byte)), dPin);
+    EEPROM.put(offset + (4 * sizeof(byte)), rPin);
+    EEPROM.put(offset + (5 * sizeof(byte)), gPin);
+    EEPROM.put(offset + (6 * sizeof(byte)), bPin);
+    EEPROM.put(offset + (7 * sizeof(byte)), syncParent);
+    EEPROM.put(offset + (8 * sizeof(byte)), curMode);
+    EEPROM.put(offset + (9 * sizeof(byte)), arg1);
+    EEPROM.put(offset + (10 * sizeof(byte)), arg2);
+    EEPROM.put(offset + (11 * sizeof(byte)), arg3);
+    EEPROM.put(offset + (12 * sizeof(byte)), arg4);
+    EEPROM.put(offset + (13 * sizeof(byte)), arg5);
+    EEPROM.put(offset + (14 * sizeof(byte)), arg6);
+    EEPROM.put(offset + (15 * sizeof(byte)), arg7);
+    EEPROM.put(offset + (16 * sizeof(byte)), arg8);
+    EEPROM.put(offset + (17 * sizeof(byte)), arg9);
+
+    offset += (18 * sizeof(byte));
+    EEPROM.put(offset, useMultiColor);
+    EEPROM.put(offset + sizeof(bool), music);
+
+    offset += (2 * sizeof(bool));
+    EEPROM.put(offset, ledColors);
+
+    return offset + sizeof(ledColors);
+}
+
+int LEDItem::LoadData(int offset)
+{
+    // load everything
+    EEPROM.get(offset, id);
+    EEPROM.get(offset + sizeof(byte), type);
+    EEPROM.get(offset + (2 * sizeof(byte)), ledCount);
+    EEPROM.get(offset + (3 * sizeof(byte)), dPin);
+    EEPROM.get(offset + (4 * sizeof(byte)), rPin);
+    EEPROM.get(offset + (5 * sizeof(byte)), gPin);
+    EEPROM.get(offset + (6 * sizeof(byte)), bPin);
+    EEPROM.get(offset + (7 * sizeof(byte)), syncParent);
+    EEPROM.get(offset + (8 * sizeof(byte)), curMode);
+    EEPROM.get(offset + (9 * sizeof(byte)), arg1);
+    EEPROM.get(offset + (10 * sizeof(byte)), arg2);
+    EEPROM.get(offset + (11 * sizeof(byte)), arg3);
+    EEPROM.get(offset + (12 * sizeof(byte)), arg4);
+    EEPROM.get(offset + (13 * sizeof(byte)), arg5);
+    EEPROM.get(offset + (14 * sizeof(byte)), arg6);
+    EEPROM.get(offset + (15 * sizeof(byte)), arg7);
+    EEPROM.get(offset + (16 * sizeof(byte)), arg8);
+    EEPROM.get(offset + (17 * sizeof(byte)), arg9);
+
+    offset += (18 * sizeof(byte));
+    EEPROM.get(offset, useMultiColor);
+    EEPROM.get(offset + sizeof(bool), music);
+
+    offset += (2 * sizeof(bool));
+    EEPROM.get(offset, ledColors);
+
+    return offset + sizeof(ledColors);
 }
 
 //all the modes
@@ -530,15 +583,15 @@ void LEDItem::modeStatic()
 	
 	if(type == TYPE_ARGB)
 	{
-    if(!useMultiColor)
-    {
-      for(byte x = 0; x < ledCount; x++)
-      {
-        ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
-      }
-      
-      FastLED.show();
-    }
+        if(!useMultiColor)
+        {
+            for(byte x = 0; x < ledCount; x++)
+            {
+                ledColors[x] = CRGB(shownRed, shownGreen, shownBlue);
+            }
+            
+            FastLED.show();
+        }
 	}
 	else if(type == TYPE_4RGB)
 	{
@@ -666,6 +719,111 @@ void LEDItem::setOverlayColor()
 		}
 	}
 }
+
+// void LEDItem::PrintInfo()
+// {
+//     Serial.print(F("Values of item with ID "));
+//     Serial.println(id);
+
+//     Serial.println();
+    
+//     Serial.print(F("type "));
+//     Serial.println(type);
+    
+//     Serial.print(F("ledCount "));
+//     Serial.println(ledCount);
+    
+//     Serial.print(F("dPin "));
+//     Serial.println(dPin);
+    
+//     Serial.print(F("rPin "));
+//     Serial.println(rPin);
+    
+//     Serial.print(F("gPin "));
+//     Serial.println(gPin);
+    
+//     Serial.print(F("bPin "));
+//     Serial.println(bPin);
+    
+//     Serial.print(F("id "));
+//     Serial.println(id);
+    
+//     Serial.print(F("syncparent "));
+//     Serial.println(syncParent);
+    
+//     Serial.print(F("curMode "));
+//     Serial.println(curMode);
+    
+//     Serial.print(F("rnbwIsSetup "));
+//     Serial.println(rnbwIsSetup);
+    
+//     Serial.print(F("redGoingDown "));
+//     Serial.println(redGoingDown);
+    
+//     Serial.print(F("blueGoingDown "));
+//     Serial.println(blueGoingDown);
+    
+//     Serial.print(F("greenGoingDown "));
+//     Serial.println(greenGoingDown);
+    
+//     Serial.print(F("useMultiColor "));
+//     Serial.println(useMultiColor);
+    
+//     Serial.print(F("music "));
+//     Serial.println(music);
+    
+//     Serial.print(F("arg1 "));
+//     Serial.println(arg1);
+    
+//     Serial.print(F("arg2 "));
+//     Serial.println(arg2);
+    
+//     Serial.print(F("arg3 "));
+//     Serial.println(arg3);
+    
+//     Serial.print(F("arg4 "));
+//     Serial.println(arg4);
+    
+//     Serial.print(F("arg5 "));
+//     Serial.println(arg5);
+    
+//     Serial.print(F("arg6 "));
+//     Serial.println(arg6);
+    
+//     Serial.print(F("arg7 "));
+//     Serial.println(arg7);
+    
+//     Serial.print(F("arg8 "));
+//     Serial.println(arg8);
+    
+//     Serial.print(F("arg9 "));
+//     Serial.println(arg9);
+    
+//     Serial.print(F("modeCurLed "));
+//     Serial.println(modeCurLed);
+    
+//     Serial.print(F("passedMS "));
+//     Serial.println(passedMS);
+    
+//     Serial.print(F("lightningStep "));
+//     Serial.println(lightningStep);
+    
+//     Serial.print(F("curColor "));
+//     Serial.println(curColor);
+    
+//     Serial.print(F("shownRed "));
+//     Serial.println(shownRed);
+    
+//     Serial.print(F("shownGreen "));
+//     Serial.println(shownGreen);
+    
+//     Serial.print(F("shownBlue "));
+//     Serial.println(shownBlue);
+
+//     Serial.println();
+
+//     Serial.println(F("============================"));
+// }
 
 void LEDItem::Refresh()
 {

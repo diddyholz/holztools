@@ -61,6 +61,12 @@ namespace HolzTools
                 }
                 else if (isTypeAttribute)
                 {
+                    //sets the current change to a list
+                    if (change != "" && activeList != null)
+                    {
+                        activeList.Add(change);
+                    }
+
                     switch (c)
                     {
                         case 'f':
@@ -74,12 +80,6 @@ namespace HolzTools
                         case 'o':
                             activeList = OptimizeList;
                             break;
-                    }
-
-                    //sets the current change to a list
-                    if (change != "" && activeList != null)
-                    {
-                        activeList.Add(change);
                     }
 
                     isTypeAttribute = false;
