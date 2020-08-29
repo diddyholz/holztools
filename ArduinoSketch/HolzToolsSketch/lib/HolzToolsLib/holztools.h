@@ -56,6 +56,13 @@ class LEDItem
         int LoadData(int offset);
     
 	private:
+        #ifdef ESP32
+        static bool setupPWMChannels[16];
+        static bool setupFastLEDPins[37];
+        byte rPinChannel = 255;
+        byte gPinChannel = 255;
+        byte bPinChannel = 255;
+        #endif
 		byte type = 0;
 		byte ledCount = 10;
 		byte dPin = 0;

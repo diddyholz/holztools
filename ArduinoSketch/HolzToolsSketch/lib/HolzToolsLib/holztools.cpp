@@ -5,6 +5,12 @@
 byte LEDItem::ItemCount = 0;
 LEDItem* LEDItem::ItemList[3];
 
+#ifdef ESP32
+bool LEDItem::setupPWMChannels[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool LEDItem::setupFastLEDPins[37] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+#endif
+
 //function to setup the item 
 LEDItem::LEDItem(byte _id)
 {
@@ -142,6 +148,105 @@ void LEDItem::SetupPins()
 		Serial.println(dPin);
 		Serial.flush();
 		
+        #ifdef ESP32
+        if(!setupFastLEDPins[dPin])
+        {
+            switch(dPin)
+            {			
+                case 1: 
+                    FastLED.addLeds<WS2812, 1, GRB>(ledColors, ledCount);
+                    break;
+
+                case 2: 
+                    FastLED.addLeds<WS2812, 2, GRB>(ledColors, ledCount);
+                    break;
+
+                case 3: 
+                    FastLED.addLeds<WS2812, 3, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 4: 
+                    FastLED.addLeds<WS2812, 4, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 5: 
+                    FastLED.addLeds<WS2812, 5, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 12: 
+                    FastLED.addLeds<WS2812, 12, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 13: 
+                    FastLED.addLeds<WS2812, 13, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 14: 
+                    FastLED.addLeds<WS2812, 14, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 15: 
+                    FastLED.addLeds<WS2812, 15, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 16: 
+                    FastLED.addLeds<WS2812, 16, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 17: 
+                    FastLED.addLeds<WS2812, 17, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 18: 
+                    FastLED.addLeds<WS2812, 18, GRB>(ledColors, ledCount);
+                    break;
+                case 19: 
+                    FastLED.addLeds<WS2812, 19, GRB>(ledColors, ledCount);
+                    break;
+
+                case 21: 
+                    FastLED.addLeds<WS2812, 21, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 22: 
+                    FastLED.addLeds<WS2812, 22, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 23: 
+                    FastLED.addLeds<WS2812, 23, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 25: 
+                    FastLED.addLeds<WS2812, 25, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 26: 
+                    FastLED.addLeds<WS2812, 26, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 27: 
+                    FastLED.addLeds<WS2812, 27, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 32: 
+                    FastLED.addLeds<WS2812, 32, GRB>(ledColors, ledCount);
+                    break;
+                    
+                case 33: 
+                    FastLED.addLeds<WS2812, 33, GRB>(ledColors, ledCount);
+                    break;
+
+                default:
+                    Serial.print(dPin);
+                    Serial.println(F(" is an unsupported PIN"));
+                    return;
+            }
+
+            setupFastLEDPins[dPin] = true;
+        }
+        #endif
+		
+        #ifndef ESP32
 		switch(dPin)
 		{			
 			case 3: 
@@ -156,12 +261,65 @@ void LEDItem::SetupPins()
 				FastLED.addLeds<WS2812, 6, GRB>(ledColors, ledCount);
 				break;
 		}
+        #endif
 		
 		Serial.println(F("Created FastLED"));
 		Serial.flush();
 	}
 	else if(type == TYPE_4RGB)
 	{		
+        #ifdef ESP32
+        byte ledcChannels[3] = {255, 255, 255};
+        byte foundChannels = 0;
+
+        if(rPinChannel != 255 && gPinChannel != 255 && bPinChannel != 255)
+            goto initPins;
+
+        for(byte x = 0; x < 16; x++)
+        {
+            if(setupPWMChannels[x] == false)
+            {
+                ledcChannels[foundChannels] = x;
+                setupPWMChannels[x] = true;
+                foundChannels++;
+
+                if(foundChannels == 3)
+                    goto initPins;
+            }
+        }
+
+        Serial.println(F("Unable to get an unused ledc channel"));
+        return;
+
+        initPins:
+
+        rPinChannel = ledcChannels[0];
+        gPinChannel = ledcChannels[1];
+        bPinChannel = ledcChannels[2];
+
+        ledcSetup(rPinChannel, 5000, 8);
+        ledcAttachPin(rPin, rPinChannel);
+        Serial.print(F("Setup RPin "));
+        Serial.print(rPin);
+        Serial.print(F(" to use channel "));
+        Serial.println(rPinChannel);
+
+        ledcSetup(gPinChannel, 5000, 8);
+        ledcAttachPin(gPin, gPinChannel);
+        Serial.print(F("Setup GPin "));
+        Serial.print(gPin);
+        Serial.print(F(" to use channel "));
+        Serial.println(gPinChannel);
+
+        ledcSetup(bPinChannel, 5000, 8);
+        ledcAttachPin(bPin, bPinChannel);
+        Serial.print(F("Setup BPin "));
+        Serial.print(bPin);
+        Serial.print(F(" to use channel "));
+        Serial.println(bPinChannel);
+        #endif
+
+        #ifndef ESP32
 		pinMode(rPin, OUTPUT);
 		Serial.print(F("Setup RPin "));
 		Serial.println(rPin);
@@ -176,6 +334,7 @@ void LEDItem::SetupPins()
 		Serial.print(F("Setup BPin "));
 		Serial.println(bPin);
 		Serial.flush();
+        #endif
 		
 		return;
 	}
@@ -273,9 +432,16 @@ void LEDItem::modeOverlay()
 	else if (type == TYPE_4RGB)
 	{
 		//apply for 4pin rgb
+        #ifdef ESP32
+        ledcWrite(rPinChannel, shownRed);
+        ledcWrite(gPinChannel, shownGreen);
+        ledcWrite(bPinChannel, shownBlue);
+        #endif
+        #ifndef ESP32
 		analogWrite(rPin, shownRed);
 		analogWrite(gPin, shownGreen);
 		analogWrite(bPin, shownBlue);
+        #endif
 	}
 
 	//higher the next led
@@ -397,16 +563,32 @@ void LEDItem::modeLightning()
 	{
 		if (lightningStep == 0)
 		{
+            #ifdef ESP32
+            ledcWrite(rPinChannel, ARG_PRED);
+            ledcWrite(gPinChannel, ARG_PGREEN);
+            ledcWrite(bPinChannel, ARG_PBLUE);
+            #endif
+            
+            #ifndef ESP32
 			analogWrite(rPin, ARG_PRED);
 			analogWrite(gPin, ARG_PGREEN);
 			analogWrite(bPin, ARG_PBLUE);
+            #endif 
 		}
 		else if (lightningStep == 40)
 		{
+            #ifdef ESP32
+            ledcWrite(rPinChannel, 0);
+            ledcWrite(gPinChannel, 0);
+            ledcWrite(bPinChannel, 0);
+            #endif
+
+            #ifndef ESP32
 			analogWrite(rPin, 0);
 			analogWrite(gPin, 0);
 			analogWrite(bPin, 0);
-		}
+            #endif
+        }
 
 		lightningStep++;
 	}
@@ -479,15 +661,31 @@ void LEDItem::modeSpinner()
   {
     if (lightningStep == 0)
     {
-      analogWrite(rPin, ARG_PRED);
-      analogWrite(gPin, ARG_PGREEN);
-      analogWrite(bPin, ARG_PBLUE);
+        #ifdef ESP32
+        ledcWrite(rPinChannel, ARG_PRED);
+        ledcWrite(gPinChannel, ARG_PGREEN);
+        ledcWrite(bPinChannel, ARG_PBLUE);
+        #endif
+        
+        #ifndef ESP32
+        analogWrite(rPin, ARG_PRED);
+        analogWrite(gPin, ARG_PGREEN);
+        analogWrite(bPin, ARG_PBLUE);
+        #endif
     }
     else if (lightningStep == 40)
     {
-      analogWrite(rPin, 0);
-      analogWrite(gPin, 0);
-      analogWrite(bPin, 0);
+        #ifdef ESP32
+        ledcWrite(rPinChannel, 0);
+        ledcWrite(gPinChannel, 0);
+        ledcWrite(bPinChannel, 0);
+        #endif
+
+        #ifndef ESP32
+        analogWrite(rPin, 0);
+        analogWrite(gPin, 0);
+        analogWrite(bPin, 0);
+        #endif
     }
 
     lightningStep++;
@@ -560,9 +758,17 @@ void LEDItem::modeCycle()
 	}
 	else if(type == TYPE_4RGB)
 	{
+        #ifdef ESP32
+        ledcWrite(rPinChannel, shownRed);
+        ledcWrite(gPinChannel, shownGreen);
+        ledcWrite(bPinChannel, shownBlue);
+        #endif
+        
+        #ifndef ESP32
 		analogWrite(rPin, shownRed);
 		analogWrite(gPin, shownGreen);
 		analogWrite(bPin, shownBlue);
+        #endif
 	}
 }
 
@@ -595,9 +801,17 @@ void LEDItem::modeStatic()
 	}
 	else if(type == TYPE_4RGB)
 	{
+        #ifdef ESP32
+        ledcWrite(rPinChannel, shownRed);
+        ledcWrite(gPinChannel, shownGreen);
+        ledcWrite(bPinChannel, shownBlue);
+        #endif
+        
+        #ifndef ESP32
 		analogWrite(rPin, shownRed);
 		analogWrite(gPin, shownGreen);
 		analogWrite(bPin, shownBlue);
+        #endif
 	}		
 }
 
@@ -613,9 +827,17 @@ void LEDItem::modeOff()
 	}
 	else if(type == TYPE_4RGB)
 	{
+        #ifdef ESP32
+        ledcWrite(rPinChannel, 0);
+        ledcWrite(gPinChannel, 0);
+        ledcWrite(bPinChannel, 0);
+        #endif
+        
+        #ifndef ESP32
 		analogWrite(rPin, 0);
 		analogWrite(gPin, 0);
 		analogWrite(bPin, 0);
+        #endif
 	}
 }
 

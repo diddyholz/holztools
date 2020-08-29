@@ -15,6 +15,7 @@ namespace HolzTools
 
         private string serialPortName;
         private string binaryVersion = "";
+        private string message = "";
 
         private Type arduinoType;
 
@@ -41,7 +42,7 @@ namespace HolzTools
                 if(!ActiveSerialPort.IsOpen)
                     ActiveSerialPort.Open();
 
-            activeSerialPort.DataReceived += ActiveSerialPort_DataReceived;
+            ActiveSerialPort.DataReceived += ActiveSerialPort_DataReceived;
 
             ActiveSerialPort.Write("69");
         }
@@ -49,14 +50,17 @@ namespace HolzTools
         //events
         private void ActiveSerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            string message = activeSerialPort.ReadExisting();
+            message += activeSerialPort.ReadExisting();
 
             //sets the binary version and arduino model when the message starts with a _
             if (message.StartsWith("_"))
             {
                 BinaryVersion = message.Split('_')[1];
 
-                if (message.Split('_').Count() != 3)
+                if (message.Split('_').Count() < 3)
+                    return;
+
+                if (String.IsNullOrEmpty(message.Split('_')[2]))
                     return;
 
                 switch (message.Split('_')[2])
@@ -68,6 +72,9 @@ namespace HolzTools
                     case "UnoR3":
                         ArduinoType = Type.UnoR3;
                         break;
+
+                    default:
+                        return;
                 }
 
                 MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() =>
@@ -75,14 +82,20 @@ namespace HolzTools
                     MainWindow.ActiveWindow.logBoxText.Text += $"Set Binary Version and Model of Arduino at {SerialPortName} to {BinaryVersion} and {ArduinoType}";
                     MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
                 }));
+                message = "";
             }
             else if (message.Contains("^"))
             {
                 isOk = true;
+                message = "";
             }
             else
             {
-                MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() => { MainWindow.ActiveWindow.logBoxText.Text += message; }));
+                MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() => {
+                    MainWindow.ActiveWindow.logBoxText.Text += message; 
+                    message = "";
+                }));
+                
             }
         }
 

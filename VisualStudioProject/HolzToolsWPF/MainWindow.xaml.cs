@@ -379,6 +379,26 @@ namespace HolzTools
                 //check which arduinos can be updated
                 foreach (Arduino arduino in Arduino.AllArduinos)
                 {
+                    // retry 3 times
+                    byte tryCount = 0;
+
+                    while(tryCount < 3)
+                    {
+                        getArduinoInformation(arduino);
+
+                        var currentTime = DateTime.Now;
+
+                        while(DateTime.Now.Subtract(currentTime).TotalMilliseconds < 1000 && arduino.BinaryVersion == "")
+                        {
+                            Thread.Sleep(100);
+                        }
+
+                        if (arduino.BinaryVersion == "")
+                            tryCount++;
+                        else
+                            tryCount = 3;
+                    }
+
                     if (arduino.BinaryVersion == "")
                     {
                         this.Dispatcher.Invoke(() =>
@@ -510,7 +530,7 @@ namespace HolzTools
                         }
 
                         //set every led mode again
-                        setEveryLedMode(false);
+                        setEveryLedMode();
                     }
                 }
                 else if (notifyIfNoUpdate)
@@ -860,7 +880,7 @@ namespace HolzTools
             }));
 
             //set the mode of every leditem
-            setEveryLedMode(true);
+            setEveryLedMode();
 
             //check for updates
             if (AutoUpdate)
@@ -955,7 +975,7 @@ namespace HolzTools
             Thread.Sleep(3000);
         }
 
-        private void setEveryLedMode(bool getInformation)
+        private void setEveryLedMode()
         {
             foreach (LedItem item in LedItem.AllItems)
             {
@@ -1010,8 +1030,6 @@ namespace HolzTools
 
                 sendDataToArduino(item, item.CurrentMode, false);
                 Thread.Sleep(400);
-                if (getInformation) getArduinoInformation(item.CorrespondingArduino);
-                Thread.Sleep(200);
             }
 
             //reset the mode arguments

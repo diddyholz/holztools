@@ -1,9 +1,10 @@
-#include <MemoryFree.h>
+// #include <MemoryFree.h>
 #include "holztools.h"
 #include "EEPROM.h"
 
 #define BAUDRATE 4800
 #define EEPROM_OFFSET 
+#define ESP32
 
 const String binaryVer = "1.07";
 const String arduinoModel = "NanoR3";
@@ -15,14 +16,24 @@ bool backslash = false;
 bool isMusicData = false;
 bool isCommand = false;
 bool isMultiColor = false;
-byte passedms = 0;
 
 //declare functions
 void decodeMessage(String message);
 
+#ifdef ESP32
+TaskHandle_t serialTaskHandle;
+void serialTaskFunc(void* parameter);
+#endif
+
 void setup() 
 {
     Serial.begin(BAUDRATE);
+
+    // start the serial task on the first core of the esp32
+    #ifdef ESP32
+    xTaskCreatePinnedToCore(serialTaskFunc, "SerialTask", uxTaskGetStackHighWaterMark(NULL), NULL, 0, &serialTaskHandle, 0);
+    Serial.println("Started SerialTask on core =_|!- 0");
+    #endif
 
     // load the information of all previous ledItems
     byte ledCount = 0;
@@ -62,7 +73,7 @@ void loop()
     {
         stringComplete = false;
         
-        Serial.print(F("Arduino received: ")); 
+        Serial.print(F("Received: ")); 
         Serial.print(usbMessage);
         Serial.println();
         
@@ -92,17 +103,6 @@ void loop()
     {
         LEDItem::ItemList[x]->DisplayMode();
     }
-
-    if(passedms == 255)
-    {
-        passedms = 0;
-
-        Serial.print("Free memory: ");
-        Serial.println(freeMemory());
-        Serial.flush();
-    }
-
-    passedms++;
 
     delay(1);
 }
@@ -293,7 +293,12 @@ void serialEvent()
         {
             Serial.println(F("Resetting program..."));
             Serial.flush();
+            #ifdef ESP32
+            ESP.restart();
+            #endif
+            #ifndef ESP32
             asm ("jmp 0");
+            #endif
         }
 
         stringComplete = false;
@@ -357,3 +362,15 @@ void serialEvent()
     }
   }
 }
+
+#ifdef ESP32
+void serialTaskFunc(void* parameter)
+{
+    while (true)
+    {
+        serialEvent();
+        delay(1);
+    }
+}
+#endif
+
