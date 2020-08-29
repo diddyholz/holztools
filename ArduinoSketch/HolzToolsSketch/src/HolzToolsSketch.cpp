@@ -32,7 +32,9 @@ void setup()
     // start the serial task on the first core of the esp32
     #ifdef ESP32
     xTaskCreatePinnedToCore(serialTaskFunc, "SerialTask", uxTaskGetStackHighWaterMark(NULL), NULL, 0, &serialTaskHandle, 0);
-    Serial.println("Started SerialTask on core =_|!- 0");
+    Serial.println("Started SerialTask on core 0");
+
+    EEPROM.begin(2048);
     #endif
 
     // load the information of all previous ledItems
@@ -95,6 +97,10 @@ void loop()
 
             Serial.print("Saved item with id ");
             Serial.println(LEDItem::ItemList[x]->GetID());
+
+            #ifdef ESP32
+            EEPROM.commit();
+            #endif
         }
     }
 
