@@ -69,6 +69,10 @@ class  PreferenceKeys
         const val userDataLedItemSpinnerSpinnerLengthPreference = "PREFERENCE_USERDATA_LEDITEM_MODE_SPINNER_LENGTH"
         const val userDataLedItemSpinnerBackgroundColorPreference = "PREFERENCE_USERDATA_LEDITEM_MODE_SPINNER_BACKGROUND_COLOR"
         const val userDataLedItemSpinnerBackgroundBrightnessPreference = "PREFERENCE_USERDATA_LEDITEM_MODE_SPINNER_BACKGROUND_BRIGHTNESS"
+        const val configureEspDialogShownPreference = "PREFERENCE_CONFIGURE_ESP_DIALOG_SHOWN"
+        const val configureEspBluetoothPreference = "PREFERENCE_ESP32_BLUETOOTH"
+        const val configureEspNetworkSSIDPreference = "PREFERENCE_ESP32_NETWORK_SSID"
+        const val configureEspNetworkPasswordPreference = "PREFERENCE_ESP32_NETWORK_PASSWORD"
 
         const val prefixUserDataSharedPreferences = "preferences_leditem_"
     }

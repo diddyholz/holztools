@@ -13,6 +13,12 @@
 
     <group android:id="@+id/menuMiscGroup">
         <item
+            android:id="@+id/menuConfigureEsp"
+            android:icon="@drawable/ic_configure"
+            android:iconTint="@color/colorPrimaryText"
+            android:title="Configure ESP"
+            android:orderInCategory="2" />
+        <item
             android:id="@+id/menuSettings"
             android:icon="@drawable/ic_settings"
             android:iconTint="@color/colorPrimaryText"

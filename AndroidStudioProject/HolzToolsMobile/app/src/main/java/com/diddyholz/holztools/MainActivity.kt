@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         fun getOwnIp(context: Context): String
         {
-            val wm = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val connectionInfo = wm.connectionInfo
             val ipAddress = if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) Integer.reverseBytes(connectionInfo.ipAddress) else connectionInfo.ipAddress
 
@@ -352,9 +352,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ModeStatic -> {
                     tmpMode = "STTC"
 
-                    arg1 = Color.red(item.staticColor) * (item.staticBrightness / 255)
-                    arg2 = Color.green(item.staticColor) * (item.staticBrightness / 255)
-                    arg3 = Color.blue(item.staticColor) * (item.staticBrightness / 255)
+                    arg1 = (Color.red(item.staticColor) * (item.staticBrightness.toDouble() / 255.00)).toInt()
+                    arg2 = (Color.green(item.staticColor) * (item.staticBrightness.toDouble() / 255.00)).toInt()
+                    arg3 = (Color.blue(item.staticColor) * (item.staticBrightness.toDouble() / 255.00)).toInt()
                 }
 
                 ModeCycle -> {
@@ -374,9 +374,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ModeLightning -> {
                     tmpMode = "LING"
 
-                    arg1 = Color.red(item.lightningColor) * (item.lightningBrightness / 255)
-                    arg2 = Color.green(item.lightningColor) * (item.lightningBrightness / 255)
-                    arg3 = Color.blue(item.lightningColor) * (item.lightningBrightness / 255)
+                    arg1 = (Color.red(item.lightningColor) * (item.lightningBrightness.toDouble() / 255.00)).toInt()
+                    arg2 = (Color.green(item.lightningColor) * (item.lightningBrightness.toDouble() / 255.00)).toInt()
+                    arg3 = (Color.blue(item.lightningColor) * (item.lightningBrightness.toDouble() / 255.00)).toInt()
                 }
 
                 ModeOverlay -> {
@@ -389,13 +389,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ModeSpinner -> {
                     tmpMode = "SPIN"
 
-                    arg1 = Color.red(item.spinnerSpinnerColor) * (item.spinnerColorBrightness / 255)
-                    arg2 = Color.green(item.spinnerSpinnerColor) * (item.spinnerColorBrightness / 255)
-                    arg3 = Color.blue(item.spinnerSpinnerColor) * (item.spinnerColorBrightness / 255)
+                    arg1 = (Color.red(item.spinnerSpinnerColor) * (item.spinnerColorBrightness.toDouble() / 255.00)).toInt()
+                    arg2 = (Color.green(item.spinnerSpinnerColor) * (item.spinnerColorBrightness.toDouble() / 255.00)).toInt()
+                    arg3 = (Color.blue(item.spinnerSpinnerColor) * (item.spinnerColorBrightness / 255.00)).toInt()
 
-                    arg4 = Color.red(item.spinnerBackgroundColor) * (item.backgroundColorBrightness / 255)
-                    arg5 = Color.green(item.spinnerBackgroundColor) * (item.backgroundColorBrightness / 255)
-                    arg6 = Color.blue(item.spinnerBackgroundColor) * (item.backgroundColorBrightness / 255)
+                    arg4 = (Color.red(item.spinnerBackgroundColor) * (item.backgroundColorBrightness.toDouble() / 255.00)).toInt()
+                    arg5 = (Color.green(item.spinnerBackgroundColor) * (item.backgroundColorBrightness.toDouble() / 255.00)).toInt()
+                    arg6 = (Color.blue(item.spinnerBackgroundColor) * (item.backgroundColorBrightness.toDouble() / 255.00)).toInt()
 
                     arg7 = item.spinnerSpeed
                     arg9 = item.spinnerLength
@@ -495,6 +495,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, SettingsFragment()).commit()
                     toolbar.title = "Settings"
                 }
+                "configure" -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, ConfigureEspFragment()).commit()
+                    toolbar.title = "Configure ESP32"
+                }
                 "ledItem" -> {
                     if(selectedLedItem != null)
                     {
@@ -513,6 +517,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         outState.putSerializable("selected_tab", when (toolbar.title) {
             "About" -> "about"
             "Settings" -> "settings"
+            "Configure ESP32" -> "configure"
             else -> "ledItem"
         })
     }
@@ -617,6 +622,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.menuAbout -> {
                 supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, AboutFragment()).commit()
                 toolbar.title = "About"
+                setToolbarMenuVisibility(false)
+            }
+            R.id.menuConfigureEsp -> {
+                supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, ConfigureEspFragment()).commit()
+                toolbar.title = "Configure ESP32"
                 setToolbarMenuVisibility(false)
             }
             R.id.menuAddItem -> {

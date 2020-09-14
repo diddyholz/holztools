@@ -8,10 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_splash.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.net.InetAddress
 
@@ -85,6 +82,7 @@ class SplashActivity : AppCompatActivity()
 
                     for (x in 0 until 3) {
                         canConnect = item.checkConnection()
+                        delay(200);
                     }
 
                     if (canConnect)

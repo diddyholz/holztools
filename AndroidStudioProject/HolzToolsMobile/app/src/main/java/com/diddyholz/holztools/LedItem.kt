@@ -6,6 +6,7 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.selects.select
 import java.lang.Exception
+import java.lang.IndexOutOfBoundsException
 
 class LedItem
 {
@@ -98,18 +99,25 @@ class LedItem
         val tmp = response!!.split('&')
 
         // check the attributes in the response
-        for(arg in tmp)
+        try
         {
-            val argName = arg.split('=')[0]
-            val argValue = arg.split('=')[1]
-
-            when(argName)
+            for(arg in tmp)
             {
-                "Hostname" -> {
-                    if(hostname == argValue)
-                        return true
+                val argName = arg.split('=')[0]
+                val argValue = arg.split('=')[1]
+
+                when(argName)
+                {
+                    "Hostname" -> {
+                        if(hostname == argValue)
+                            return true
+                    }
                 }
             }
+        }
+        catch (ex: IndexOutOfBoundsException)
+        {
+            return false
         }
 
         return false

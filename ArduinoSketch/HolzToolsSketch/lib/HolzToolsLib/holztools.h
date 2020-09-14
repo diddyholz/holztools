@@ -58,7 +58,12 @@ class LEDItem
 	private:
         #ifdef ESP32
         static bool setupPWMChannels[16];
-        static bool setupFastLEDPins[37];
+        static bool setupFastLEDPins[34];
+
+        bool rPinChanged = true;
+        bool gPinChanged = true;
+        bool bPinChanged = true;
+
         byte rPinChannel = 255;
         byte gPinChannel = 255;
         byte bPinChannel = 255;

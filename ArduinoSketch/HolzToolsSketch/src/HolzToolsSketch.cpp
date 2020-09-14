@@ -1,13 +1,20 @@
 // #include <MemoryFree.h>
 #include "holztools.h"
-#include "EEPROM.h"
+#include <EEPROM.h>
 
 #define BAUDRATE 4800
-#define EEPROM_OFFSET 
+#define PORT 39769
 #define ESP32
+#define ESP_LOW_POWER_FREQ 80
 
-const String binaryVer = "1.07";
-const String arduinoModel = "NanoR3";
+#ifdef ESP32
+#include <BluetoothSerial.h>
+#include <WiFi.h>
+#include "OTA.h"
+#endif
+
+const char* binaryVer = "1.07";
+const char* arduinoModel = "NanoR3";
 
 String usbMessage = "";
 
@@ -21,20 +28,49 @@ bool isMultiColor = false;
 void decodeMessage(String message);
 
 #ifdef ESP32
-TaskHandle_t serialTaskHandle;
+TaskHandle_t taskHandle;
+BluetoothSerial btConnection;
+WiFiServer server(PORT);
+
+const char* TCPGETINFO = "GETINFO";
+const char* TCPOK = "200";
+const char* TCPINVALIDCOMMAND = "400";
+
+char hostname[12] = "ESP32-";
+
+char ssid[64] = "";
+char password[64] = ""; 
+char command[64] = "";
+
+String httpHeader = "";
+
+bool connectingWiFi = false;
+
+unsigned char h2int(char c);
+void urldecode();
 void serialTaskFunc(void* parameter);
+void networkEvent();
+void connectToWiFiTask(void* parameter);
+void serialEvent();
+void btEvent();
+void saveNetworkConfig();
+void loadNetworkConfig();
+bool setupWiFiConnection(const char* ssid, const char* password);
 #endif
 
 void setup() 
 {
     Serial.begin(BAUDRATE);
 
-    // start the serial task on the first core of the esp32
     #ifdef ESP32
-    xTaskCreatePinnedToCore(serialTaskFunc, "SerialTask", uxTaskGetStackHighWaterMark(NULL), NULL, 0, &serialTaskHandle, 0);
-    Serial.println("Started SerialTask on core 0");
+    btConnection.begin(hostname);
+    ArduinoOTA.setHostname(hostname);
 
-    EEPROM.begin(2048);
+    EEPROM.begin(4096);
+
+    xTaskCreatePinnedToCore(connectToWiFiTask, "WiFiTask", 6656, NULL, 0, &taskHandle, 0);
+
+    setCpuFrequencyMhz(ESP_LOW_POWER_FREQ);
     #endif
 
     // load the information of all previous ledItems
@@ -45,13 +81,13 @@ void setup()
     Serial.println(ledCount);
 
     // stop loading if ledCount is 255 (default value)
-    if(ledCount == 255 || ledCount == 0) return;
+    if(ledCount == 255 || ledCount == 0 || ledCount > MAX_LEDS + 1) return;
 
     int offset = sizeof(byte);
 
     for(byte x = 0; x < ledCount; x++)
     {
-        Serial.print("Reading at address: ");
+        Serial.print(F("Reading at address: "));
         Serial.println(offset);
 
         LEDItem* item = new LEDItem(x);
@@ -109,6 +145,13 @@ void loop()
     {
         LEDItem::ItemList[x]->DisplayMode();
     }
+
+    #ifdef ESP32
+    serialEvent();
+    btEvent();
+    networkEvent();
+    ArduinoOTA.handle();
+    #endif    
 
     delay(1);
 }
@@ -286,12 +329,22 @@ void serialEvent()
         
         if(usbMessage == "_\\n")
         {
-            Serial.print("_" + binaryVer + "_" + arduinoModel);
+            char temp[sizeof(binaryVer) + sizeof(arduinoModel)];
+            snprintf(temp, sizeof(temp), "_%s_%s", binaryVer, arduinoModel);
+            Serial.print(temp);
         }
         else if(usbMessage == "_CLRROM\\n")
         {
+            #ifdef ESP32
+            for(int x = 0; x < 4096; x++)
+            {
+                EEPROM.put(x, (byte)0);
+            }
+            EEPROM.commit();
+            #else
             // reset saved leditemcount to 0
             EEPROM.put(0, (byte)0);
+            #endif            
 
             Serial.println(F("Cleared savedata"));
         }
@@ -370,11 +423,375 @@ void serialEvent()
 }
 
 #ifdef ESP32
+unsigned char h2int(char c)
+{
+    if (c >= '0' && c <='9'){
+        return((unsigned char)c - '0');
+    }
+    if (c >= 'a' && c <='f'){
+        return((unsigned char)c - 'a' + 10);
+    }
+    if (c >= 'A' && c <='F'){
+        return((unsigned char)c - 'A' + 10);
+    }
+    return(0);
+}
+
+void urldecode()
+{
+    byte index = 0;
+
+    char c;
+    char code0;
+    char code1;
+
+    for (int i = 0; i < sizeof(command); i++)
+    {
+        c = command[i];
+
+        if (c == '+')
+        {
+            command[index] = ' ';  
+            index++;
+        }
+        else if (c == '%') 
+        {
+            i++;
+            code0 = command[i];
+            i++;
+            code1 = command[i];
+            c = (h2int(code0) << 4) | h2int(code1);
+            command[index] = c;
+            index++;
+        } 
+        else
+        {            
+            command[index] = c;  
+            index++;
+        }
+    }
+}
+
+bool setupWiFiConnection(const char* ssid, const char* password)
+{
+    server.end();
+    
+    Serial.print(F("Connecting to "));
+    Serial.print(ssid);
+    Serial.print(F(" using password "));
+    Serial.println(password);
+    
+    byte temp = 0;
+
+    retry:
+
+    WiFi.begin(ssid, password);
+
+    unsigned long time = millis();
+
+    for(byte x = 0; x < 100; x++)
+    {
+        if(WiFi.status() != WL_CONNECTED)
+            break;
+        
+        delay(100);
+    }
+    
+    
+    while(WiFi.status() != WL_CONNECTED)
+    {
+        if(millis() - time > 5000)
+        {
+            if(temp < 3)
+            {
+                temp++;
+                goto retry;
+            }
+            else 
+            {
+                return false;
+            }
+        }
+    }
+
+    server.begin();
+    setupOTA(&btConnection, &taskHandle);
+    
+    return true;
+}
+
+void connectToWiFiTask(void* parameter)
+{
+    // load the network config
+    loadNetworkConfig();
+    
+    while(true)
+    {
+        if(WiFi.status() != WL_CONNECTED && (ssid[0] != 0 && password[0] != 0) && !connectingWiFi)
+        {
+            byte temp = 0;
+
+            while(temp < 3)
+            {
+                if(setupWiFiConnection(ssid, password))
+                {
+                    Serial.println(F("Successfully connected to saved network"));
+                    Serial.print(F("IP-address: "));
+                    Serial.println(WiFi.localIP());
+
+                    temp = 3;
+                }
+                else 
+                {
+                    temp++;
+
+                    Serial.println(F("Cannot connect to saved network, retrying"));
+                }
+            }
+        }
+        
+        delay(10000);   
+    }
+}
+
+void btEvent()
+{
+    while(btConnection.available())
+    {
+        char c = btConnection.read();
+
+        if(c == '\\')
+        {
+            backslash = true;
+        }
+        else if(backslash && c == 'n')
+        {
+            if(usbMessage.indexOf("|") > 1)
+            {
+                strcpy(ssid, usbMessage.substring(0, usbMessage.indexOf("|")).c_str());
+                strcpy(password, usbMessage.substring(usbMessage.indexOf("|") + 1, usbMessage.length()).c_str());
+
+                connectingWiFi = true;
+
+                if(setupWiFiConnection(ssid, password))
+                {
+                    while (WiFi.localIP().toString().startsWith("0"))
+                    {
+                        delay(10);
+                    }
+
+                    btConnection.println("#" + WiFi.localIP().toString() + "\n");          
+                    btConnection.println(F("#YESCONNECT\n"));
+
+                    saveNetworkConfig();
+                }
+                else
+                {
+                    btConnection.println(F("#NOCONNECT\n"));
+                }
+
+                connectingWiFi = false;
+            }
+
+            usbMessage = "";
+        }
+        else 
+        {
+            usbMessage += c;
+        }
+    }
+}
+
+void networkEvent()
+{
+    WiFiClient client = server.available();
+
+    if(client)
+    {
+        Serial.println(F("Client connected"));
+
+        String currentLine = "";       
+
+        unsigned long time = millis();
+
+        while (client.connected() && millis() - time <= 5000) 
+        {  
+            if (client.available()) 
+            {             
+                char c = client.read();                
+                httpHeader += c;
+                
+                if (c == '\n') 
+                {                    
+                    if (currentLine.length() == 0) 
+                    {
+                        client.println("HTTP/1.1 200 OK");
+                        client.println("Content-type:text/html");
+                        client.println("Connection: close");
+                        client.println();
+
+                        byte index = 0;
+
+                        // get the command
+                        for(int x = httpHeader.indexOf("Command=") + sizeof("Command=") - 1; x < httpHeader.length(); x++)
+                        {
+                            if(httpHeader[x] != ' ')
+                                command[index] = httpHeader[x];
+                            else 
+                                break;
+
+                            index++;
+                        }
+
+                        urldecode();
+
+                        Serial.println(command);
+
+                        if(strcmp(command, TCPGETINFO) == 0)
+                        {
+                            char response[sizeof("Hostname=") + sizeof(hostname)];
+                            snprintf(response, sizeof(response), "Hostname=%s", hostname);
+                            client.print(response);
+                        }
+                        else
+                        {
+                            // check if the command is valid
+                            bool containsEnd = false;
+                            bool containsStart = false;
+
+                            for(byte x = 0; x < sizeof(command); x++)
+                            {
+                                if(command[x] == '\\')
+                                    backslash = true;
+                                else if(command[x] == 'n' && backslash)
+                                    containsEnd = true;
+                            }
+
+                            if(command[0] == '#')
+                                containsStart = true;
+
+                            backslash = false;
+
+                            if(containsStart && containsEnd)
+                            {
+                                client.print(TCPOK);
+                                usbMessage = command;
+
+                                stringComplete = true;
+                            }
+                            else
+                            {
+                                client.print(TCPINVALIDCOMMAND);
+                            }
+                        }
+
+                        for(byte x = 0; x < sizeof(command); x++)
+                        {
+                            command[x] = 0;
+                        }
+                        
+                        // Break out of the while loop
+                        break;
+                    } 
+                    else 
+                    {
+                         // if you got a newline, then clear currentLine
+                        currentLine = "";
+                    }
+                } 
+                else if (c != '\r') 
+                {  // if you got anything else but a carriage return character,
+                    currentLine += c;      // add it to the end of the currentLine
+                }
+            }
+        }
+    
+        // Clear the header variable
+        httpHeader = "";
+        // Close the connection
+        client.stop();
+        Serial.println("Client disconnected");
+        Serial.println("");
+    }
+}
+
+void saveNetworkConfig()
+{ 
+        // set the networkconfig saved byte to 1
+        EEPROM.put(4095, (byte)1);
+            
+        // save ssid
+        for(byte x = 0; x < sizeof(ssid); x++)
+        {
+            EEPROM.put(4094 - x, ssid[x]);
+        }
+
+        Serial.print(F("Saved SSID: "));
+        Serial.println(ssid);
+            
+        // save password
+        for(byte x = 0; x < sizeof(password); x++)
+        {
+            EEPROM.put((4094 - sizeof(ssid)) - x, password[x]);
+        }
+
+        Serial.print(F("Saved pass: "));
+        Serial.println(password);
+
+        EEPROM.commit();
+}
+
+void loadNetworkConfig()
+{
+    byte temp = 0;
+
+    EEPROM.get(4095, temp);     // byte at address 4095 says if a network config has been saved 
+
+    if(temp == 1)
+    {
+        Serial.println(F("Detected a network config"));
+
+        for(byte x = 0; x < sizeof(ssid); x++)
+        {
+            ssid[x] = 0;
+            password[x] = 0;
+        }
+
+        Serial.println(F("Cleared strings"));
+
+        for(byte x = 0; x < sizeof(ssid); x++)
+        {
+            // get the next char
+            EEPROM.get(4094 - x, ssid[x]);
+        }
+
+        Serial.print(F("Loaded SSID: "));
+        Serial.println(ssid);
+
+        for(byte x = 0; x < sizeof(password); x++)
+        {
+            // get the next char
+            EEPROM.get((4094 - sizeof(ssid)) - x, password[x]);
+        }
+
+        Serial.print(F("Loaded pass: "));
+        Serial.println(password);
+    }
+    else 
+    {
+        Serial.print(F("Could not detect a network config ("));
+        Serial.print(temp);
+        Serial.println(F(")"));
+    }
+}
+
 void serialTaskFunc(void* parameter)
 {
     while (true)
     {
         serialEvent();
+        btEvent();
+        networkEvent();
         delay(1);
     }
 }

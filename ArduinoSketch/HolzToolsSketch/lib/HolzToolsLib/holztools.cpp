@@ -1,21 +1,21 @@
 #include <FastLED.h>
-#include "holztools.h"
 #include <EEPROM.h>
+#include "holztools.h"
 
 byte LEDItem::ItemCount = 0;
 LEDItem* LEDItem::ItemList[3];
 
 #ifdef ESP32
 bool LEDItem::setupPWMChannels[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-bool LEDItem::setupFastLEDPins[37] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool LEDItem::setupFastLEDPins[34] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 #endif
 
 //function to setup the item 
 LEDItem::LEDItem(byte _id)
 {
 	id = _id;
-	
+
 	//add this class to all item list and increase the item count
 	ItemList[ItemCount] = this;
 	ItemCount++;
@@ -23,6 +23,10 @@ LEDItem::LEDItem(byte _id)
 
 void LEDItem::SetupItem(byte _type, byte _ledCount, byte _dPin, byte _rPin, byte _gPin, byte _bPin)
 {
+    rPinChanged = rPin != _rPin;
+    gPinChanged = gPin != _gPin;
+    bPinChanged = bPin != _bPin;
+
 	type = _type;
 	ledCount = _ledCount;
 	dPin = _dPin;
@@ -269,22 +273,30 @@ void LEDItem::SetupPins()
 	else if(type == TYPE_4RGB)
 	{		
         #ifdef ESP32
-        byte ledcChannels[3] = {255, 255, 255};
-        byte foundChannels = 0;
-
-        if(rPinChannel != 255 && gPinChannel != 255 && bPinChannel != 255)
-            goto initPins;
-
         for(byte x = 0; x < 16; x++)
-        {
+        {         
+            if(!rPinChanged && !gPinChanged && !bPinChanged)
+                goto initPins;
+
             if(setupPWMChannels[x] == false)
             {
-                ledcChannels[foundChannels] = x;
-                setupPWMChannels[x] = true;
-                foundChannels++;
+                if(rPinChanged)
+                {
+                    rPinChannel = x;
+                    rPinChanged = false;
+                }
+                else if(gPinChanged)
+                {
+                    gPinChannel = x;
+                    gPinChanged = false;
+                }
+                else if(bPinChanged)
+                {
+                    bPinChannel = x;
+                    bPinChanged = false;
+                }
 
-                if(foundChannels == 3)
-                    goto initPins;
+                setupPWMChannels[x] = true;
             }
         }
 
@@ -292,10 +304,6 @@ void LEDItem::SetupPins()
         return;
 
         initPins:
-
-        rPinChannel = ledcChannels[0];
-        gPinChannel = ledcChannels[1];
-        bPinChannel = ledcChannels[2];
 
         ledcSetup(rPinChannel, 5000, 8);
         ledcAttachPin(rPin, rPinChannel);

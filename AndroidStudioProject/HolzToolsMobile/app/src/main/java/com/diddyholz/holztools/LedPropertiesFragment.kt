@@ -211,7 +211,21 @@ class LedPropertiesFragment : PreferenceFragmentCompat()
             // add every discovered ip to a list
             for (address in reachableAddresses)
             {
-                val response = MainActivity.sendGetRequest(address.hostAddress, MainActivity.serverPort, mutableListOf<HTTPAttribute>(HTTPAttribute("Command", MainActivity.TCPGETINFO)))
+                var temp = 0;
+
+                var response: String? = ""
+
+                // try to connect the device 3 times
+                while(temp < 3)
+                {
+                    response = MainActivity.sendGetRequest(address.hostAddress, MainActivity.serverPort, mutableListOf<HTTPAttribute>(HTTPAttribute("Command", MainActivity.TCPGETINFO)))
+                    temp++
+
+                    if(response != MainActivity.TCPINVALIDCOMMAND.toString() && response != MainActivity.TCPNOCONNECTEDLEDS.toString() && response != MainActivity.TCPCOULDNOTCONNECT.toString())
+                        temp = 3
+                    else
+                        delay(200)
+                }
 
                 // decode the response
                 if(response != MainActivity.TCPINVALIDCOMMAND.toString() && response != MainActivity.TCPNOCONNECTEDLEDS.toString() && response != MainActivity.TCPCOULDNOTCONNECT.toString())

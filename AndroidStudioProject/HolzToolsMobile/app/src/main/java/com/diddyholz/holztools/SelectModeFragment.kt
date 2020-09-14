@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_select_mode.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.internal.toHexString
 
@@ -83,9 +84,24 @@ class SelectModeFragment : Fragment(){
             else
             {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val response = MainActivity.sendDataToArduino(MainActivity.selectedLedItem!!)
 
-                    if (response == MainActivity.TCPCOULDNOTCONNECT)
+                    var temp = 0;
+
+                    var response: Int? = 0
+
+                    // try to connect the device 3 times
+                    while(temp < 3)
+                    {
+                        response = MainActivity.sendDataToArduino(MainActivity.selectedLedItem!!)
+                        temp++
+
+                        if(response != MainActivity.TCPCOULDNOTCONNECT)
+                            temp = 3
+                        else
+                            delay(200)
+                    }
+
+                    if (response == MainActivity.TCPCOULDNOTCONNECT || response == null)
                         CoroutineScope(Dispatchers.Main).launch { Toast.makeText(context, "Could not connect to the Arduino", Toast.LENGTH_LONG).show() }
                 }
             }
