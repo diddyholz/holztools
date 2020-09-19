@@ -25,6 +25,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 using System.Windows.Data;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit.PropertyGrid;
+using System.Net.NetworkInformation;
 
 namespace HolzTools
 {
@@ -207,40 +208,58 @@ namespace HolzTools
             try
             {
                 List<string> discoveredIps = new List<string>();
+                List<string> discoveredESP32 = new List<string>();
 
                 UdpClient u = new UdpClient("8.8.8.8", 80);
                 IPAddress localAddr = ((IPEndPoint)u.Client.LocalEndPoint).Address;
+                u.Close();
 
                 string prefix = localAddr.ToString().Substring(0, localAddr.ToString().LastIndexOf('.') + 1);
+
+                int completedPings = 0;
+
+                // get all ips by pinging them
+                for (int x = 0; x < 256; x++)
+                {
+                    Ping ping = new Ping();
+
+                    ping.PingCompleted += (s, e) =>
+                    {
+                        string ip = (string)e.UserState.ToString(); ;
+
+                        MainWindow.ActiveWindow.Dispatcher.Invoke(() =>
+                        {
+                            completedPings++;
+                        });
+
+                        if (e.Reply != null && e.Reply.Status == IPStatus.Success)
+                        {
+                            discoveredIps.Add(ip);
+                        }
+                    };
+
+                    ping.SendAsync(prefix + x.ToString(), 1000, prefix + x.ToString());
+                }
+
+                while (completedPings != 256)
+                    Thread.Sleep(100);
+
+                discoveredIps.Sort();
 
                 List<HTTPAttribute> attrs = new List<HTTPAttribute>();
                 attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
 
-                byte maxThreads = 4;
-                byte finishedThreads = 0;
 
-                for(int y = 0; y < 4; y++)
+                // check if these ips are ESP32 by sending a GETINFO request
+                foreach (string ip in discoveredIps)
                 {
-                    new Thread(() =>
-                    {
-                        for (int x = 255 / maxThreads * y; x <= 255 / maxThreads * (y + 1); x++)
-                        {
-                            string res = SendGetRequest(prefix + x.ToString(), 39769, attrs);
+                    string res = SendGetRequest(ip, 39769, attrs);
 
-                            if (res != TCPCOULDNOTCONNECT.ToString())
-                                discoveredIps.Add(prefix + x.ToString());
-                        }
-
-                        finishedThreads++;
-                    }) { IsBackground = true }.Start();
+                    if (res != TCPCOULDNOTCONNECT.ToString() && res.IndexOf("Hostname=") != -1)
+                        discoveredESP32.Add($"{res.Substring(res.IndexOf("Hostname=") + "Hostname=".Length)} ({ip})");
                 }
 
-                while (finishedThreads != maxThreads)
-                    Thread.Sleep(100);
-
-                u.Close();
-
-                return discoveredIps;
+                return discoveredESP32;
             }
             catch
             {
@@ -273,8 +292,9 @@ namespace HolzTools
 
                 return urlData;
             }
-            catch
+            catch(Exception e)
             {
+                MessageBox.Show(e.Message);
                 return TCPCOULDNOTCONNECT.ToString();
             }
         }
@@ -870,7 +890,6 @@ namespace HolzTools
             if (Directory.Exists(Update.InstallerLocation))
             {
                 Directory.Delete(Update.InstallerLocation, true);
-                new HolzToolsMobileAlert().ShowDialog();
             }
 
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -979,6 +998,9 @@ namespace HolzTools
         {
             foreach (LedItem item in LedItem.AllItems)
             {
+                if (item.IsNetwork)
+                    continue;
+
                 //send the data to the arduino (the delays have to be there because else the arduino wouldn't have enough time to start a serial connection between the pc and arduino)
                 try
                 {
@@ -1749,9 +1771,9 @@ namespace HolzTools
                         tmpMode = "LING";
 
                         //set the arguments for the usb message (Cannot just use the realcolor property here because of a invalidopertationexception I Cannot fix)
-                        arg1 = (byte)(modeLightning.SelectedColor.R * (float)(modeLightning.Brightness / 255));
-                        arg2 = (byte)(modeLightning.SelectedColor.G * (float)(modeLightning.Brightness / 255));
-                        arg3 = (byte)(modeLightning.SelectedColor.B * (float)(modeLightning.Brightness / 255));
+                        arg1 = (byte)((float)modeLightning.SelectedColor.R * ((float)modeLightning.Brightness / 255.00));
+                        arg2 = (byte)((float)modeLightning.SelectedColor.G * ((float)modeLightning.Brightness / 255.00));
+                        arg3 = (byte)((float)modeLightning.SelectedColor.B * ((float)modeLightning.Brightness / 255.00));
 
                         //set the arguments in the leditem class
                         if (setLedItemClassArgs)
@@ -1847,6 +1869,19 @@ namespace HolzTools
 
                 //generate the usb message:     #MODE(4)ISMUSIC(1)TYPE(1)PINS(6)COLOR/ARGS(3 x 3)ID(2)\\n
                 string message = $"#{tmpMode}{ledItem.IsMusic}{ledItem.Type}{pins}{arg1.ToString("D3")}{arg2.ToString("D3")}{arg3.ToString("D3")}{arg4.ToString("D3")}{arg5.ToString("D3")}{arg6.ToString("D3")}{arg7.ToString("D3")}{arg8.ToString("D3")}{arg9.ToString("D3")}{ledItem.ID.ToString("D2")}\\n";
+
+                if(ledItem.IsNetwork)
+                {
+                    List<HTTPAttribute> attrs = new List<HTTPAttribute>();
+                    attrs.Add(new HTTPAttribute("Command", message));
+
+                    string res = SendGetRequest(ledItem.IpAddress, ledItem.ServerPort, attrs, TCPTimeout);
+
+                    if (res == TCPCOULDNOTCONNECT.ToString())
+                        PutNotification($"Cannot connect to your ESP32 at {ledItem.IpAddress}! Please check if it received a new IP-Address.");
+                    else if(res == TCPINVALIDCOMMAND.ToString())
+                        PutNotification($"Internal error while sending data to {ledItem.IpAddress}");
+                }
 
                 if(useMulticolor)
                 {

@@ -128,9 +128,6 @@
       <DependentUpon>ChangeLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Arduino.cs" />
-    <Compile Include="HolzToolsMobileAlert.xaml.cs">
-      <DependentUpon>HolzToolsMobileAlert.xaml</DependentUpon>
-    </Compile>
     <Compile Include="HTTPAttribute.cs" />
     <Compile Include="ModeControls\ModeSpinner.xaml.cs">
       <DependentUpon>ModeSpinner.xaml</DependentUpon>
@@ -187,10 +184,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ChangeLogWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="HolzToolsMobileAlert.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

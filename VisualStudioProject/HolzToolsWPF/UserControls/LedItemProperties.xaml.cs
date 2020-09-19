@@ -57,6 +57,9 @@ namespace HolzTools.UserControls
             SelectedGPin = gPin;
             SelectedBPin = bPin;
             SelectedBaud = bautRate;
+            SelectedUseAdvancedIp = ledItem.UseAdvancedIp;
+            SelectedIpAddress = ledItem.IpAddress;
+            SelectedServerPort = ledItem.ServerPort;
 
             MainWindow.ActiveWindow.propertiesBackgroundGrid.MouseUp += CancelBtn_Click;
         }
@@ -109,6 +112,20 @@ namespace HolzTools.UserControls
             ledItem.RPIN = SelectedRPin;
             ledItem.GPIN = SelectedGPin;
             ledItem.BPIN = SelectedBPin;
+            
+            if(SelectedUseAdvancedIp)
+            {
+                ledItem.IpAddress = SelectedIpAddress;
+                ledItem.ServerPort = SelectedServerPort;
+            }
+            else
+            {
+                ledItem.IpAddress = SelectedIpDevice.Substring(SelectedIpDevice.IndexOf('(') + 1, SelectedIpDevice.IndexOf(')') - (SelectedIpDevice.IndexOf('(') + 1));
+                ledItem.ServerPort = MainWindow.ActiveWindow.TCPPort;
+            }
+
+            ledItem.IsNetwork = SelectedIsNetwork;
+            ledItem.UseAdvancedIp = SelectedUseAdvancedIp;
             ledItem.CorrespondingArduino.BaudRate = SelectedBaud;
 
             //remove the properties window
