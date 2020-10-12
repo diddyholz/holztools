@@ -6,6 +6,7 @@
 #define PORT 39769
 #define ESP32
 #define ESP_LOW_POWER_FREQ 80
+#define HOSTNAME_LENGTH 12
 
 #ifdef ESP32
 #include <BluetoothSerial.h>
@@ -36,7 +37,7 @@ const char* TCPGETINFO = "GETINFO";
 const char* TCPOK = "200";
 const char* TCPINVALIDCOMMAND = "400";
 
-char hostname[12] = "ESP32-";
+char hostname[HOSTNAME_LENGTH] = "ESP32-";
 
 char ssid[64] = "";
 char password[64] = ""; 
@@ -147,12 +148,12 @@ void loop()
     }
 
     #ifdef ESP32
+    ArduinoOTA.handle();
     serialEvent();
     btEvent();
     networkEvent();
-    ArduinoOTA.handle();
     #endif    
-
+    
     delay(1);
 }
 
@@ -277,152 +278,159 @@ void decodeMessage(String message)
 //fetch data from usb
 void serialEvent()
 {    
-  while(Serial.available())
-  {
-    char c = (char)Serial.read();
-    
-    usbMessage += c;
+    while(Serial.available())
+    {
+        char c = (char)Serial.read();
+        
+        usbMessage += c;
 
-    if(c == '#')
-    {
-      usbMessage = "#";
-    }
-    else if(c == '\\')
-    {
-      backslash = true;
-    }
-    else if(c == '+')
-    {
-      usbMessage = "+";
-      isMusicData = true;
-    }
-    else if(c == '_')
-    {
-      usbMessage = "_";
-      isCommand = true;
-    }
-    else if(c == '&')
-    {
-      usbMessage = "&";
-      isMultiColor = true;
-    }
-    else if(backslash && (c == 'n'))
-    {
-      backslash = false;
+        if(c == '#')
+        {
+            usbMessage = "#";
+        }
+        else if(c == '\\')
+        {
+            backslash = true;
+        }
+        else if(c == '+')
+        {
+            usbMessage = "+";
+            isMusicData = true;
+        }
+            else if(c == '_')
+        {
+            usbMessage = "_";
+            isCommand = true;
+        }
+            else if(c == '&')
+        {
+            usbMessage = "&";
+            isMultiColor = true;
+        }
+            else if(backslash && (c == 'n'))
+        {
+            backslash = false;
 
-      if(isMusicData)
-      {
-        byte intensity = usbMessage.substring(1, 5).toInt();
-        
-        for(byte x = 0; x < LEDItem::ItemCount; x++)
-        {
-          LEDItem::ItemList[x]->SetSoundIntensity(intensity);
-        }
-        
-        stringComplete = false;
-        usbMessage = "";
-        isMusicData = false;
-      }
-      else if(isCommand)
-      {
-        delay(100);
-        
-        if(usbMessage == "_\\n")
-        {
-            char temp[sizeof(binaryVer) + sizeof(arduinoModel)];
-            snprintf(temp, sizeof(temp), "_%s_%s", binaryVer, arduinoModel);
-            Serial.print(temp);
-        }
-        else if(usbMessage == "_CLRROM\\n")
-        {
-            #ifdef ESP32
-            for(int x = 0; x < 4096; x++)
+            if(isMusicData)
             {
-                EEPROM.put(x, (byte)0);
-            }
-            EEPROM.commit();
-            #else
-            // reset saved leditemcount to 0
-            EEPROM.put(0, (byte)0);
-            #endif            
-
-            Serial.println(F("Cleared savedata"));
-        }
-        else if(usbMessage == "_RST\\n")
-        {
-            Serial.println(F("Resetting program..."));
-            Serial.flush();
-            #ifdef ESP32
-            ESP.restart();
-            #endif
-            #ifndef ESP32
-            asm ("jmp 0");
-            #endif
-        }
-
-        stringComplete = false;
-        usbMessage = "";
-        isCommand = false;
-      }
-      else if(isMultiColor)
-      {
-            byte dPin = 0;
-            byte id = 0;
-            byte ledCount = 0;
-            byte led = 0;
-            CRGB color = CRGB(0,0,0);
-
-            id = usbMessage.substring(1,3).toInt();
-        
-            dPin = usbMessage.substring(3,9).substring(0,2).toInt();
-            ledCount = usbMessage.substring(3,9).substring(2, 6).toInt();
-
-            led = usbMessage.substring(9, 12).toInt();
-
-            color = CRGB(usbMessage.substring(12, 21).substring(0, 3).toInt(), usbMessage.substring(12, 21).substring(3, 6).toInt(), usbMessage.substring(12, 21).substring(6, 9).toInt());
-            
-            bool idExists = false;
-    
-            LEDItem* ledItem;
-            
-            //check if item with id exists
-            for(byte x = 0; x < LEDItem::ItemCount; x++)
-            {
-                if(LEDItem::ItemList[x]->GetID() == id)
+                byte intensity = usbMessage.substring(1, 5).toInt();
+                
+                for(byte x = 0; x < LEDItem::ItemCount; x++)
                 {
-                    idExists = true;
-                    ledItem = LEDItem::ItemList[x];
+                LEDItem::ItemList[x]->SetSoundIntensity(intensity);
                 }
+                
+                stringComplete = false;
+                usbMessage = "";
+                isMusicData = false;
             }
-        
-            if(!idExists)
+            else if(isCommand)
             {
-                ledItem = new LEDItem(id);
-            }
-        
-            ledItem->SetupItem(TYPE_ARGB, ledCount, dPin, 0, 0, 0);
-            
-            //reset syncparent
-            ledItem->SetSyncParent(255);
-            ledItem->ChangeMode(MODE_STATIC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            ledItem->SetUseMultiColor(true);
-            ledItem->SetLed(led, color);
-            
-            stringComplete = false;
-            usbMessage = "";
-            isMultiColor = false;
+                delay(100);
+                
+                if(usbMessage == "_\\n")
+                {
+                    char temp[sizeof(binaryVer) + sizeof(arduinoModel)];
+                    snprintf(temp, sizeof(temp), "_%s_%s", binaryVer, arduinoModel);
+                    Serial.print(temp);
+                }
+                else if(usbMessage == "_CLRROM\\n")
+                {
+                    #ifdef ESP32
+                    resetConfig();
+                    #else
+                    // reset saved leditemcount to 0
+                    EEPROM.put(0, (byte)0);
+                    #endif            
 
-            Serial.println("^");
-      }
-      else
-      {
-        stringComplete = true;
-      }
+                    Serial.println(F("Cleared savedata"));
+                }
+                else if(usbMessage == "_RST\\n")
+                {
+                    Serial.println(F("Resetting program..."));
+                    Serial.flush();
+                    #ifdef ESP32
+                    ESP.restart();
+                    #endif
+                    #ifndef ESP32
+                    asm ("jmp 0");
+                    #endif
+                }
+
+                stringComplete = false;
+                usbMessage = "";
+                isCommand = false;
+            }
+            else if(isMultiColor)
+            {
+                    byte dPin = 0;
+                    byte id = 0;
+                    byte ledCount = 0;
+                    byte led = 0;
+                    CRGB color = CRGB(0,0,0);
+
+                    id = usbMessage.substring(1,3).toInt();
+                
+                    dPin = usbMessage.substring(3,9).substring(0,2).toInt();
+                    ledCount = usbMessage.substring(3,9).substring(2, 6).toInt();
+
+                    led = usbMessage.substring(9, 12).toInt();
+
+                    color = CRGB(usbMessage.substring(12, 21).substring(0, 3).toInt(), usbMessage.substring(12, 21).substring(3, 6).toInt(), usbMessage.substring(12, 21).substring(6, 9).toInt());
+                    
+                    bool idExists = false;
+            
+                    LEDItem* ledItem;
+                    
+                    //check if item with id exists
+                    for(byte x = 0; x < LEDItem::ItemCount; x++)
+                    {
+                        if(LEDItem::ItemList[x]->GetID() == id)
+                        {
+                            idExists = true;
+                            ledItem = LEDItem::ItemList[x];
+                        }
+                    }
+                
+                    if(!idExists)
+                    {
+                        ledItem = new LEDItem(id);
+                    }
+                
+                    ledItem->SetupItem(TYPE_ARGB, ledCount, dPin, 0, 0, 0);
+                    
+                    //reset syncparent
+                    ledItem->SetSyncParent(255);
+                    ledItem->ChangeMode(MODE_STATIC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    ledItem->SetUseMultiColor(true);
+                    ledItem->SetLed(led, color);
+                    
+                    stringComplete = false;
+                    usbMessage = "";
+                    isMultiColor = false;
+
+                    Serial.println("^");
+            }
+            else
+            {
+                stringComplete = true;
+            }
+        }
     }
-  }
 }
 
 #ifdef ESP32
+void generateHostname()
+{
+    strcpy(hostname, "ESP32-");
+
+    for (byte x = 0; x < HOSTNAME_LENGTH - sizeof("ESP32-"); x++)
+    {
+        // generate random digits and append them to the hostname
+        hostname[sizeof("ESP32-") + x] = '0' + (rand() % 9);
+    }
+}
+
 unsigned char h2int(char c)
 {
     if (c >= '0' && c <='9'){
@@ -715,6 +723,207 @@ void networkEvent()
     }
 }
 
+void resetConfig()
+{
+    for(int x = 0; x < 4096; x++)
+    {
+        EEPROM.put(x, (byte)0);
+    }
+
+    EEPROM.commit();
+}
+
+void saveConfig()
+{
+    int16_t pointer = 4095;
+
+    // save networkconfig
+    EEPROM.put(pointer, 'n');
+    pointer--;
+    EEPROM.put(pointer, 'e');
+    pointer--;
+    EEPROM.put(pointer, '=');
+    pointer--;
+    EEPROM.put(pointer, ssid[0] != 0);
+
+    EEPROM.put(pointer, '&');
+    pointer--;
+    EEPROM.put(pointer, 'n');
+    pointer--;
+    EEPROM.put(pointer, 'n');
+    pointer--;
+    EEPROM.put(pointer, '=');
+    pointer--;
+    
+    for(byte x = 0; x < sizeof(ssid); x++)
+    {
+        if(ssid[x] != 0)
+        {
+            EEPROM.put(pointer, ssid[x]);
+            pointer--;
+        }
+    }
+
+    EEPROM.put(pointer, '&');
+    pointer--;
+    EEPROM.put(pointer, 'n');
+    pointer--;
+    EEPROM.put(pointer, 'p');
+    pointer--;
+    EEPROM.put(pointer, '=');
+    pointer--;
+    
+    for(byte x = 0; x < sizeof(password); x++)
+    {
+        if(password[x] != 0)
+        {
+            EEPROM.put(pointer, password[x]);
+            pointer--;
+        }
+    }
+
+    EEPROM.put(pointer, '&');
+    pointer--;
+    EEPROM.put(pointer, 'h');
+    pointer--;
+    EEPROM.put(pointer, 'n');
+    pointer--;
+    EEPROM.put(pointer, '=');
+    pointer--;
+
+    for (int x = 0; x < sizeof(hostname); x++)
+    {
+        if(hostname[x] != 0)
+        {
+            EEPROM.put(pointer, hostname[x]);
+            pointer--;
+        }
+    }
+
+    EEPROM.put(pointer, '&');
+    pointer--;
+
+    // put a 0 to symbolize end of config 
+    EEPROM.put(pointer, (byte)0);
+
+    EEPROM.commit();
+}
+
+void loadConfig()
+{
+    int16_t pointer = 4095;
+
+    char c = 0;
+    char arg[2]; 
+
+    byte counter = 0;
+
+    bool networkConfigSaved = false;
+
+    EEPROM.get(pointer, c);
+    pointer--;
+
+    while (c != 0)
+    {
+        if(c == '=')
+        {
+            // check which type of argument was read
+            if(strcmp(arg, "ne") == 0)
+            {
+                EEPROM.get(pointer, c);
+                pointer--;
+
+                networkConfigSaved = c;
+                
+                // skip the '&' symbol
+                pointer--;
+            }
+            else if(strcmp(arg, "nn") == 0 && networkConfigSaved)
+            {
+                char argC = 0;
+                
+                byte x = 0; 
+
+                EEPROM.get(pointer, argC);
+                pointer--;
+
+                while(argC != '&' || argC != 0)
+                {
+                    ssid[x] = argC;
+
+                    EEPROM.get(pointer, argC);
+                    pointer--;
+                    
+                    x++;
+                }
+
+                for(; x < sizeof(ssid); x++)
+                {
+                    ssid[x] = 0;
+                }
+            }
+            else if(strcmp(arg, "np") == 0 && networkConfigSaved)
+            {
+                char argC = 0;
+                
+                byte x = 0; 
+
+                EEPROM.get(pointer, argC);
+                pointer--;
+
+                while(argC != '&' || argC != 0)
+                {
+                    password[x] = argC;
+
+                    EEPROM.get(pointer, argC);
+                    pointer--;
+                    
+                    x++;
+                }
+
+                for(; x < sizeof(password); x++)
+                {
+                    password[x] = 0;
+                }
+            }
+            else if(strcmp(arg, "hn") == 0)
+            {
+                char argC = 0;
+                
+                byte x = 0; 
+
+                EEPROM.get(pointer, argC);
+                pointer--;
+
+                while(argC != '&' || argC != 0)
+                {
+                    hostname[x] = argC;
+
+                    EEPROM.get(pointer, argC);
+                    pointer--;
+                    
+                    x++;
+                }
+
+                for(; x < sizeof(hostname); x++)
+                {
+                    hostname[x] = 0;
+                }
+            }
+
+            counter = 0;
+        }
+        else 
+        {
+            arg[counter] = c;
+            counter++;
+        }
+
+        EEPROM.get(pointer, c);
+        pointer--;
+    }
+}
+
 void saveNetworkConfig()
 { 
         // set the networkconfig saved byte to 1
@@ -796,4 +1005,3 @@ void serialTaskFunc(void* parameter)
     }
 }
 #endif
-

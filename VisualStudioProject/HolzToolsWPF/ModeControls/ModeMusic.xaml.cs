@@ -52,10 +52,27 @@ namespace HolzTools.ModeControls
             {
                 if(item.CurrentMode == "Music")
                 {
+                    string message = "";
+
                     if(item.MusicUseExponential)
-                        item.SerialWrite($"+{ expSensFunction(data[item.MusicFrequency]) }\\n");
+                        message = $"+{ expSensFunction(data[item.MusicFrequency]) }\\n";
                     else
-                        item.SerialWrite($"+{ data[item.MusicFrequency] }\\n");
+                        message = $"+{ data[item.MusicFrequency] }\\n";
+                    
+                    if(item.IsNetwork)
+                    {
+                        List<HTTPAttribute> attrs = new List<HTTPAttribute>();
+                        attrs.Add(new HTTPAttribute("Command=", message));
+
+                        string response = MainWindow.SendGetRequest(item.IpAddress, item.ServerPort, attrs);
+                        
+                        if(response == MainWindow.TCPCOULDNOTCONNECT.ToString())
+                            MainWindow.ActiveWindow.PutNotification($"Cannot connect to your ESP32 at {item.IpAddress}! Please check if it received a new IP-Address.");
+                    }
+                    else
+                    {
+                        item.SerialWrite(message);
+                    }
                 }
             }
 

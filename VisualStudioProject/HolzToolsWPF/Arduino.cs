@@ -77,7 +77,7 @@ namespace HolzTools
                         return;
                 }
 
-                MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() =>
+                MainWindow.ActiveWindow.Dispatcher.Invoke(new Action(() =>
                 {
                     MainWindow.ActiveWindow.logBoxText.Text += $"Set Binary Version and Model of Arduino at {SerialPortName} to {BinaryVersion} and {ArduinoType}";
                     MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
@@ -91,11 +91,10 @@ namespace HolzTools
             }
             else
             {
-                MainWindow.ActiveWindow.Dispatcher.BeginInvoke(new Action(() => {
+                MainWindow.ActiveWindow.Dispatcher.Invoke(new Action(() => {
                     MainWindow.ActiveWindow.logBoxText.Text += message; 
                     message = "";
                 }));
-                
             }
         }
 

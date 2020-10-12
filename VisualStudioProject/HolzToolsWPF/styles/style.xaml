@@ -1053,8 +1053,9 @@
                                 <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="false"/>
                                 <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="false"/>
                             </MultiDataTrigger.Conditions>
-                            <Setter Property="Background" TargetName="templateRoot" Value="{StaticResource ComboBox.Disabled.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="templateRoot" Value="{StaticResource ComboBox.Disabled.Border}"/>
+                            <Setter Property="BorderBrush" TargetName="templateRoot" Value="Gray"/>
+                            <Setter Property="Foreground" Value="Gray"/>
+                            <Setter Property="Fill" TargetName="arrow" Value="Gray"/>
                         </MultiDataTrigger>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
@@ -1202,6 +1203,9 @@
                 <Setter Property="IsTabStop" Value="false"/>
                 <Setter Property="Padding" Value="2"/>
                 <Setter Property="Template" Value="{StaticResource ComboBoxEditableTemplate}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="Gray" />
             </Trigger>
         </Style.Triggers>
     </Style>

@@ -26,6 +26,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit.PropertyGrid;
 using System.Net.NetworkInformation;
+using System.Linq;
+using System.Diagnostics.Contracts;
 
 namespace HolzTools
 {
@@ -256,10 +258,22 @@ namespace HolzTools
                     string res = SendGetRequest(ip, 39769, attrs);
 
                     if (res != TCPCOULDNOTCONNECT.ToString() && res.IndexOf("Hostname=") != -1)
-                        discoveredESP32.Add($"{res.Substring(res.IndexOf("Hostname=") + "Hostname=".Length)} ({ip})");
+                    {
+                        string[] args = res.Split('&');
+
+                        foreach(string s in args)
+                        {
+                            string argName = s.Split('=')[0];
+                            string argValue = s.Split('=')[1];
+
+                            if(argName == "Hostname")
+                                discoveredESP32.Add($"{argValue} ({ip})");
+                        }
+                        
+                    }
                 }
 
-                return discoveredESP32;
+                return discoveredESP32.Distinct().ToList();
             }
             catch
             {
@@ -294,7 +308,6 @@ namespace HolzTools
             }
             catch(Exception e)
             {
-                MessageBox.Show(e.Message);
                 return TCPCOULDNOTCONNECT.ToString();
             }
         }
@@ -316,6 +329,9 @@ namespace HolzTools
                 HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(WindowProc));
             };
 
+            // events
+            logBoxText.TextChanged += (o, e) => { logBoxText.ScrollToEnd(); };
+
             Thread applicationStartThread = new Thread(() => applicationStart());
             applicationStartThread.IsBackground = true;
             applicationStartThread.SetApartmentState(ApartmentState.STA);
@@ -327,6 +343,8 @@ namespace HolzTools
             UpdateWindow updateWindow = new UpdateWindow();
 
             Update update = new Update(currentVersion, updatePasteBin, Process.GetCurrentProcess().Id, updateWindow.updateProgressBar, updateWindow.updateTextBlock, updateWindow);
+
+            bool updateAvailable = false;
 
             //check for internet connection
             if (!Update.CheckForInternet())
@@ -368,6 +386,8 @@ namespace HolzTools
             //check for application update
             if (update.CheckForUpdate())
             {
+                updateAvailable = true;
+
                 string changelogString = "";
 
                 using(WebClient wc = new WebClient())
@@ -383,13 +403,8 @@ namespace HolzTools
                     update.Upgrade();
                 }
             }
-            else
-            {
-                if (notifyIfNoUpdate)
-                    new AlertWindow($"{ApplicationName} is on the newest version.").ShowDialog();
-            }
 
-            //check for arduino binary update
+            //check for arduino and esp binary update
             using (WebClient wc = new WebClient())
             {
                 string newestVersion = wc.DownloadString(arduinoBinaryPasteBin).Split('|')[0];
@@ -434,6 +449,8 @@ namespace HolzTools
 
                 if (updatableArduinos.Count > 0)
                 {
+                    updateAvailable = true;
+
                     NewUpdateWindow alert = new NewUpdateWindow(newestVersion, wc.DownloadString(arduinoBinaryChangelogPasteBin), true, (byte)updatableArduinos.Count);
 
                     alert.ShowDialog();
@@ -466,10 +483,6 @@ namespace HolzTools
                             {
                                 case Arduino.Type.NanoR3:
                                     downloadUrl = downloadString[1];
-                                    break;
-
-                                case Arduino.Type.UnoR3:
-                                    downloadUrl = downloadString[2];
                                     break;
                             }
 
@@ -553,14 +566,130 @@ namespace HolzTools
                         setEveryLedMode();
                     }
                 }
-                else if (notifyIfNoUpdate)
+
+                List<string> updatableESP32s = new List<string>();
+
+                //check which ESP32 can be updated
+                foreach (LedItem item in LedItem.AllItems.Where(x => x.IsNetwork))
                 {
-                    if(Arduino.AllArduinos.Count == 1)
-                        new AlertWindow("The binary on your Arduino is on the newest version.").ShowDialog();
-                    else
-                        new AlertWindow("The binaries on your Arduinos are on the newest version.").ShowDialog();
+                    if (updatableESP32s.Contains(item.IpAddress))
+                        continue;
+
+                    List<HTTPAttribute> attrs = new List<HTTPAttribute>();
+                    attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
+
+                    string res = SendGetRequest(item.IpAddress, item.ServerPort, attrs);
+
+                    if (res == TCPCOULDNOTCONNECT.ToString())
+                    {
+                        PutNotification($"Cannot connect to your ESP32 at {item.IpAddress}! Please check if it received a new IP-Address.");
+                        continue;
+                    }
+
+                    if (res.Split('&').Length < 2 && !res.Contains("Version"))
+                        continue;
+
+                    foreach(string s in res.Split('&'))
+                    {
+                        string argName = s.Split('=')[0];
+
+                        if(argName == "Version")
+                        {
+                            string espVersion = s.Split('=')[1];
+
+                            if (espVersion != newestVersion)
+                            {
+                                updatableESP32s.Add(item.IpAddress);
+                            }
+                        }
+                    }
+                }
+
+                if (updatableESP32s.Count > 0)
+                {
+                    NewUpdateWindow alert = new NewUpdateWindow(newestVersion, wc.DownloadString(arduinoBinaryChangelogPasteBin), true, (byte)updatableESP32s.Count);
+
+                    alert.ShowDialog();
+
+                    if (alert.DialogResult.Value)
+                    {
+                        string[] downloadString = wc.DownloadString(ArduinoBinaryPasteBin).Split('|');
+
+                        string fileName = "";
+
+                        //upload the binary to the ESP32s
+                        foreach (string ip in updatableESP32s)
+                        {
+                            string downloadUrl = "";
+
+                            bool finishedDownloading = false;
+
+                            //set the filename for the binary
+                            fileName = ArduinoBinaryDirectory + $@"binary{downloadString[0]}mESP32.hex";
+
+                            //delete the file if it already exists
+                            if (File.Exists(fileName))
+                                File.Delete(fileName);
+
+                            //set the correct downloadlink
+                            downloadUrl = downloadString[2];
+
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                //create a window that shows the status of the flashing progress
+                                arduinoBinaryDownloadWindow = new ArduinoBinaryDownloaderWindow();
+                                arduinoBinaryDownloadWindow.ShowDialog();
+                            }));
+
+                            wc.DownloadProgressChanged += (o, e) =>
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
+
+                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = (int)(progress * 100);
+                                }));
+                            };
+
+                            wc.DownloadFileCompleted += (o, e) =>
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = 70;
+                                    arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing Binary";
+                                }));
+                                finishedDownloading = true;
+                            };
+
+                            wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
+
+                            //wait for the download to finish
+                            while (!finishedDownloading) { Thread.Sleep(100); }
+
+                            //upload the binary
+                            try
+                            {
+                                // logic for ESP32 OTA updater
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    new AlertWindow("Failed to upload binary!", false).ShowDialog();
+
+                                    logBoxText.Text += $"Failed to upload binary to your ESP32 at {ip} ({ex.GetType().Name})";
+                                    logBoxText.Text += Environment.NewLine;
+                                }));
+                            }
+
+                            this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloadWindow.Close()));
+                        }
+                    }
                 }
             }
+
+            if (notifyIfNoUpdate && !updateAvailable)
+                new AlertWindow("No updates available").ShowDialog();
         }
 
         public void PutNotification(string notificationText)
@@ -1881,6 +2010,8 @@ namespace HolzTools
                         PutNotification($"Cannot connect to your ESP32 at {ledItem.IpAddress}! Please check if it received a new IP-Address.");
                     else if(res == TCPINVALIDCOMMAND.ToString())
                         PutNotification($"Internal error while sending data to {ledItem.IpAddress}");
+
+                    return;
                 }
 
                 if(useMulticolor)
@@ -2724,5 +2855,28 @@ namespace HolzTools
         public ArduinoNotRespondingException(string message, Exception inner) : base(message, inner)
         {
         }
+    }
+
+    [ValueConversion(typeof(bool), typeof(bool))]
+    public class InverseBooleanConverter : IValueConverter
+    {
+        #region IValueConverter Members
+
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (targetType != typeof(bool))
+                throw new InvalidOperationException("The target must be a boolean");
+
+            return !(bool)value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+
+        #endregion
     }
 }

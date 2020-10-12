@@ -75,6 +75,9 @@
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetZip, Version=1.13.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.1.13.8\lib\net40\DotNetZip.dll</HintPath>
+    </Reference>
     <Reference Include="Gu.Wpf.Geometry, Version=2.2.3.0, Culture=neutral, PublicKeyToken=0d16965443c7ed06, processorArchitecture=MSIL">
       <HintPath>..\packages\Gu.Wpf.Geometry.2.2.3.0\lib\net45\Gu.Wpf.Geometry.dll</HintPath>
     </Reference>

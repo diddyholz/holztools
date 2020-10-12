@@ -761,7 +761,7 @@
                                                                 <LinearDoubleKeyFrame KeyTime="0:0:0" Value="250"/>
                                                                 <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="410" 
                                                                           KeySpline="0.3,0.0 0.5,0"/>
-                                                                <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="371"/>
+                                                                <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="383"/>
                                                             </DoubleAnimationUsingKeyFrames>
                                                         </Storyboard>
                                                     </BeginStoryboard>
@@ -771,7 +771,7 @@
                                                         <Storyboard>
                                                             <DoubleAnimation 
                                                     Storyboard.TargetProperty="(Viewbox.Width)"
-                                                    From="371" To="250" Duration="0:0:0.1"/>
+                                                    From="383" To="250" Duration="0:0:0.1"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.ExitActions>
@@ -882,9 +882,13 @@
                 </GridSplitter>
 
                 <!-- Log Box -->
-                <ScrollViewer Grid.Row="2" x:Name="logBox" >
-                    <ScrollViewer.Style>
-                        <Style TargetType="ScrollViewer">
+                <TextBox x:Name="logBoxText" Background="White" Foreground="Black" 
+                            TextWrapping="Wrap" Padding="3,2,0,0" IsReadOnly="True"
+                            FontFamily="Consolas" VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled"
+                            Grid.Row="2" >
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding EnableLogBox}" Value="True">
@@ -892,11 +896,8 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ScrollViewer.Style>
-                    <TextBox x:Name="logBoxText" Background="White" Foreground="Black" 
-                             TextWrapping="Wrap" Padding="3,2,0,0" IsReadOnly="True"
-                             FontFamily="Consolas"/>
-                </ScrollViewer>
+                    </TextBox.Style>
+                </TextBox>
             </Grid>
         </Border>
 

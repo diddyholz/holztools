@@ -8,6 +8,7 @@
              xmlns:controls="clr-namespace:HolzTools.CustomControls"
              mc:Ignorable="d">
     <UserControl.Resources>
+        <local:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
         <SolidColorBrush x:Key="AccentColor" Color="{Binding Path=ActiveWindow.AccentColor,
             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type main:MainWindow}}}"/>
     </UserControl.Resources>
@@ -45,6 +46,7 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="10"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
                         <RowDefinition Height="10"/>
                     </Grid.RowDefinitions>
 
@@ -55,7 +57,7 @@
                                FontSize="16" FontWeight="SemiBold"/>
 
                     <!-- Arduino Model Selection -->
-                    <TextBlock Text="Arduino Model:" Foreground="White" 
+                    <TextBlock Text="Controller Model:" Foreground="White" 
                                FontSize="14" Grid.Column="1" Grid.Row="3"
                                Margin="5"/>
 
@@ -67,9 +69,10 @@
 
                         <ComboBox x:Name="arduinoModelComboBox" Width="175" Margin="5"
                                   Background="{DynamicResource CardBackground}" 
-                                  SelectionChanged="arduinoModelComboBox_SelectionChanged">
+                                  SelectionChanged="arduinoModelComboBox_SelectionChanged"
+                                  IsEnabled="{Binding Path=IsFlashing, Converter={StaticResource inverseBooleanConverter}}">
                             <ComboBoxItem Content="Arduino Nano (R3)"/>
-                            <ComboBoxItem Content="Arduino Uno (R3)"/>
+                            <ComboBoxItem Content="ESP32"/>
                         </ComboBox>
 
                         <controls:HelpToolTip Grid.Column="1">
@@ -81,12 +84,54 @@
                         </controls:HelpToolTip>
                     </Grid>
 
-                    <!-- COM-Port Selection-->
-                    <TextBlock Text="COM-Port:" Foreground="White" 
-                               FontSize="14" Grid.Column="1" Grid.Row="5"
-                               Margin="5"/>
+                    <!-- USB-Update Selection-->
+                    <Grid Grid.Column="1" Grid.Row="5" 
+                          Grid.ColumnSpan="3" Margin="0,0,0,10">
+                        <Grid.Style>
+                            <Style TargetType="Grid" >
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEsp32}" 
+                                                 Value="True" >
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="3" Grid.Row="5">
+                        <CheckBox Margin="5" Content="Use USB flashing" 
+                                  FontSize="14" Checked="CheckBox_Checked" 
+                                  Unchecked="CheckBox_Unchecked"/>
+
+                        <controls:HelpToolTip Grid.Column="1">
+                            <controls:HelpToolTip.ToolTipText>
+                                Select whether to use USB or OTA flashing.
+                            </controls:HelpToolTip.ToolTipText>
+                            </controls:HelpToolTip>
+                    </Grid>
+
+                    <!-- COM-Port Selection-->
+                    <TextBlock Foreground="White" 
+                               FontSize="14" Grid.Column="1" Grid.Row="6"
+                               Margin="5">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="COM-Port:" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNetwork}" 
+                                                 Value="True">
+                                        <Setter Property="Text" Value="IP-Address:" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <Grid Grid.Column="3" Grid.Row="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
@@ -94,8 +139,66 @@
 
                         <ComboBox x:Name="comPortComboBox" Width="175" Margin="5"
                                   Background="{DynamicResource CardBackground}" 
-                                  SelectionChanged="comPortComboBox_SelectionChanged"/>
+                                  SelectionChanged="comPortComboBox_SelectionChanged" 
+                                  IsEnabled="{Binding Path=IsFlashing, Converter={StaticResource inverseBooleanConverter}}">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScanning}" 
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ComboBox.Style>
+                        </ComboBox>
 
+                        <TextBlock Margin="5"
+                                   Foreground="Gray" FontSize="13" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   Grid.ColumnSpan="2" >
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Text" Value="Scanning"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <StringAnimationUsingKeyFrames
+                                                    RepeatBehavior="Forever"
+                                                    Duration="0:0:2"
+                                                    Storyboard.TargetProperty="(TextBlock.Text)">
+                                                            <DiscreteStringKeyFrame 
+                                                        KeyTime="0:0:0" 
+                                                        Value="Scanning"/>
+                                                            <DiscreteStringKeyFrame 
+                                                        KeyTime="0:0:0.5" 
+                                                        Value="Scanning ."/>
+                                                            <DiscreteStringKeyFrame 
+                                                        KeyTime="0:0:1" 
+                                                        Value="Scanning .."/>
+                                                            <DiscreteStringKeyFrame 
+                                                        KeyTime="0:0:1.5" 
+                                                        Value="Scanning ..."/>
+                                                        </StringAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding NoNetworkDevices}"
+                                                     Value="True">
+                                            <Setter Property="Text" Value="No compatible network&#10;devices discovered" />
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        
                         <controls:HelpToolTip Grid.Column="1">
                             <controls:HelpToolTip.ToolTipText>
                                 Select the COM-Port where the Arduino on which you want to flash the binary is connected to.
@@ -225,7 +328,7 @@
                         Style="{StaticResource cancelBtnStyle}"
                         Content="Cancel" Click="CancelBtn_Click"/>
                 <Button Grid.Column="2" Grid.Row="3"
-                        Content="Upload to Arduino" Click="FlashBtn_Click">
+                        Content="Upload to Controller" Click="FlashBtn_Click">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource applyBtnStyle}">
                             <Setter Property="IsEnabled" Value="False"/>

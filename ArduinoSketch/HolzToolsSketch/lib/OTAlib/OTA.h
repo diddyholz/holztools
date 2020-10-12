@@ -55,7 +55,8 @@ void setupOTA(BluetoothSerial* btConnection, TaskHandle_t* taskHandle) {
     // set the pinmode for the status led
     pinMode(2, OUTPUT);
 
-    setCpuFrequencyMhz(240);
+    // setCpuFrequencyMhz(240);
+    btStop();
 
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
     Serial.println("Start updating " + type);
