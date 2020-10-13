@@ -294,12 +294,53 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="White" FontSize="12">
-                                    Loading
+
+                                <TextBlock Margin="5"
+                                       Foreground="Gray" FontSize="13" 
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                       Grid.ColumnSpan="2" >
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="Text" Value="Scanning"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <StringAnimationUsingKeyFrames
+                                                        RepeatBehavior="Forever"
+                                                        Duration="0:0:2"
+                                                        Storyboard.TargetProperty="(TextBlock.Text)">
+                                                                    <DiscreteStringKeyFrame 
+                                                            KeyTime="0:0:0" 
+                                                            Value="Scanning"/>
+                                                                    <DiscreteStringKeyFrame 
+                                                            KeyTime="0:0:0.5" 
+                                                            Value="Scanning ."/>
+                                                                    <DiscreteStringKeyFrame 
+                                                            KeyTime="0:0:1" 
+                                                            Value="Scanning .."/>
+                                                                    <DiscreteStringKeyFrame 
+                                                            KeyTime="0:0:1.5" 
+                                                            Value="Scanning ..."/>
+                                                                </StringAnimationUsingKeyFrames>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding NoNetworkDevices}"
+                                                         Value="True">
+                                                    <Setter Property="Text" Value="No compatible network&#10;devices discovered" />
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
                                 </TextBlock>
                             </Grid>
-                            
+
                             <TextBlock Text="IP-Address:" Foreground="White" 
                                    FontSize="14" Margin="5"/>
 

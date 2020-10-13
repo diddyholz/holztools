@@ -65,7 +65,7 @@ namespace HolzTools
         private bool showNotification = false;
 
         private int tcpPort = 39769;
-        private int tcpTimeout = 200;
+        private int tcpTimeout = 2000;
 
         private double lastTop = 0.00;
 
@@ -227,7 +227,7 @@ namespace HolzTools
 
                     ping.PingCompleted += (s, e) =>
                     {
-                        string ip = (string)e.UserState.ToString(); ;
+                        string ip = (string)e.UserState.ToString(); 
 
                         MainWindow.ActiveWindow.Dispatcher.Invoke(() =>
                         {
@@ -240,7 +240,7 @@ namespace HolzTools
                         }
                     };
 
-                    ping.SendAsync(prefix + x.ToString(), 1000, prefix + x.ToString());
+                    ping.SendAsync(prefix + x.ToString(), 2000, prefix + x.ToString());
                 }
 
                 while (completedPings != 256)
@@ -251,27 +251,39 @@ namespace HolzTools
                 List<HTTPAttribute> attrs = new List<HTTPAttribute>();
                 attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
 
+                completedPings = 0;
 
                 // check if these ips are ESP32 by sending a GETINFO request
                 foreach (string ip in discoveredIps)
                 {
-                    string res = SendGetRequest(ip, 39769, attrs);
-
-                    if (res != TCPCOULDNOTCONNECT.ToString() && res.IndexOf("Hostname=") != -1)
+                    new Thread(() =>
                     {
-                        string[] args = res.Split('&');
+                        string res = SendGetRequest(ip, 39769, attrs, 2000);
 
-                        foreach(string s in args)
+                        if (res != TCPCOULDNOTCONNECT.ToString() && res.IndexOf("Hostname=") != -1)
                         {
-                            string argName = s.Split('=')[0];
-                            string argValue = s.Split('=')[1];
+                            string[] args = res.Split('&');
 
-                            if(argName == "Hostname")
-                                discoveredESP32.Add($"{argValue} ({ip})");
+                            foreach (string s in args)
+                            {
+                                string argName = s.Split('=')[0];
+                                string argValue = s.Split('=')[1];
+
+                                if (argName == "Hostname")
+                                    discoveredESP32.Add($"{argValue} ({ip})");
+                            }
+
                         }
-                        
-                    }
+
+                        MainWindow.ActiveWindow.Dispatcher.Invoke(() =>
+                        {
+                            completedPings++;
+                        });
+                    }).Start();
                 }
+
+                while (completedPings != discoveredIps.Count)
+                    Thread.Sleep(100);
 
                 return discoveredESP32.Distinct().ToList();
             }
