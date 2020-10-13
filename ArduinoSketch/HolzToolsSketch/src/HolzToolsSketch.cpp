@@ -6,7 +6,7 @@
 #define PORT 39769
 #define ESP32
 #define ESP_LOW_POWER_FREQ 80
-#define HOSTNAME_LENGTH 12
+#define HOSTNAME_LENGTH 13
 
 #ifdef ESP32
 #include <BluetoothSerial.h>
@@ -37,11 +37,10 @@ const char* TCPGETINFO = "GETINFO";
 const char* TCPOK = "200";
 const char* TCPINVALIDCOMMAND = "400";
 
-char hostname[HOSTNAME_LENGTH] = "ESP32-";
-
-char ssid[64] = "";
-char password[64] = ""; 
-char command[64] = "";
+char hostname[HOSTNAME_LENGTH] = "";
+char ssid[65] = "";
+char password[65] = ""; 
+char command[65] = "";
 
 String httpHeader = "";
 
@@ -54,8 +53,12 @@ void networkEvent();
 void connectToWiFiTask(void* parameter);
 void serialEvent();
 void btEvent();
-void saveNetworkConfig();
-void loadNetworkConfig();
+void loadConfig();
+void saveConfig();
+void generateHostname();
+void resetConfig();
+// void saveNetworkConfig();
+// void loadNetworkConfig();
 bool setupWiFiConnection(const char* ssid, const char* password);
 #endif
 
@@ -64,10 +67,20 @@ void setup()
     Serial.begin(BAUDRATE);
 
     #ifdef ESP32
+    EEPROM.begin(4096);
+
+    loadConfig();
+
+    if (hostname[0] == 0)
+    {
+        generateHostname();
+        saveConfig();
+    }
+
+    // set hostnames
     btConnection.begin(hostname);
     ArduinoOTA.setHostname(hostname);
-
-    EEPROM.begin(4096);
+    WiFi.setHostname(hostname);
 
     xTaskCreatePinnedToCore(connectToWiFiTask, "WiFiTask", 6656, NULL, 0, &taskHandle, 0);
 
@@ -427,8 +440,14 @@ void generateHostname()
     for (byte x = 0; x < HOSTNAME_LENGTH - sizeof("ESP32-"); x++)
     {
         // generate random digits and append them to the hostname
-        hostname[sizeof("ESP32-") + x] = '0' + (rand() % 9);
+        hostname[(sizeof("ESP32-") - 1) + x] = '0' + (esp_random() % 9);
     }
+
+    hostname[12] = 0;
+
+    Serial.print(F("Generated hostname: "));
+    Serial.println(hostname);
+    Serial.flush();
 }
 
 unsigned char h2int(char c)
@@ -531,11 +550,9 @@ bool setupWiFiConnection(const char* ssid, const char* password)
 void connectToWiFiTask(void* parameter)
 {
     // load the network config
-    loadNetworkConfig();
-    
     while(true)
     {
-        if(WiFi.status() != WL_CONNECTED && (ssid[0] != 0 && password[0] != 0) && !connectingWiFi)
+        if(WiFi.status() != WL_CONNECTED && ssid[0] != 0 && password[0] != 0 && !connectingWiFi)
         {
             byte temp = 0;
 
@@ -591,7 +608,7 @@ void btEvent()
                     btConnection.println("#" + WiFi.localIP().toString() + "\n");          
                     btConnection.println(F("#YESCONNECT\n"));
 
-                    saveNetworkConfig();
+                    saveConfig();
                 }
                 else
                 {
@@ -745,45 +762,63 @@ void saveConfig()
     EEPROM.put(pointer, '=');
     pointer--;
     EEPROM.put(pointer, ssid[0] != 0);
-
+    pointer--;
     EEPROM.put(pointer, '&');
     pointer--;
-    EEPROM.put(pointer, 'n');
-    pointer--;
-    EEPROM.put(pointer, 'n');
-    pointer--;
-    EEPROM.put(pointer, '=');
-    pointer--;
-    
-    for(byte x = 0; x < sizeof(ssid); x++)
+
+    Serial.print(F("Saved ne: "));
+    Serial.println(ssid[0] != 0);
+
+    if(ssid[0] != 0)
     {
-        if(ssid[x] != 0)
+        EEPROM.put(pointer, 'n');
+        pointer--;
+        EEPROM.put(pointer, 'n');
+        pointer--;
+        EEPROM.put(pointer, '=');
+        pointer--;
+        
+        for(byte x = 0; x < sizeof(ssid); x++)
         {
-            EEPROM.put(pointer, ssid[x]);
-            pointer--;
+            if(ssid[x] != 0)
+            {
+                EEPROM.put(pointer, ssid[x]);
+                pointer--;
+            }
         }
+
+        EEPROM.put(pointer, '&');
+        pointer--;
+
+        Serial.print(F("Saved nn: "));
+        Serial.println(ssid);
     }
 
-    EEPROM.put(pointer, '&');
-    pointer--;
-    EEPROM.put(pointer, 'n');
-    pointer--;
-    EEPROM.put(pointer, 'p');
-    pointer--;
-    EEPROM.put(pointer, '=');
-    pointer--;
-    
-    for(byte x = 0; x < sizeof(password); x++)
+    if(ssid[0] != 0)
     {
-        if(password[x] != 0)
+        EEPROM.put(pointer, 'n');
+        pointer--;
+        EEPROM.put(pointer, 'p');
+        pointer--;
+        EEPROM.put(pointer, '=');
+        pointer--;
+        
+        for(byte x = 0; x < sizeof(password); x++)
         {
-            EEPROM.put(pointer, password[x]);
-            pointer--;
+            if(password[x] != 0)
+            {
+                EEPROM.put(pointer, password[x]);
+                pointer--;
+            }
         }
+
+        EEPROM.put(pointer, '&');
+        pointer--;
+
+        Serial.print(F("Saved np: "));
+        Serial.println(password);
     }
 
-    EEPROM.put(pointer, '&');
-    pointer--;
     EEPROM.put(pointer, 'h');
     pointer--;
     EEPROM.put(pointer, 'n');
@@ -803,6 +838,9 @@ void saveConfig()
     EEPROM.put(pointer, '&');
     pointer--;
 
+    Serial.print(F("Saved hn: "));
+    Serial.println(hostname);
+
     // put a 0 to symbolize end of config 
     EEPROM.put(pointer, (byte)0);
 
@@ -814,7 +852,7 @@ void loadConfig()
     int16_t pointer = 4095;
 
     char c = 0;
-    char arg[2]; 
+    char arg[3] = {0, 0}; 
 
     byte counter = 0;
 
@@ -823,22 +861,30 @@ void loadConfig()
     EEPROM.get(pointer, c);
     pointer--;
 
+    Serial.println(c);
+
     while (c != 0)
     {
         if(c == '=')
         {
+            Serial.print(F("Read arg: "));
+            Serial.println(arg);
+
             // check which type of argument was read
-            if(strcmp(arg, "ne") == 0)
+            if(strncmp(arg, "ne", 2) == 0)
             {
                 EEPROM.get(pointer, c);
                 pointer--;
 
                 networkConfigSaved = c;
+
+                Serial.print(F("Network config available: "));
+                Serial.println((byte)c);
                 
                 // skip the '&' symbol
                 pointer--;
             }
-            else if(strcmp(arg, "nn") == 0 && networkConfigSaved)
+            else if(strncmp(arg, "nn", 2) == 0 && networkConfigSaved)
             {
                 char argC = 0;
                 
@@ -847,7 +893,7 @@ void loadConfig()
                 EEPROM.get(pointer, argC);
                 pointer--;
 
-                while(argC != '&' || argC != 0)
+                while(argC != '&')
                 {
                     ssid[x] = argC;
 
@@ -861,9 +907,13 @@ void loadConfig()
                 {
                     ssid[x] = 0;
                 }
+
+                Serial.print(F("Loaded ssid: "));
+                Serial.println(ssid);
             }
-            else if(strcmp(arg, "np") == 0 && networkConfigSaved)
+            else if(strncmp(arg, "np", 2) == 0 && networkConfigSaved)
             {
+
                 char argC = 0;
                 
                 byte x = 0; 
@@ -871,7 +921,7 @@ void loadConfig()
                 EEPROM.get(pointer, argC);
                 pointer--;
 
-                while(argC != '&' || argC != 0)
+                while(argC != '&')
                 {
                     password[x] = argC;
 
@@ -881,12 +931,21 @@ void loadConfig()
                     x++;
                 }
 
+                Serial.print(F("3. ssid[0]: "));
+                Serial.println((byte)ssid[0]);
+
                 for(; x < sizeof(password); x++)
                 {
                     password[x] = 0;
                 }
+
+                Serial.print(F("4. ssid[0]: "));
+                Serial.println((byte)ssid[0]);
+
+                Serial.print(F("Loaded password: "));
+                Serial.println(password);
             }
-            else if(strcmp(arg, "hn") == 0)
+            else if(strncmp(arg, "hn", 2) == 0)
             {
                 char argC = 0;
                 
@@ -895,7 +954,7 @@ void loadConfig()
                 EEPROM.get(pointer, argC);
                 pointer--;
 
-                while(argC != '&' || argC != 0)
+                while(argC != '&')
                 {
                     hostname[x] = argC;
 
@@ -909,6 +968,9 @@ void loadConfig()
                 {
                     hostname[x] = 0;
                 }
+
+                Serial.print(F("Loaded hostname: "));
+                Serial.println(hostname);
             }
 
             counter = 0;
@@ -924,75 +986,75 @@ void loadConfig()
     }
 }
 
-void saveNetworkConfig()
-{ 
-        // set the networkconfig saved byte to 1
-        EEPROM.put(4095, (byte)1);
+// void saveNetworkConfig()
+// { 
+//         // set the networkconfig saved byte to 1
+//         EEPROM.put(4095, (byte)1);
             
-        // save ssid
-        for(byte x = 0; x < sizeof(ssid); x++)
-        {
-            EEPROM.put(4094 - x, ssid[x]);
-        }
+//         // save ssid
+//         for(byte x = 0; x < sizeof(ssid); x++)
+//         {
+//             EEPROM.put(4094 - x, ssid[x]);
+//         }
 
-        Serial.print(F("Saved SSID: "));
-        Serial.println(ssid);
+//         Serial.print(F("Saved SSID: "));
+//         Serial.println(ssid);
             
-        // save password
-        for(byte x = 0; x < sizeof(password); x++)
-        {
-            EEPROM.put((4094 - sizeof(ssid)) - x, password[x]);
-        }
+//         // save password
+//         for(byte x = 0; x < sizeof(password); x++)
+//         {
+//             EEPROM.put((4094 - sizeof(ssid)) - x, password[x]);
+//         }
 
-        Serial.print(F("Saved pass: "));
-        Serial.println(password);
+//         Serial.print(F("Saved pass: "));
+//         Serial.println(password);
 
-        EEPROM.commit();
-}
+//         EEPROM.commit();
+// }
 
-void loadNetworkConfig()
-{
-    byte temp = 0;
+// void loadNetworkConfig()
+// {
+//     byte temp = 0;
 
-    EEPROM.get(4095, temp);     // byte at address 4095 says if a network config has been saved 
+//     EEPROM.get(4095, temp);     // byte at address 4095 says if a network config has been saved 
 
-    if(temp == 1)
-    {
-        Serial.println(F("Detected a network config"));
+//     if(temp == 1)
+//     {
+//         Serial.println(F("Detected a network config"));
 
-        for(byte x = 0; x < sizeof(ssid); x++)
-        {
-            ssid[x] = 0;
-            password[x] = 0;
-        }
+//         for(byte x = 0; x < sizeof(ssid); x++)
+//         {
+//             ssid[x] = 0;
+//             password[x] = 0;
+//         }
 
-        Serial.println(F("Cleared strings"));
+//         Serial.println(F("Cleared strings"));
 
-        for(byte x = 0; x < sizeof(ssid); x++)
-        {
-            // get the next char
-            EEPROM.get(4094 - x, ssid[x]);
-        }
+//         for(byte x = 0; x < sizeof(ssid); x++)
+//         {
+//             // get the next char
+//             EEPROM.get(4094 - x, ssid[x]);
+//         }
 
-        Serial.print(F("Loaded SSID: "));
-        Serial.println(ssid);
+//         Serial.print(F("Loaded SSID: "));
+//         Serial.println(ssid);
 
-        for(byte x = 0; x < sizeof(password); x++)
-        {
-            // get the next char
-            EEPROM.get((4094 - sizeof(ssid)) - x, password[x]);
-        }
+//         for(byte x = 0; x < sizeof(password); x++)
+//         {
+//             // get the next char
+//             EEPROM.get((4094 - sizeof(ssid)) - x, password[x]);
+//         }
 
-        Serial.print(F("Loaded pass: "));
-        Serial.println(password);
-    }
-    else 
-    {
-        Serial.print(F("Could not detect a network config ("));
-        Serial.print(temp);
-        Serial.println(F(")"));
-    }
-}
+//         Serial.print(F("Loaded pass: "));
+//         Serial.println(password);
+//     }
+//     else 
+//     {
+//         Serial.print(F("Could not detect a network config ("));
+//         Serial.print(temp);
+//         Serial.println(F(")"));
+//     }
+// }
 
 void serialTaskFunc(void* parameter)
 {
