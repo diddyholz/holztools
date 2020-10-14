@@ -28,6 +28,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid;
 using System.Net.NetworkInformation;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using Ionic.Zip;
 
 namespace HolzTools
 {
@@ -260,7 +261,7 @@ namespace HolzTools
                     {
                         string res = SendGetRequest(ip, 39769, attrs, 2000);
 
-                        if (res != TCPCOULDNOTCONNECT.ToString() && res.IndexOf("Hostname=") != -1)
+                        if (res != TCPCOULDNOTCONNECT.ToString())
                         {
                             string[] args = res.Split('&');
 
@@ -294,7 +295,7 @@ namespace HolzTools
 
         }
 
-        public static string SendGetRequest(string url, int port, List<HTTPAttribute> attributes, int timeout = 200)
+        public static string SendGetRequest(string url, int port, List<HTTPAttribute> attributes, int timeout = 2000)
         {
             if (!url.StartsWith("http://") && !url.StartsWith("https://"))
                 url = "http://" + url;
@@ -421,21 +422,21 @@ namespace HolzTools
             {
                 string newestVersion = wc.DownloadString(arduinoBinaryPasteBin).Split('|')[0];
 
-                List<Arduino> updatableArduinos = new List<Arduino>();
+                List<Controller> updatableArduinos = new List<Controller>();
 
                 //check which arduinos can be updated
-                foreach (Arduino arduino in Arduino.AllArduinos)
+                foreach (Controller arduino in Controller.AllArduinos.Where(x => x.ArduinoType == Controller.Type.NanoR3))
                 {
                     // retry 3 times
                     byte tryCount = 0;
 
-                    while(tryCount < 3)
+                    while (tryCount < 3)
                     {
                         getArduinoInformation(arduino);
 
                         var currentTime = DateTime.Now;
 
-                        while(DateTime.Now.Subtract(currentTime).TotalMilliseconds < 1000 && arduino.BinaryVersion == "")
+                        while (DateTime.Now.Subtract(currentTime).TotalMilliseconds < 1000 && arduino.BinaryVersion == "")
                         {
                             Thread.Sleep(100);
                         }
@@ -450,7 +451,7 @@ namespace HolzTools
                     {
                         this.Dispatcher.Invoke(() =>
                         {
-                            PutNotification($"Could not receive the binary information of your Arduino ({arduino.SerialPortName})! Please check its connection.");
+                            PutNotification($"Could not receive the information of your Arduino ({arduino.SerialPortName})! Please check its connection.");
                         });
                     }
                     else if (arduino.BinaryVersion != newestVersion)
@@ -474,7 +475,7 @@ namespace HolzTools
                         string fileName = "";
 
                         //install the binary for the arduinos
-                        foreach (Arduino arduino in updatableArduinos)
+                        foreach (Controller arduino in updatableArduinos)
                         {
                             string downloadUrl = "";
 
@@ -493,7 +494,7 @@ namespace HolzTools
                             //set the correct downloadlink
                             switch (arduino.ArduinoType)
                             {
-                                case Arduino.Type.NanoR3:
+                                case Controller.Type.NanoR3:
                                     downloadUrl = downloadString[1];
                                     break;
                             }
@@ -581,38 +582,75 @@ namespace HolzTools
 
                 List<string> updatableESP32s = new List<string>();
 
-                //check which ESP32 can be updated
-                foreach (LedItem item in LedItem.AllItems.Where(x => x.IsNetwork))
+                //check which esp32 can be updated
+                foreach (LedItem item in LedItem.AllItems.Where(x => x.IsNetwork && x.CorrespondingArduino.ArduinoType == Controller.Type.ESP32))
                 {
-                    if (updatableESP32s.Contains(item.IpAddress))
+                    if (updatableESP32s.Contains(item.IpAddress) || updatableESP32s.Contains(item.ComPortName))
                         continue;
 
-                    List<HTTPAttribute> attrs = new List<HTTPAttribute>();
-                    attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
-
-                    string res = SendGetRequest(item.IpAddress, item.ServerPort, attrs);
-
-                    if (res == TCPCOULDNOTCONNECT.ToString())
+                    if (item.IsNetwork)
                     {
-                        PutNotification($"Cannot connect to your ESP32 at {item.IpAddress}! Please check if it received a new IP-Address.");
-                        continue;
-                    }
+                        List<HTTPAttribute> attrs = new List<HTTPAttribute>();
+                        attrs.Add(new HTTPAttribute("Command", TCPGETINFO));
 
-                    if (res.Split('&').Length < 2 && !res.Contains("Version"))
-                        continue;
+                        string res = SendGetRequest(item.IpAddress, item.ServerPort, attrs);
 
-                    foreach(string s in res.Split('&'))
-                    {
-                        string argName = s.Split('=')[0];
-
-                        if(argName == "Version")
+                        if (res == TCPCOULDNOTCONNECT.ToString())
                         {
-                            string espVersion = s.Split('=')[1];
+                            PutNotification($"Cannot connect to your ESP32 at {item.IpAddress}! Please check if it received a new IP-Address.");
+                            continue;
+                        }
 
-                            if (espVersion != newestVersion)
+                        if (res.Split('&').Length < 2 && !res.Contains("Version"))
+                            continue;
+
+                        foreach (string s in res.Split('&'))
+                        {
+                            string argName = s.Split('=')[0];
+
+                            if (argName == "Version")
                             {
-                                updatableESP32s.Add(item.IpAddress);
+                                string espVersion = s.Split('=')[1];
+
+                                if (espVersion != newestVersion)
+                                {
+                                    updatableESP32s.Add(item.IpAddress);
+                                }
                             }
+                        }
+                    }
+                    else
+                    {
+                        // retry 3 times
+                        byte tryCount = 0;
+
+                        while (tryCount < 3)
+                        {
+                            getArduinoInformation(item.CorrespondingArduino);
+
+                            var currentTime = DateTime.Now;
+
+                            while (DateTime.Now.Subtract(currentTime).TotalMilliseconds < 1000 && item.CorrespondingArduino.BinaryVersion == "")
+                            {
+                                Thread.Sleep(100);
+                            }
+
+                            if (item.CorrespondingArduino.BinaryVersion == "")
+                                tryCount++;
+                            else
+                                tryCount = 3;
+                        }
+
+                        if (item.CorrespondingArduino.BinaryVersion == "")
+                        {
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                PutNotification($"Could not receive the information of your Controller ({item.CorrespondingArduino.SerialPortName})! Please check its connection.");
+                            });
+                        }
+                        else if (item.CorrespondingArduino.BinaryVersion != newestVersion)
+                        {
+                            updatableESP32s.Add(item.ComPortName);
                         }
                     }
                 }
@@ -628,73 +666,174 @@ namespace HolzTools
                         string[] downloadString = wc.DownloadString(ArduinoBinaryPasteBin).Split('|');
 
                         string fileName = "";
+                        string downloadUrl = "";
 
-                        //upload the binary to the ESP32s
-                        foreach (string ip in updatableESP32s)
+                        bool finishedDownloading = false;
+
+                        //set the filename for the binary
+                        fileName = ArduinoBinaryDirectory + $@"binary{downloadString[0]}mESP32.hex";
+
+                        //delete the file if it already exists
+                        if (File.Exists(fileName))
+                            File.Delete(fileName);
+
+                        //set the correct downloadlink
+                        downloadUrl = downloadString[2];
+
+                        this.Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            string downloadUrl = "";
+                            //create a window that shows the status of the flashing progress
+                            arduinoBinaryDownloadWindow = new ArduinoBinaryDownloaderWindow();
+                            arduinoBinaryDownloadWindow.ShowDialog();
+                        }));
 
-                            bool finishedDownloading = false;
-
-                            //set the filename for the binary
-                            fileName = ArduinoBinaryDirectory + $@"binary{downloadString[0]}mESP32.hex";
-
-                            //delete the file if it already exists
-                            if (File.Exists(fileName))
-                                File.Delete(fileName);
-
-                            //set the correct downloadlink
-                            downloadUrl = downloadString[2];
-
+                        wc.DownloadProgressChanged += (o, e) =>
+                        {
                             this.Dispatcher.BeginInvoke(new Action(() =>
                             {
-                                //create a window that shows the status of the flashing progress
-                                arduinoBinaryDownloadWindow = new ArduinoBinaryDownloaderWindow();
-                                arduinoBinaryDownloadWindow.ShowDialog();
+                                float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
+
+                                arduinoBinaryDownloadWindow.updateProgressBar.Value = (int)(progress * 100);
                             }));
+                        };
 
-                            wc.DownloadProgressChanged += (o, e) =>
+                        wc.DownloadFileCompleted += (o, e) =>
+                        {
+                            this.Dispatcher.BeginInvoke(new Action(() =>
                             {
-                                this.Dispatcher.BeginInvoke(new Action(() =>
-                                {
-                                    float progress = (float)e.BytesReceived / (float)e.TotalBytesToReceive;
+                                arduinoBinaryDownloadWindow.updateProgressBar.Value = 70;
+                                arduinoBinaryDownloadWindow.statusTextBlock.Text = "Connecting";
+                            }));
+                            finishedDownloading = true;
+                        };
 
-                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = (int)(progress * 100);
-                                }));
-                            };
+                        wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
 
-                            wc.DownloadFileCompleted += (o, e) =>
+                        //wait for the download to finish
+                        while (!finishedDownloading) { Thread.Sleep(100); }
+
+                        //extract the zip to a tmp folder
+                        using (ZipFile zip = ZipFile.Read(fileName))
+                        {
+                            foreach (ZipEntry entry in zip)
                             {
-                                this.Dispatcher.BeginInvoke(new Action(() =>
-                                {
-                                    arduinoBinaryDownloadWindow.updateProgressBar.Value = 70;
-                                    arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing Binary";
-                                }));
-                                finishedDownloading = true;
-                            };
+                                if (File.Exists(System.IO.Path.Combine(MainWindow.ActiveWindow.ArduinoBinaryDirectory, entry.FileName)))
+                                    File.Delete(System.IO.Path.Combine(MainWindow.ActiveWindow.ArduinoBinaryDirectory, entry.FileName));
 
-                            wc.DownloadFileAsync(new Uri(downloadUrl), fileName);
-
-                            //wait for the download to finish
-                            while (!finishedDownloading) { Thread.Sleep(100); }
-
-                            //upload the binary
-                            try
-                            {
-                                // logic for ESP32 OTA updater
+                                entry.Extract(MainWindow.ActiveWindow.ArduinoBinaryDirectory);
                             }
-                            catch (Exception ex)
+                        }
+
+                        //upload the binary to the ESP32s
+                        foreach (string controllerInfo in updatableESP32s)
+                        {
+                            if (controllerInfo.Contains("COM"))
                             {
-                                this.Dispatcher.BeginInvoke(new Action(() =>
+                                // upload the binary for usb device
+                                try
                                 {
-                                    new AlertWindow("Failed to upload binary!", false).ShowDialog();
+                                    byte hashVerified = 0;
 
-                                    logBoxText.Text += $"Failed to upload binary to your ESP32 at {ip} ({ex.GetType().Name})";
-                                    logBoxText.Text += Environment.NewLine;
-                                }));
+                                    string cmd = $"/c \".\\python.exe esptool.py --chip esp32 --port {controllerInfo} --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\bootloader_dio_40m.bin 0x8000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\partitions.bin 0xe000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\boot_app0.bin 0x10000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\firmware.bin\"";
+
+                                    System.Diagnostics.Process proc = new System.Diagnostics.Process();
+
+                                    proc.StartInfo.FileName = "cmd.exe";
+                                    proc.StartInfo.Arguments = cmd;
+                                    proc.StartInfo.RedirectStandardOutput = true;
+                                    proc.StartInfo.UseShellExecute = false;
+                                    proc.StartInfo.CreateNoWindow = true;
+                                    proc.OutputDataReceived += (o, eventargs) => {
+                                        if (!String.IsNullOrEmpty(eventargs.Data))
+                                        {
+                                            if (eventargs.Data.Contains("Connecting."))
+                                            {
+                                                arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing";
+                                            }
+                                            else if (eventargs.Data.Contains("Hash of data verified."))
+                                            {
+                                                hashVerified++;
+                                            }
+                                        }
+                                    };
+                                    proc.Start();
+                                    proc.BeginOutputReadLine();
+
+                                    proc.WaitForExit();
+
+                                    if (hashVerified < 4)
+                                    {
+                                        this.Dispatcher.BeginInvoke(new Action(() => {
+                                            new AlertWindow($"Failed to upload binary! ({controllerInfo})", false).ShowDialog();
+                                        }));
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.Dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        new AlertWindow($"Failed to upload binary! ({controllerInfo})", false).ShowDialog();
+
+                                        MainWindow.ActiveWindow.logBoxText.Text += $"Failed to upload binary at { controllerInfo } ({ ex.GetType().Name })";
+                                        MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
+                                    }));
+                                }
                             }
+                            else
+                            {
+                                // upload the binary for network device
+                                try
+                                {
+                                    bool successful = false;
 
-                            this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloadWindow.Close()));
+                                    string cmd = $"/c \".\\python.exe espota.py --debug --progress -i {controllerInfo} -f {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\firmware.bin";
+
+                                    System.Diagnostics.Process proc = new System.Diagnostics.Process();
+
+                                    proc.StartInfo.FileName = "cmd.exe";
+                                    proc.StartInfo.Arguments = cmd;
+                                    proc.StartInfo.RedirectStandardOutput = true;
+                                    proc.StartInfo.UseShellExecute = false;
+                                    proc.StartInfo.CreateNoWindow = true;
+                                    proc.OutputDataReceived += (o, eventargs) => {
+                                        if (!String.IsNullOrEmpty(eventargs.Data))
+                                        {
+                                            if (eventargs.Data.Contains("Uploading"))
+                                            {
+                                                arduinoBinaryDownloadWindow.statusTextBlock.Text = "Flashing";
+                                            }
+                                            else if (eventargs.Data.Contains("Success"))
+                                            {
+                                                successful = true;
+                                            }
+                                        }
+                                    };
+
+                                    proc.Start();
+                                    proc.BeginOutputReadLine();
+
+                                    proc.WaitForExit();
+
+                                    if (!successful)
+                                    {
+                                        this.Dispatcher.BeginInvoke(new Action(() => {
+                                            new AlertWindow($"Failed to upload binary! ({controllerInfo})", false).ShowDialog();
+                                        }));
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.Dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        new AlertWindow("Failed to upload binary!", false).ShowDialog();
+
+                                        logBoxText.Text += $"Failed to upload binary to your ESP32 at {controllerInfo} ({ex.GetType().Name})";
+                                        logBoxText.Text += Environment.NewLine;
+                                    }));
+                                }
+
+                                this.Dispatcher.BeginInvoke(new Action(() => arduinoBinaryDownloadWindow.Close()));
+                            }
                         }
                     }
                 }
@@ -2083,7 +2222,7 @@ namespace HolzTools
             }
         }
 
-        private void getArduinoInformation(Arduino arduino)
+        private void getArduinoInformation(Controller arduino)
         {
             //get information from the arduino using by sending a _ command
             try
@@ -2103,7 +2242,7 @@ namespace HolzTools
         {
             saveProgram();
 
-            foreach (Arduino c in Arduino.AllArduinos)
+            foreach (Controller c in Controller.AllArduinos)
             {
                 try
                 {

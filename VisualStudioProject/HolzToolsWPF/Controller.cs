@@ -9,7 +9,7 @@ using System.Windows.Threading;
 
 namespace HolzTools
 {
-    public class Arduino
+    public class Controller
     {
         private SerialPort activeSerialPort;
 
@@ -23,15 +23,15 @@ namespace HolzTools
 
         private bool isOk = false;
 
-        public static List<Arduino> AllArduinos = new List<Arduino>();
+        public static List<Controller> AllArduinos = new List<Controller>();
 
         public enum Type
         {
             NanoR3 = 5,
-            UnoR3 = 6
+            ESP32 = 6
         }
 
-        public Arduino()
+        public Controller()
         {
             AllArduinos.Add(this);
         }
@@ -69,8 +69,8 @@ namespace HolzTools
                         ArduinoType = Type.NanoR3;
                         break;
 
-                    case "UnoR3":
-                        ArduinoType = Type.UnoR3;
+                    case "ESP32":
+                        ArduinoType = Type.ESP32;
                         break;
 
                     default:
@@ -79,7 +79,7 @@ namespace HolzTools
 
                 MainWindow.ActiveWindow.Dispatcher.Invoke(new Action(() =>
                 {
-                    MainWindow.ActiveWindow.logBoxText.Text += $"Set Binary Version and Model of Arduino at {SerialPortName} to {BinaryVersion} and {ArduinoType}";
+                    MainWindow.ActiveWindow.logBoxText.Text += $"Set Version and Model of Controller at {SerialPortName} to {BinaryVersion} and {ArduinoType}";
                     MainWindow.ActiveWindow.logBoxText.Text += Environment.NewLine;
                 }));
                 message = "";

@@ -15,7 +15,12 @@
 #endif
 
 const char* binaryVer = "1.07";
-const char* arduinoModel = "NanoR3";
+
+#ifdef ESP32
+const char* controllerModel = "ESP32";
+#else
+const char* controllerModel = "NanoR3";
+#endif
 
 String usbMessage = "";
 
@@ -57,8 +62,6 @@ void loadConfig();
 void saveConfig();
 void generateHostname();
 void resetConfig();
-// void saveNetworkConfig();
-// void loadNetworkConfig();
 bool setupWiFiConnection(const char* ssid, const char* password);
 #endif
 
@@ -343,8 +346,8 @@ void serialEvent()
                 
                 if(usbMessage == "_\\n")
                 {
-                    char temp[sizeof(binaryVer) + sizeof(arduinoModel)];
-                    snprintf(temp, sizeof(temp), "_%s_%s", binaryVer, arduinoModel);
+                    char temp[sizeof(binaryVer) + sizeof(controllerModel)] = { 0 };
+                    snprintf(temp, sizeof(temp), "_%s_%s", binaryVer, controllerModel);
                     Serial.print(temp);
                 }
                 else if(usbMessage == "_CLRROM\\n")
@@ -674,8 +677,8 @@ void networkEvent()
 
                         if(strcmp(command, TCPGETINFO) == 0)
                         {
-                            char response[sizeof("Hostname=") + sizeof(hostname)];
-                            snprintf(response, sizeof(response), "Hostname=%s", hostname);
+                            char response[65] = { 0 };
+                            snprintf(response, sizeof(response), "Hostname=%s&Version=%s&Model=%s", hostname, binaryVer, controllerModel);
                             client.print(response);
                         }
                         else
@@ -985,76 +988,6 @@ void loadConfig()
         pointer--;
     }
 }
-
-// void saveNetworkConfig()
-// { 
-//         // set the networkconfig saved byte to 1
-//         EEPROM.put(4095, (byte)1);
-            
-//         // save ssid
-//         for(byte x = 0; x < sizeof(ssid); x++)
-//         {
-//             EEPROM.put(4094 - x, ssid[x]);
-//         }
-
-//         Serial.print(F("Saved SSID: "));
-//         Serial.println(ssid);
-            
-//         // save password
-//         for(byte x = 0; x < sizeof(password); x++)
-//         {
-//             EEPROM.put((4094 - sizeof(ssid)) - x, password[x]);
-//         }
-
-//         Serial.print(F("Saved pass: "));
-//         Serial.println(password);
-
-//         EEPROM.commit();
-// }
-
-// void loadNetworkConfig()
-// {
-//     byte temp = 0;
-
-//     EEPROM.get(4095, temp);     // byte at address 4095 says if a network config has been saved 
-
-//     if(temp == 1)
-//     {
-//         Serial.println(F("Detected a network config"));
-
-//         for(byte x = 0; x < sizeof(ssid); x++)
-//         {
-//             ssid[x] = 0;
-//             password[x] = 0;
-//         }
-
-//         Serial.println(F("Cleared strings"));
-
-//         for(byte x = 0; x < sizeof(ssid); x++)
-//         {
-//             // get the next char
-//             EEPROM.get(4094 - x, ssid[x]);
-//         }
-
-//         Serial.print(F("Loaded SSID: "));
-//         Serial.println(ssid);
-
-//         for(byte x = 0; x < sizeof(password); x++)
-//         {
-//             // get the next char
-//             EEPROM.get((4094 - sizeof(ssid)) - x, password[x]);
-//         }
-
-//         Serial.print(F("Loaded pass: "));
-//         Serial.println(password);
-//     }
-//     else 
-//     {
-//         Serial.print(F("Could not detect a network config ("));
-//         Serial.print(temp);
-//         Serial.println(F(")"));
-//     }
-// }
 
 void serialTaskFunc(void* parameter)
 {

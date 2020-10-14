@@ -130,7 +130,7 @@
     <Compile Include="ChangeLogWindow.xaml.cs">
       <DependentUpon>ChangeLogWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Arduino.cs" />
+    <Compile Include="Controller.cs" />
     <Compile Include="HTTPAttribute.cs" />
     <Compile Include="ModeControls\ModeSpinner.xaml.cs">
       <DependentUpon>ModeSpinner.xaml</DependentUpon>

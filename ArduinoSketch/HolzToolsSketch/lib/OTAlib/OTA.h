@@ -27,7 +27,6 @@ void taskOne( void * parameter )
 #endif
 
 void setupOTA(BluetoothSerial* btConnection, TaskHandle_t* taskHandle) {
-  const int maxlen = 40;
   uint8_t mac[6];
   WiFi.macAddress(mac);
 

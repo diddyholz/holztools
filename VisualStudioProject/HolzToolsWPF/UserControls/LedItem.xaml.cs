@@ -59,7 +59,7 @@ namespace HolzTools.UserControls
         private Color spinnerModeSpinnerColor = Color.FromRgb(255, 0, 0);
         private Color spinnerModeBackgroundColor = Color.FromRgb(255, 255, 255);
 
-        private Arduino arduino;
+        private Controller arduino;
 
         private List<Color> ledColorList = new List<Color>();
 
@@ -147,7 +147,7 @@ namespace HolzTools.UserControls
                     }
                     catch { }
 
-                    Arduino.AllArduinos.Remove(arduino);
+                    Controller.AllArduinos.Remove(arduino);
                 }
             }
             else
@@ -250,7 +250,7 @@ namespace HolzTools.UserControls
                 comPort = value;
                 OnPropertyChanged("ComPortName");
 
-                foreach (Arduino c in Arduino.AllArduinos)
+                foreach (Controller c in Controller.AllArduinos)
                 {
                     if (c.SerialPortName == value)
                     {
@@ -260,7 +260,7 @@ namespace HolzTools.UserControls
 
                 if (CorrespondingArduino == null)
                 {
-                    CorrespondingArduino = new Arduino();
+                    CorrespondingArduino = new Controller();
                 }
 
                 try
@@ -658,7 +658,7 @@ namespace HolzTools.UserControls
             }
         }
 
-        public Arduino CorrespondingArduino
+        public Controller CorrespondingArduino
         {
             get { return arduino; }
             set 

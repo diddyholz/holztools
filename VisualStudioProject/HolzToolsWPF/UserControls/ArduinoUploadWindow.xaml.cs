@@ -91,7 +91,7 @@ namespace HolzTools.UserControls
                 string downloadUrl = "";
 
                 //set the filename for the binary
-                fileName = MainWindow.ActiveWindow.ArduinoBinaryDirectory + $@"binary{downloadString[0]}ESP.hex";
+                fileName = MainWindow.ActiveWindow.ArduinoBinaryDirectory + $@"binary{downloadString[0]}ESP32.zip";
 
                 //delete the file if it already exists
                 if (File.Exists(fileName))
@@ -258,7 +258,7 @@ namespace HolzTools.UserControls
             {
                 byte hashVerified = 0;
 
-                string cmd = $"/c \".\\python.exe esptool.py --chip esp32 --port COM7 --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\bootloader_dio_40m.bin 0x8000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\partitions.bin 0xe000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\boot_app0.bin 0x10000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\firmware.bin\"";
+                string cmd = $"/c \".\\python.exe esptool.py --chip esp32 --port {comPortText} --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\bootloader_dio_40m.bin 0x8000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\partitions.bin 0xe000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\boot_app0.bin 0x10000 {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\firmware.bin\"";
 
                 System.Diagnostics.Process proc = new System.Diagnostics.Process();
 
@@ -333,19 +333,10 @@ namespace HolzTools.UserControls
 
             ProgressText = "Connecting";
 
-            //try to close open COM-ports
-            foreach (LedItem item in LedItem.AllItems)
-            {
-                if (item.ComPortName == comPortText)
-                {
-                    item.CloseSerial();
-                }
-            }
-
             //upload the binary
             try
             {
-                bool successfull = false;
+                bool successful = false;
 
                 string cmd = $"/c \".\\python.exe espota.py --debug --progress -i {comPortText.Substring(comPortText.IndexOf('(') + 1, comPortText.IndexOf(')') - comPortText.IndexOf('(') - 1)} -f {MainWindow.ActiveWindow.ArduinoBinaryDirectory}\\firmware.bin";
 
@@ -365,7 +356,7 @@ namespace HolzTools.UserControls
                         }
                         else if (eventargs.Data.Contains("Success"))
                         {
-                            successfull = true;
+                            successful = true;
                         }
                     }
                 };
@@ -374,7 +365,7 @@ namespace HolzTools.UserControls
 
                 proc.WaitForExit();
 
-                if (!successfull)
+                if (!successful)
                 {
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         IsFlashing = false;
